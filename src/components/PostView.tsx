@@ -21,6 +21,7 @@ export default function PostView({ post, related }: { post: Post | null; related
 
   const title = pick(post, "title", lang);
   const full = pick(post, "full", lang) || pick(post, "body", lang);
+  const isRich = /<(p|div|h[1-6]|ul|ol|li|br|blockquote|pre|strong|em|a)\b/i.test(full);
   const paras = full.split(/\n\n+/).filter((s) => s.trim());
 
   const media = () => {
@@ -46,7 +47,9 @@ export default function PostView({ post, related }: { post: Post | null; related
       <div className="post-text">
         <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(full)} {t("blog.min")}</span></div>
         <h1 className="post-title">{title}</h1>
-        {paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
+        {isRich
+          ? <div className="post-rich" dangerouslySetInnerHTML={{ __html: full }} />
+          : paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
       </div>
       <div className="post-share">
         <span className="post-share-label">{t("blog.share")}</span>

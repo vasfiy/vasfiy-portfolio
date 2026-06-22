@@ -39,6 +39,10 @@ export async function updateItem(id: string, obj: any) {
 }
 export async function deleteItem(id: string) { const { error } = await sb().from("items").delete().eq("id", id); if (error) throw error; }
 export async function setPinned(id: string, val: boolean) { await sb().from("items").update({ pinned: val }).eq("id", id); }
+export async function reorder(orderedIds: string[]) {
+  // assign sequential positions matching the given visual order
+  await Promise.all(orderedIds.map((id, i) => sb().from("items").update({ position: i }).eq("id", id)));
+}
 export async function moveItem(kind: string, id: string, dir: "up" | "down") {
   const { data: raw } = await sb().from("items").select("id,position").eq("kind", kind);
   if (!raw) return;

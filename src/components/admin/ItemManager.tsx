@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import type { Collection, Field } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
+import RichText from "./RichText";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -11,6 +12,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
     const v = f.t === "list" && Array.isArray(value) ? value.join("\n") : (value || "");
     return <textarea rows={f.t === "list" ? 3 : 4} value={v} placeholder={f.ph} onChange={(e) => onChange(e.target.value)} />;
   }
+  if (f.t === "html") return <RichText value={value || ""} onChange={onChange} placeholder={f.ph} />;
   if (f.t === "select") return <select value={value || f.opts?.[0]} onChange={(e) => onChange(e.target.value)}>{f.opts?.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
   if (f.t === "cat") {
     const keys = Object.keys(cats);
@@ -64,6 +66,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const [cats, setCats] = useState<Record<string, any>>({});
   const [form, setForm] = useState<any>({});
   const [editId, setEditId] = useState<string | null>(null);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [msg, setMsg] = useState("");
   const [albumFiles, setAlbumFiles] = useState<{ url: string; type: string }[]>([]);
   const [albumMeta, setAlbumMeta] = useState({ album: "", cat: "", caption: "" });
@@ -92,6 +95,14 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const remove = async (it: any) => { if (!confirm("Delete this item?")) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
+  const dropTo = async (toIdx: number) => {
+    if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
+    const arr = items.slice();
+    const [moved] = arr.splice(dragIdx, 1);
+    arr.splice(toIdx, 0, moved);
+    setItems(arr); setDragIdx(null);
+    try { await A.reorder(arr.map((x) => x.__id)); await load(); } catch {}
+  };
 
   // Gallery album multi-upload
   const addAlbumFiles = async (files: FileList) => {
@@ -144,7 +155,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
       <div className="ad-card">
         <h3>{editId ? "Edit item" : "Add new"}</h3>
-        <div className="ad-form">
+        <div className="ad-form" key={editId || "new"}>
           {c.fields.map((f) => (
             <label className="ad-field" key={f.k}>
               <span>{f.label}</span>
@@ -161,8 +172,12 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
       <div className="ad-list">
         {items.length === 0 && <p className="ad-hint">No items yet.</p>}
-        {items.map((it) => (
-          <div className={"ad-item" + (editId === it.__id ? " active" : "")} key={it.__id}>
+        {items.length > 1 && <p className="ad-hint">Drag ⠿ to reorder.</p>}
+        {items.map((it, idx) => (
+          <div className={"ad-item" + (editId === it.__id ? " active" : "") + (dragIdx === idx ? " dragging" : "")} key={it.__id}
+            draggable onDragStart={() => setDragIdx(idx)} onDragEnd={() => setDragIdx(null)}
+            onDragOver={(e) => e.preventDefault()} onDrop={() => dropTo(idx)}>
+            <span className="ad-drag" title="Drag to reorder">⠿</span>
             <span className="ad-item-title">{it.pinned ? "📌 " : ""}{c.title(it)}</span>
             <span className="ad-item-actions">
               <button title="Pin" className={it.pinned ? "on" : ""} onClick={() => togglePin(it)}>📌</button>

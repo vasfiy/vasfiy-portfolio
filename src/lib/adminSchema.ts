@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat";
+export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat" | "html";
 export interface Field { k: string; label: string; t: FieldType; opts?: string[]; ph?: string; accept?: string; }
 export interface Collection {
   kind: string;        // items.kind value
@@ -37,8 +37,8 @@ export const COLLECTIONS: Collection[] = [
       { k: "titleUz", label: "Title (UZ)", t: "text" },
       { k: "body", label: "Short text (EN)", t: "textarea" },
       { k: "bodyUz", label: "Short text (UZ)", t: "textarea" },
-      { k: "full", label: "Full article (EN)", t: "textarea" },
-      { k: "fullUz", label: "Full article (UZ)", t: "textarea" },
+      { k: "full", label: "Full article (EN) — rich text", t: "html" },
+      { k: "fullUz", label: "Full article (UZ) — rich text", t: "html" },
       { k: "location", label: "Location", t: "text" },
     ],
     title: (i) => (i.title || i.titleUz || "(untitled)") + (i.date ? " · " + i.date : ""),
@@ -122,8 +122,8 @@ export const COLLECTIONS: Collection[] = [
       { k: "cat", label: "Category key", t: "cat" },
       { k: "title", label: "Title (EN)", t: "text" },
       { k: "titleUz", label: "Title (UZ)", t: "text" },
-      { k: "body", label: "Lesson body (EN) — HTML allowed", t: "textarea" },
-      { k: "bodyUz", label: "Lesson body (UZ) — HTML allowed", t: "textarea" },
+      { k: "body", label: "Lesson body (EN) — rich text", t: "html" },
+      { k: "bodyUz", label: "Lesson body (UZ) — rich text", t: "html" },
       { k: "commands", label: "Try-in-terminal commands (one per line)", t: "list" },
       { k: "attachments", label: "Attachments — HTML / PDF / image / video / any", t: "files" },
     ],
@@ -133,8 +133,8 @@ export const COLLECTIONS: Collection[] = [
     kind: "challenge", id: "challenges", label: "CTF Challenges", icon: "🏴",
     fields: [
       { k: "title", label: "Title (EN)", t: "text" }, { k: "titleUz", label: "Title (UZ)", t: "text" },
-      { k: "prompt", label: "Task / question (EN) — HTML allowed", t: "textarea" },
-      { k: "promptUz", label: "Task / question (UZ)", t: "textarea" },
+      { k: "prompt", label: "Task / question (EN) — rich text", t: "html" },
+      { k: "promptUz", label: "Task / question (UZ) — rich text", t: "html" },
       { k: "command", label: "Terminal command to try (optional)", t: "text", ph: "cat /var/log/auth.log" },
       { k: "answer", label: "Correct answer / flag (exact match)", t: "text" },
       { k: "points", label: "Points", t: "text", ph: "20" },
