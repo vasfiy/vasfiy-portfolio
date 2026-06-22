@@ -129,6 +129,20 @@ export const COLLECTIONS: Collection[] = [
     ],
     title: (i) => (i.title || i.titleUz || "(lesson)") + (i.cat ? " · " + i.cat : ""),
   },
+  {
+    kind: "challenge", id: "challenges", label: "CTF Challenges", icon: "🏴",
+    fields: [
+      { k: "title", label: "Title (EN)", t: "text" }, { k: "titleUz", label: "Title (UZ)", t: "text" },
+      { k: "prompt", label: "Task / question (EN) — HTML allowed", t: "textarea" },
+      { k: "promptUz", label: "Task / question (UZ)", t: "textarea" },
+      { k: "command", label: "Terminal command to try (optional)", t: "text", ph: "cat /var/log/auth.log" },
+      { k: "answer", label: "Correct answer / flag (exact match)", t: "text" },
+      { k: "points", label: "Points", t: "text", ph: "20" },
+      { k: "hint", label: "Hint (EN)", t: "text" }, { k: "hintUz", label: "Hint (UZ)", t: "text" },
+      { k: "cat", label: "Category key", t: "text", ph: "linux / security / networking" },
+    ],
+    title: (i) => (i.title || i.titleUz || "(challenge)") + (i.points ? ` · ${i.points} pts` : ""),
+  },
 ];
 
 /* Site text (settings.siteText) — grouped for a friendlier editor */

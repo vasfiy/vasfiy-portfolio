@@ -9,6 +9,7 @@ export interface Language { label?: string; labelUz?: string; pct?: number | str
 export interface Photo { src?: string; emoji?: string; album?: string; albumUz?: string; cat?: string; caption?: string; captionUz?: string; location?: string; video?: boolean; pinned?: boolean; __id?: string; }
 export interface Post { type?: "text" | "image" | "video" | "youtube"; media?: string; title?: string; titleUz?: string; body?: string; bodyUz?: string; full?: string; fullUz?: string; date?: string; location?: string; cat?: string; pinned?: boolean; __id?: string; }
 export interface Book { title?: string; titleUz?: string; author?: string; desc?: string; descUz?: string; cover?: string; file?: string; cat?: string; pinned?: boolean; __id?: string; }
+export interface Challenge { title?: string; titleUz?: string; prompt?: string; promptUz?: string; command?: string; hint?: string; hintUz?: string; answer?: string; points?: number | string; cat?: string; pinned?: boolean; __id?: string; }
 export interface Category { en?: string; uz?: string; icon?: string; }
 
 export interface SiteData {
@@ -21,6 +22,7 @@ export interface SiteData {
   projects: Project[];
   education: Education[];
   languages: Language[];
+  challenges: Challenge[];
   galleryCats: Record<string, Category>;
   bookCats: Record<string, Category>;
   settings: Record<string, any>;
