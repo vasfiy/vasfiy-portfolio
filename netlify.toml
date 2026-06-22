@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Public anon key — safe to expose (browser-side); RLS protects writes.
+[build.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "https://ogdgvnnjbjwrbaobharh.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nZGd2bm5qYmp3cmJhb2JoYXJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTY5MDgsImV4cCI6MjA5NzM3MjkwOH0.CluVGdlwng_foJAx-8cAIakHbaX9MPMCSVyt7kpHheU"
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
