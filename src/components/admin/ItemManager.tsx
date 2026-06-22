@@ -4,9 +4,11 @@ import type { Collection, Field } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
+import CropModal from "./CropModal";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   if (f.t === "textarea" || f.t === "list") {
     const v = f.t === "list" && Array.isArray(value) ? value.join("\n") : (value || "");
@@ -45,15 +47,18 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
   }
   if (f.t === "image" || f.t === "file") {
     const isImage = f.t === "image";
+    const doUpload = async (file: File) => { setBusy(true); try { const url = await onUpload(file, isImage); onChange(url); } finally { setBusy(false); } };
     return (
       <div className="ad-upload">
-        <input ref={fileRef} type="file" accept={f.accept || (isImage ? "image/*" : undefined)} hidden onChange={async (e) => {
-          const file = e.target.files?.[0]; if (!file) return; setBusy(true);
-          try { const url = await onUpload(file, isImage); onChange(url); } finally { setBusy(false); if (fileRef.current) fileRef.current.value = ""; }
+        <input ref={fileRef} type="file" accept={f.accept || (isImage ? "image/*" : undefined)} hidden onChange={(e) => {
+          const file = e.target.files?.[0]; if (!file) return;
+          if (isImage && /^image\//.test(file.type) && !/gif|svg/.test(file.type)) setCropFile(file); else doUpload(file);
+          if (fileRef.current) fileRef.current.value = "";
         }} />
         <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? "⏳ Uploading…" : (value ? "Replace" : "Upload")}</button>
         {value && (isImage ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 file ↗</a>)}
         <input type="text" value={value || ""} placeholder="…or paste a URL" onChange={(e) => onChange(e.target.value)} />
+        {cropFile && <CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); doUpload(f2); }} />}
       </div>
     );
   }

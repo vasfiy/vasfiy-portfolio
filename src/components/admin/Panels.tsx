@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SITE_GROUPS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
+import CropModal from "./CropModal";
 
 /* ---------------- Site text + Profile/CV ---------------- */
 const EXPLORE_KEYS: { k: string; label: string }[] = [
@@ -78,14 +79,17 @@ export function SiteText() {
 function Uploader({ label, value, accept, image, onDone }: { label: string; value: string; accept: string; image?: boolean; onDone: (url: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const up = async (f: File) => { setBusy(true); try { const file = image ? await A.compressImage(f, 1600, 0.88) : f; onDone(await A.uploadFile(file)); } finally { setBusy(false); } };
   return (
     <div className="ad-field">
       <span>{label}</span>
       <div className="ad-upload">
-        <input ref={ref} type="file" accept={accept} hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; setBusy(true); try { const file = image ? await A.compressImage(f, 800, 0.85) : f; onDone(await A.uploadFile(file)); } finally { setBusy(false); } }} />
+        <input ref={ref} type="file" accept={accept} hidden onChange={(e) => { const f = e.target.files?.[0]; if (!f) return; if (image && /^image\//.test(f.type) && !/gif|svg/.test(f.type)) setCropFile(f); else up(f); if (ref.current) ref.current.value = ""; }} />
         <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => ref.current?.click()}>{busy ? "⏳…" : value ? "Replace" : "Upload"}</button>
         {value && (image ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 current ↗</a>)}
       </div>
+      {cropFile && <CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); up(f2); }} />}
     </div>
   );
 }
