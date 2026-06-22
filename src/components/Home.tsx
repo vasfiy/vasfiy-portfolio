@@ -51,7 +51,6 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   const badge = pick(st, "heroBadge", lang) || "Open to relocation · Europe";
   const desc = pick(st, "heroDesc", lang) || "Aspiring SOC Analyst with hands-on experience in blue-team operations, threat monitoring, and network analysis.";
-  const cv = data.settings.cvUrl;
   const soc = st;
 
   return (
@@ -67,7 +66,7 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
         <p className="hero-desc">{desc}</p>
         <div className="hero-cta">
           <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
-          {cv && <a href={cv} download className="btn btn-ghost">↓ {t("hero.cv")}</a>}
+          <Link href="/cv" className="btn btn-ghost">📄 {t("hero.cv")}</Link>
           <a href="#projects" className="btn btn-ghost">{t("hero.work")}</a>
         </div>
         <div className="hero-socials">
@@ -382,6 +381,8 @@ function Contact({ st }: { st: any }) {
     try {
       const { error } = await supabase.from("messages").insert(payload);
       if (error) throw error;
+      // fire-and-forget email notification (no-op unless RESEND env is set)
+      fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
       setStatus({ kind: "ok", msg: t("contact.sent") }); f.reset();
     } catch {
       setStatus({ kind: "err", msg: t("contact.error") });
