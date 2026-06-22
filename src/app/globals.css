@@ -1102,7 +1102,10 @@ a.blog-viewall { width: max-content; }
 .ad-form { display: grid; gap: 12px; }
 .ad-field { display: flex; flex-direction: column; gap: 5px; }
 .ad-field > span { font-size: .82rem; color: var(--text-dim); }
-.ad-app input[type=text], .ad-app input[type=email], .ad-app input[type=password], .ad-app textarea, .ad-app select, .ad-lock input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; color: var(--text); font: inherit; font-size: .92rem; }
+.ad-app input:not([type=checkbox]):not([type=file]), .ad-app textarea, .ad-app select, .ad-lock input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; color: var(--text); font: inherit; font-size: .92rem; transition: border-color .15s; }
+.ad-app input:not([type=checkbox]):not([type=file]):focus, .ad-app textarea:focus, .ad-app select:focus, .ad-lock input:focus { outline: none; border-color: var(--cyan); }
+.ad-app input::placeholder, .ad-app textarea::placeholder { color: var(--text-faint); }
+.ad-app select option { background: var(--bg); color: var(--text); }
 .ad-app textarea { resize: vertical; }
 .ad-check { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--text-dim); }
 .ad-check input { width: auto; }

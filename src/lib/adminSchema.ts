@@ -115,6 +115,19 @@ export const COLLECTIONS: Collection[] = [
     ],
     title: (i) => i.title || i.titleUz || "(book)",
   },
+  {
+    kind: "lesson", id: "lessons", label: "Linux Lab", icon: "🐧", cats: true, addTop: true,
+    fields: [
+      { k: "date", label: "Date", t: "text", ph: "2026-06-20" },
+      { k: "cat", label: "Category key", t: "cat" },
+      { k: "title", label: "Title (EN)", t: "text" },
+      { k: "titleUz", label: "Title (UZ)", t: "text" },
+      { k: "body", label: "Lesson body (EN) — HTML allowed", t: "textarea" },
+      { k: "bodyUz", label: "Lesson body (UZ) — HTML allowed", t: "textarea" },
+      { k: "commands", label: "Try-in-terminal commands (one per line)", t: "list" },
+    ],
+    title: (i) => (i.title || i.titleUz || "(lesson)") + (i.cat ? " · " + i.cat : ""),
+  },
 ];
 
 /* Site text (settings.siteText) — grouped for a friendlier editor */
