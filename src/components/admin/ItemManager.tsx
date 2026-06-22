@@ -1,0 +1,176 @@
+"use client";
+import { useEffect, useState, useCallback, useRef } from "react";
+import type { Collection, Field } from "@/lib/adminSchema";
+import * as A from "@/lib/admin";
+
+function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  if (f.t === "textarea" || f.t === "list") {
+    const v = f.t === "list" && Array.isArray(value) ? value.join("\n") : (value || "");
+    return <textarea rows={f.t === "list" ? 3 : 4} value={v} placeholder={f.ph} onChange={(e) => onChange(e.target.value)} />;
+  }
+  if (f.t === "select") return <select value={value || f.opts?.[0]} onChange={(e) => onChange(e.target.value)}>{f.opts?.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
+  if (f.t === "cat") {
+    const keys = Object.keys(cats);
+    return (
+      <div className="ad-row">
+        <input type="text" value={value || ""} placeholder="category key" list={"cats-" + f.k} onChange={(e) => onChange(e.target.value)} />
+        <datalist id={"cats-" + f.k}>{keys.map((k) => <option key={k} value={k} />)}</datalist>
+      </div>
+    );
+  }
+  if (f.t === "image" || f.t === "file") {
+    const isImage = f.t === "image";
+    return (
+      <div className="ad-upload">
+        <input ref={fileRef} type="file" accept={f.accept || (isImage ? "image/*" : undefined)} hidden onChange={async (e) => {
+          const file = e.target.files?.[0]; if (!file) return; setBusy(true);
+          try { const url = await onUpload(file, isImage); onChange(url); } finally { setBusy(false); if (fileRef.current) fileRef.current.value = ""; }
+        }} />
+        <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? "⏳ Uploading…" : (value ? "Replace" : "Upload")}</button>
+        {value && (isImage ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 file ↗</a>)}
+        <input type="text" value={value || ""} placeholder="…or paste a URL" onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  return <input type="text" value={value || ""} placeholder={f.ph} onChange={(e) => onChange(e.target.value)} />;
+}
+
+export default function ItemManager({ collection }: { collection: Collection }) {
+  const c = collection;
+  const [items, setItems] = useState<any[]>([]);
+  const [cats, setCats] = useState<Record<string, any>>({});
+  const [form, setForm] = useState<any>({});
+  const [editId, setEditId] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
+  const [albumFiles, setAlbumFiles] = useState<{ url: string; type: string }[]>([]);
+  const [albumMeta, setAlbumMeta] = useState({ album: "", cat: "", caption: "" });
+  const [albumBusy, setAlbumBusy] = useState(false);
+  const albumInput = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(async () => {
+    setItems(await A.listItems(c.kind));
+    if (c.cats) setCats(await A.listCats(c.kind));
+  }, [c.kind, c.cats]);
+  useEffect(() => { load(); setForm({}); setEditId(null); }, [load]);
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2500); };
+  const upload = async (file: File, isImage: boolean) => { const f = isImage ? await A.compressImage(file) : file; return A.uploadFile(f); };
+
+  const save = async () => {
+    const obj: any = { ...form };
+    c.fields.forEach((f) => { if (f.t === "list" && typeof obj[f.k] === "string") obj[f.k] = obj[f.k].split("\n").map((s: string) => s.trim()).filter(Boolean); });
+    if (c.kind === "blog" && obj.media && (obj.type === "image" || obj.type === "video") && !/^https?:|^data:/.test(obj.media)) { /* keep */ }
+    try {
+      if (editId) await A.updateItem(editId, obj); else await A.addItem(c.kind, obj);
+      setForm({}); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
+    } catch (e: any) { flash("Error: " + (e.message || e)); }
+  };
+  const edit = (it: any) => { setEditId(it.__id); setForm({ ...it }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const remove = async (it: any) => { if (!confirm("Delete this item?")) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
+  const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
+  const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
+
+  // Gallery album multi-upload
+  const addAlbumFiles = async (files: FileList) => {
+    setAlbumBusy(true);
+    for (const f of Array.from(files)) {
+      try { const isVid = f.type.startsWith("video"); const file = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch {}
+    }
+    setAlbumBusy(false);
+  };
+  const postAlbum = async () => {
+    if (!albumFiles.length) return; setAlbumBusy(true);
+    try {
+      for (const m of albumFiles) {
+        const obj: any = { src: m.url, caption: albumMeta.caption, captionUz: albumMeta.caption };
+        if (albumMeta.album) { obj.album = albumMeta.album; obj.albumUz = albumMeta.album; }
+        if (albumMeta.cat) obj.cat = albumMeta.cat;
+        if (m.type === "video") obj.video = true;
+        await A.addItem("gallery", obj);
+      }
+      const n = albumFiles.length; setAlbumFiles([]); setAlbumMeta({ album: "", cat: "", caption: "" }); await load();
+      flash(`✓ ${n} photo${n > 1 ? "s" : ""} posted`);
+    } catch (e: any) { flash("Error: " + (e.message || e)); } finally { setAlbumBusy(false); }
+  };
+
+  return (
+    <div className="ad-section">
+      <div className="ad-head"><h2>{c.icon} {c.label}</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
+
+      {c.album && (
+        <div className="ad-card">
+          <h3>📸 New album / photos</h3>
+          <div className="ad-grid2">
+            <input placeholder="Album name (optional)" value={albumMeta.album} onChange={(e) => setAlbumMeta({ ...albumMeta, album: e.target.value })} />
+            <input placeholder="Category key (optional)" value={albumMeta.cat} list="cats-album" onChange={(e) => setAlbumMeta({ ...albumMeta, cat: e.target.value })} />
+            <datalist id="cats-album">{Object.keys(cats).map((k) => <option key={k} value={k} />)}</datalist>
+          </div>
+          <input placeholder="Caption for all (optional)" value={albumMeta.caption} onChange={(e) => setAlbumMeta({ ...albumMeta, caption: e.target.value })} />
+          <div className="ad-dropzone" onClick={() => albumInput.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files.length) addAlbumFiles(e.dataTransfer.files); }}>
+            <input ref={albumInput} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files?.length) addAlbumFiles(e.target.files); }} />
+            {albumBusy ? "⏳ Uploading…" : "⬆ Drop photos or click — select 30+ at once"}
+          </div>
+          {albumFiles.length > 0 && <div className="ad-thumbs">{albumFiles.map((m, i) => <div className="ad-tn" key={i}>{m.type === "video" ? <video src={m.url} muted /> : <img src={m.url} alt="" />}<button onClick={() => setAlbumFiles((p) => p.filter((_, j) => j !== i))}>✕</button></div>)}</div>}
+          {albumFiles.length > 0 && <button className="btn btn-primary" disabled={albumBusy} onClick={postAlbum}>Post album ({albumFiles.length})</button>}
+        </div>
+      )}
+
+      {c.cats && <CategoryManager kind={c.kind} cats={cats} reload={load} />}
+
+      <div className="ad-card">
+        <h3>{editId ? "Edit item" : "Add new"}</h3>
+        <div className="ad-form">
+          {c.fields.map((f) => (
+            <label className="ad-field" key={f.k}>
+              <span>{f.label}</span>
+              <FieldInput f={f} value={form[f.k]} cats={cats} onUpload={upload} onChange={(v) => setForm((p: any) => ({ ...p, [f.k]: v }))} />
+            </label>
+          ))}
+          <label className="ad-check"><input type="checkbox" checked={!!form.pinned} onChange={(e) => setForm((p: any) => ({ ...p, pinned: e.target.checked }))} /> 📌 Pinned</label>
+        </div>
+        <div className="ad-actions">
+          <button className="btn btn-primary" onClick={save}>{editId ? "Save changes" : "Add"}</button>
+          {editId && <button className="btn btn-ghost" onClick={() => { setForm({}); setEditId(null); }}>Cancel</button>}
+        </div>
+      </div>
+
+      <div className="ad-list">
+        {items.length === 0 && <p className="ad-hint">No items yet.</p>}
+        {items.map((it) => (
+          <div className={"ad-item" + (editId === it.__id ? " active" : "")} key={it.__id}>
+            <span className="ad-item-title">{it.pinned ? "📌 " : ""}{c.title(it)}</span>
+            <span className="ad-item-actions">
+              <button title="Pin" className={it.pinned ? "on" : ""} onClick={() => togglePin(it)}>📌</button>
+              <button title="Up" onClick={() => move(it, "up")}>↑</button>
+              <button title="Down" onClick={() => move(it, "down")}>↓</button>
+              <button title="Edit" onClick={() => edit(it)}>✎</button>
+              <button title="Delete" className="danger" onClick={() => remove(it)}>🗑</button>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<string, any>; reload: () => Promise<void> }) {
+  const [n, setN] = useState({ key: "", en: "", uz: "", icon: "" });
+  return (
+    <div className="ad-card">
+      <h3>Categories</h3>
+      <div className="ad-cats">
+        {Object.entries(cats).map(([k, v]: any) => (
+          <div className="ad-cat" key={k}><b>{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}</span><button className="danger" onClick={async () => { if (confirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button></div>
+        ))}
+      </div>
+      <div className="ad-grid4">
+        <input placeholder="key" value={n.key} onChange={(e) => setN({ ...n, key: e.target.value })} />
+        <input placeholder="EN" value={n.en} onChange={(e) => setN({ ...n, en: e.target.value })} />
+        <input placeholder="UZ" value={n.uz} onChange={(e) => setN({ ...n, uz: e.target.value })} />
+        <button className="btn btn-ghost btn-sm" onClick={async () => { if (!n.key) return; await A.saveCat(kind, n.key.trim(), n); setN({ key: "", en: "", uz: "", icon: "" }); await reload(); }}>Add</button>
+      </div>
+    </div>
+  );
+}
