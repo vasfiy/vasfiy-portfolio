@@ -1170,3 +1170,25 @@ a.blog-viewall { width: max-content; }
 
 /* Admin avatar (profile photo in sidebar brand) */
 .ad-avatar { width: 30px; height: 30px; border-radius: 9px; object-fit: cover; }
+
+/* Home gallery preview strip */
+.gprev-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.gprev-tile { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); border: 1px solid var(--border); display: block; }
+.gprev-tile img, .gprev-tile video { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.gprev-tile:hover img, .gprev-tile:hover video { transform: scale(1.07); }
+.gprev-tile .vid-badge { position: absolute; top: 8px; right: 8px; }
+@media (max-width: 760px) { .gprev-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Lesson attachments (admin list + public display) */
+.ad-files { display: flex; flex-direction: column; gap: 8px; }
+.ad-file-list { display: flex; flex-direction: column; gap: 4px; }
+.ad-file-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: .85rem; }
+.ad-file-row a { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-file-row button { background: none; border: 0; color: var(--text-dim); cursor: pointer; }
+.ad-file-row button:hover { color: #ff6b6b; }
+.lesson-files { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.lesson-att { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); color: var(--ink-accent); font-size: .88rem; font-weight: 600; transition: border-color .15s, transform .15s; }
+.lesson-att:hover { border-color: var(--ink-accent); transform: translateY(-2px); }
+.lesson-att-img { display: block; width: 120px; height: 84px; border-radius: 9px; overflow: hidden; border: 1px solid var(--border); }
+.lesson-att-img img { width: 100%; height: 100%; object-fit: cover; }
+.lesson-att-vid { width: 240px; max-width: 100%; border-radius: 9px; border: 1px solid var(--border); }

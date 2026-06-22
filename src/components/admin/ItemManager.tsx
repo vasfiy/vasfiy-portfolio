@@ -20,6 +20,26 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
       </div>
     );
   }
+  if (f.t === "files") {
+    const list: any[] = Array.isArray(value) ? value : [];
+    const ic = (ty = "") => (/^image/.test(ty) ? "🖼" : /video/.test(ty) ? "🎬" : /pdf/.test(ty) ? "📄" : /html/.test(ty) ? "🌐" : "📎");
+    return (
+      <div className="ad-files">
+        <input ref={fileRef} type="file" multiple hidden onChange={async (e) => {
+          const files = e.target.files; if (!files) return; setBusy(true);
+          const added: any[] = [];
+          for (const file of Array.from(files)) { try { const url = await onUpload(file, file.type.startsWith("image")); added.push({ url, name: file.name, type: file.type }); } catch {} }
+          onChange([...list, ...added]); setBusy(false); if (fileRef.current) fileRef.current.value = "";
+        }} />
+        <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? "⏳ Uploading…" : "+ Add files (HTML / PDF / image / video)"}</button>
+        <div className="ad-file-list">
+          {list.map((a, i) => (
+            <div className="ad-file-row" key={i}><a href={a.url} target="_blank" rel="noopener">{ic(a.type)} {a.name || a.url}</a><button type="button" onClick={() => onChange(list.filter((_, j) => j !== i))}>✕</button></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (f.t === "image" || f.t === "file") {
     const isImage = f.t === "image";
     return (

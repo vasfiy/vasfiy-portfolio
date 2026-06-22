@@ -6,7 +6,7 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import Counter from "./Counter";
 import { pick } from "@/lib/i18n";
-import { pinSort, groupAlbums, blogSort } from "@/lib/data";
+import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime } from "@/lib/data";
 import { supabase } from "@/lib/data";
 import type { SiteData, Lang } from "@/lib/types";
 
@@ -21,6 +21,8 @@ export default function Home({ data }: { data: SiteData }) {
       <Skills data={data} />
       <Experience data={data} />
       <Projects data={data} />
+      <JournalPreview data={data} />
+      <GalleryPreview data={data} />
       <Education data={data} />
       <Explore data={data} />
       <Contact st={st} />
@@ -254,6 +256,76 @@ function Education({ data }: { data: SiteData }) {
   );
 }
 
+/* ---------------- Journal preview (latest posts) ---------------- */
+function JournalPreview({ data }: { data: SiteData }) {
+  const { lang, t } = useLang();
+  const posts = blogSort(data.blog).slice(0, 3);
+  if (!posts.length) return null;
+  const thumb = (p: any, title: string) => {
+    if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={p.media} alt={title} loading="lazy" /></div>;
+    if (p.type === "video" && p.media) return <div className="bl-thumb"><video src={p.media} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
+    if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
+    return <div className="bl-thumb bl-thumb-text"><span>📝</span></div>;
+  };
+  return (
+    <section className="section" id="journal">
+      <div className="container">
+        <Reveal className="section-head">
+          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("nav.journal")}</span></span>
+          <h2 className="section-title">{t("explore.journalDesc")}</h2>
+        </Reveal>
+        <Reveal className="bl-grid">
+          {posts.map((p, i) => {
+            const title = pick(p, "title", lang), body = pick(p, "body", lang);
+            const full = pick(p, "full", lang) || body;
+            return (
+              <Link className="bl-card glass" key={p.__id || i} href={`/blog/${p.__id ?? i}`}>
+                {p.pinned && <span className="pin-badge">📌</span>}
+                {thumb(p, title)}
+                <div className="bl-body">
+                  <div className="blog-meta"><span>{fmtDate(p.date, lang)}</span>{p.location && <span className="b-loc">📍 {p.location}</span>}<span className="read-time">⏱ {readingTime(full)} {t("blog.min")}</span></div>
+                  <h3>{title}</h3><p>{body}</p><span className="bl-read">{t("blog.read")}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </Reveal>
+        <Link className="btn btn-ghost blog-viewall" href="/blog">{t("blog.viewall")}</Link>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Gallery preview (latest photos) ---------------- */
+function GalleryPreview({ data }: { data: SiteData }) {
+  const { lang, t } = useLang();
+  const httpOnly = (u?: string) => (u && /^https?:\/\//.test(u) ? u : undefined);
+  const photos = pinSort(data.gallery).filter((p) => httpOnly(p.src)).slice(0, 8);
+  if (!photos.length) return null;
+  const keyOf = (it: any) => (it.album ? "a:" + it.album : it.cat ? "c:" + it.cat : "a:Gallery");
+  return (
+    <section className="section" id="gallery-preview">
+      <div className="container">
+        <Reveal className="section-head">
+          <span className="section-kicker"><span className="kicker-num">08</span> <span>{t("nav.gallery")}</span></span>
+          <h2 className="section-title">{t("explore.galleryDesc")}</h2>
+        </Reveal>
+        <Reveal className="gprev-grid">
+          {photos.map((p, i) => {
+            const v = p.video || isVideo(p.src);
+            return (
+              <Link key={i} className="gprev-tile" href={`/gallery/${encodeURIComponent(keyOf(p))}`} aria-label={pick(p, "caption", lang) || "photo"}>
+                {v ? <><video src={p.src} muted preload="metadata" /><span className="vid-badge">▶</span></> : <img src={p.src!} alt={pick(p, "caption", lang)} loading="lazy" />}
+              </Link>
+            );
+          })}
+        </Reveal>
+        <Link className="btn btn-ghost blog-viewall" href="/gallery">{t("gallery.viewall")}</Link>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- Explore (digests) ---------------- */
 function Explore({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
@@ -261,9 +333,8 @@ function Explore({ data }: { data: SiteData }) {
   const posts = blogSort(data.blog);
   const httpOnly = (u?: string) => (u && /^https?:\/\//.test(u) ? u : undefined);
   const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
+  void albums; void posts;
   const cards = [
-    { id: "gallery", href: "/gallery", icon: "🖼️", title: t("nav.gallery"), desc: t("explore.galleryDesc"), meta: `${albums.length} ${albums.length === 1 ? "album" : "albums"} · ${data.gallery.length} ${t("gallery.photos")}`, cover: httpOnly(ec.gallery) || httpOnly(albums.map((a) => a.photos.find((p) => httpOnly(p.src)))[0]?.src) },
-    { id: "blog", href: "/blog", icon: "📝", title: t("nav.journal"), desc: t("explore.journalDesc"), meta: `${posts.length} ${posts.length === 1 ? "post" : "posts"}`, cover: httpOnly(ec.blog) || httpOnly(posts.find((p) => p.type === "image" && httpOnly(p.media))?.media) },
     { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
     { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
   ];

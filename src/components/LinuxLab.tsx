@@ -100,6 +100,17 @@ export default function LinuxLab({ lessons, cats }: { lessons: any[]; cats: Reco
                     <div className="lesson-meta">{l.date && <span className="lesson-date">{l.date}</span>}{l.cat && <span className="lesson-cat">{cat.icon || ""} {(cat[lang] || cat.en || l.cat)}</span>}</div>
                     <h3>{title}</h3>
                     <div className="lesson-body" dangerouslySetInnerHTML={{ __html: body }} />
+                    {(l.attachments || []).length > 0 && (
+                      <div className="lesson-files">
+                        {(l.attachments as any[]).map((a, i) => {
+                          const ty = a.type || "";
+                          if (/^image/.test(ty)) return <a className="lesson-att-img" key={i} href={a.url} target="_blank" rel="noopener"><img src={a.url} alt={a.name || ""} loading="lazy" /></a>;
+                          if (/video/.test(ty)) return <video className="lesson-att-vid" key={i} src={a.url} controls preload="metadata" />;
+                          const icon = /pdf/.test(ty) ? "📄" : /html/.test(ty) ? "🌐" : "📎";
+                          return <a className="lesson-att" key={i} href={a.url} target="_blank" rel="noopener">{icon} {a.name || "file"} ↗</a>;
+                        })}
+                      </div>
+                    )}
                     {(l.commands || []).length > 0 && (
                       <div className="lesson-cmds"><span className="lesson-cmds-label">{T.tryIt}</span>
                         {(l.commands as string[]).map((cmd, i) => <button className="cmd-chip" key={i} onClick={() => runCmd(cmd)}>{cmd}</button>)}

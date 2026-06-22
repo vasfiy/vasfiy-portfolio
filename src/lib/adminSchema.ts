@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "cat";
+export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat";
 export interface Field { k: string; label: string; t: FieldType; opts?: string[]; ph?: string; accept?: string; }
 export interface Collection {
   kind: string;        // items.kind value
@@ -125,6 +125,7 @@ export const COLLECTIONS: Collection[] = [
       { k: "body", label: "Lesson body (EN) — HTML allowed", t: "textarea" },
       { k: "bodyUz", label: "Lesson body (UZ) — HTML allowed", t: "textarea" },
       { k: "commands", label: "Try-in-terminal commands (one per line)", t: "list" },
+      { k: "attachments", label: "Attachments — HTML / PDF / image / video / any", t: "files" },
     ],
     title: (i) => (i.title || i.titleUz || "(lesson)") + (i.cat ? " · " + i.cat : ""),
   },
