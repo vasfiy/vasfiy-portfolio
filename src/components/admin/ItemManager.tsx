@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { Collection, Field } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
+import AlbumManager from "./AlbumManager";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -136,6 +137,8 @@ export default function ItemManager({ collection }: { collection: Collection }) 
           {albumFiles.length > 0 && <button className="btn btn-primary" disabled={albumBusy} onClick={postAlbum}>Post album ({albumFiles.length})</button>}
         </div>
       )}
+
+      {c.album && <AlbumManager cats={cats} onChange={load} />}
 
       {c.cats && <CategoryManager kind={c.kind} cats={cats} reload={load} />}
 
