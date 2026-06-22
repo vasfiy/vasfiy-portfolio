@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import SiteFrame from "@/components/SiteFrame";
+import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vasfiy.uz"),
@@ -14,8 +15,12 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300e5ff'/%3E%3Cstop offset='1' stop-color='%237c5cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M50 6 L86 20 V48 C86 72 70 88 50 96 C30 88 14 72 14 48 V20 Z' fill='url(%23g)'/%3E%3Ctext x='50' y='62' font-family='Arial' font-size='34' font-weight='bold' fill='%230a0e1a' text-anchor='middle'%3EKT%3C/text%3E%3C/svg%3E" },
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Kamoliddin" },
+  alternates: { types: { "application/rss+xml": "/feed.xml" } },
 };
+
+export const viewport: Viewport = { themeColor: "#0a0e1a" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -32,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <SiteFrame>{children}</SiteFrame>
         </Providers>
+        <PWARegister />
       </body>
     </html>
   );
