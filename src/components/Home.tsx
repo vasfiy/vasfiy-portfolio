@@ -260,11 +260,12 @@ function Explore({ data }: { data: SiteData }) {
   const albums = groupAlbums(data.gallery);
   const posts = blogSort(data.blog);
   const httpOnly = (u?: string) => (u && /^https?:\/\//.test(u) ? u : undefined);
+  const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
   const cards = [
-    { href: "/gallery", icon: "🖼️", title: t("nav.gallery"), desc: t("explore.galleryDesc"), meta: `${albums.length} ${albums.length === 1 ? "album" : "albums"} · ${data.gallery.length} ${t("gallery.photos")}`, cover: httpOnly(albums.map((a) => a.photos.find((p) => httpOnly(p.src)))[0]?.src) },
-    { href: "/blog", icon: "📝", title: t("nav.journal"), desc: t("explore.journalDesc"), meta: `${posts.length} ${posts.length === 1 ? "post" : "posts"}`, cover: httpOnly(posts.find((p) => p.type === "image" && httpOnly(p.media))?.media) },
-    { href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
-    { href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: undefined as string | undefined },
+    { id: "gallery", href: "/gallery", icon: "🖼️", title: t("nav.gallery"), desc: t("explore.galleryDesc"), meta: `${albums.length} ${albums.length === 1 ? "album" : "albums"} · ${data.gallery.length} ${t("gallery.photos")}`, cover: httpOnly(ec.gallery) || httpOnly(albums.map((a) => a.photos.find((p) => httpOnly(p.src)))[0]?.src) },
+    { id: "blog", href: "/blog", icon: "📝", title: t("nav.journal"), desc: t("explore.journalDesc"), meta: `${posts.length} ${posts.length === 1 ? "post" : "posts"}`, cover: httpOnly(ec.blog) || httpOnly(posts.find((p) => p.type === "image" && httpOnly(p.media))?.media) },
+    { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
+    { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
   ];
   return (
     <section className="section" id="explore">

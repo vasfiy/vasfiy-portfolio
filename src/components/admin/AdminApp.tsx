@@ -17,12 +17,14 @@ export default function AdminApp() {
   const [user, setUser] = useState<any>(undefined); // undefined = checking
   const [active, setActive] = useState("gallery");
   const [navOpen, setNavOpen] = useState(false);
+  const [photo, setPhoto] = useState("");
 
   useEffect(() => {
     A.getUser().then(setUser);
     const { data } = A.sb().auth.onAuthStateChange((_e, session) => setUser(session?.user || null));
     return () => data.subscription.unsubscribe();
   }, []);
+  useEffect(() => { if (user) A.getSettings().then((s) => setPhoto(s.profilePhoto || "")).catch(() => {}); }, [user]);
 
   if (user === undefined) return <div className="ad-loading">Loading…</div>;
   if (!user) return <Login />;
@@ -31,7 +33,7 @@ export default function AdminApp() {
   return (
     <div className="ad-app">
       <aside className={"ad-side" + (navOpen ? " open" : "")}>
-        <div className="ad-brand"><span className="brand-mark">KT</span> <b>Admin</b></div>
+        <div className="ad-brand">{photo ? <img className="ad-avatar" src={photo} alt="" /> : <span className="brand-mark">KT</span>} <b>Admin</b></div>
         <nav>
           <p className="ad-navlabel">Content</p>
           {COLLECTIONS.map((c) => <button key={c.id} className={active === c.id ? "active" : ""} onClick={() => { setActive(c.id); setNavOpen(false); }}>{c.icon} {c.label}</button>)}

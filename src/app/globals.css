@@ -403,12 +403,14 @@ img { max-width: 100%; display: block; }
 }
 @media (max-width: 760px) {
   .nav-links {
-    position: fixed; inset: 0 0 0 auto; width: min(82%, 300px); flex-direction: column; align-items: stretch;
-    background: var(--bg-2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 90px 22px 40px; gap: 4px; transform: translateX(101%); transition: transform .35s ease;
+    position: fixed; top: 0; right: 0; bottom: 0; left: auto; height: 100dvh;
+    width: min(82%, 300px); flex-direction: column; align-items: stretch;
+    background: #0a0e1a; /* solid (no backdrop-filter — iOS fixed+blur clips) */
+    padding: 88px 22px 40px; gap: 4px; transform: translateX(101%); transition: transform .35s ease;
     border-left: 1px solid var(--border); z-index: 110; overflow-y: auto;
     box-shadow: -24px 0 60px rgba(0,0,0,.45);
   }
+  [data-mode="light"] .nav-links { background: #f3f5fb; }
   .navbar .nav-links.open { transform: translateX(0) !important; }
   .nav-links a { font-size: 16px; padding: 13px 16px; border-radius: 10px; }
   .menu-btn { display: flex; z-index: 115; position: relative; }
@@ -1162,3 +1164,6 @@ a.blog-viewall { width: max-content; }
 .lx-controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
 .lx-search { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font: inherit; }
 .lx-search:focus { outline: none; border-color: var(--cyan); }
+
+/* Admin avatar (profile photo in sidebar brand) */
+.ad-avatar { width: 30px; height: 30px; border-radius: 9px; object-fit: cover; }

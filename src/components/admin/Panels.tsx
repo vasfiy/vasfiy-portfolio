@@ -4,15 +4,22 @@ import { SITE_GROUPS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 
 /* ---------------- Site text + Profile/CV ---------------- */
+const EXPLORE_KEYS: { k: string; label: string }[] = [
+  { k: "gallery", label: "Gallery cover" }, { k: "blog", label: "Journal cover" },
+  { k: "library", label: "Library cover" }, { k: "linux", label: "Linux Lab cover" },
+];
+
 export function SiteText() {
   const [v, setV] = useState<Record<string, any>>({});
   const [profile, setProfile] = useState<string>("");
   const [cv, setCv] = useState<string>("");
+  const [covers, setCovers] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState("");
   const [open, setOpen] = useState(0);
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2500); };
 
-  useEffect(() => { A.getSettings().then((s) => { setV(s.siteText || {}); setProfile(s.profilePhoto || ""); setCv(s.cvUrl || ""); }); }, []);
+  useEffect(() => { A.getSettings().then((s) => { setV(s.siteText || {}); setProfile(s.profilePhoto || ""); setCv(s.cvUrl || ""); setCovers(s.exploreCovers || {}); }); }, []);
+  const saveCover = async (k: string, url: string) => { const next = { ...covers, [k]: url }; setCovers(next); await A.setSetting("exploreCovers", next); flash("Cover updated"); };
 
   const save = async () => {
     const obj: Record<string, any> = {};
@@ -30,10 +37,19 @@ export function SiteText() {
       <div className="ad-head"><h2>📝 Site text</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
 
       <div className="ad-card">
-        <h3>👤 Profile photo & CV</h3>
+        <h3>👤 Profile photo &amp; CV</h3>
+        <p className="ad-hint">The profile photo replaces the “KT” monogram in the About section (and admin avatar).</p>
         <div className="ad-grid2">
-          <Uploader label="Profile photo" value={profile} accept="image/*" image onDone={async (url) => { setProfile(url); await A.setSetting("profilePhoto", url); flash("Photo updated"); }} />
+          <Uploader label="Profile photo (About “KT”)" value={profile} accept="image/*" image onDone={async (url) => { setProfile(url); await A.setSetting("profilePhoto", url); flash("Photo updated"); }} />
           <Uploader label="CV (PDF)" value={cv} accept="application/pdf,.pdf" onDone={async (url) => { setCv(url); await A.setSetting("cvUrl", url); flash("CV updated"); }} />
+        </div>
+      </div>
+
+      <div className="ad-card">
+        <h3>🧭 Explore cover photos</h3>
+        <p className="ad-hint">Custom cover image for each card in the homepage “Explore” section. Leave empty to auto-pick from content.</p>
+        <div className="ad-grid2">
+          {EXPLORE_KEYS.map((e) => <Uploader key={e.k} label={e.label} value={covers[e.k] || ""} accept="image/*" image onDone={(url) => saveCover(e.k, url)} />)}
         </div>
       </div>
 

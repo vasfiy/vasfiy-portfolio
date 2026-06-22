@@ -60,7 +60,7 @@ function Core({ color, accent }: { color: string; accent: string }) {
 export default function Hero3D() {
   const [colors, setColors] = useState({ cyan: "#00e5ff", violet: "#7c5cff" });
   const [active, setActive] = useState(true);
-  const [count, setCount] = useState(900);
+  const [opts, setOpts] = useState<{ count: number; small: boolean; reduce: boolean } | null>(null);
   const wrap = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,10 +70,10 @@ export default function Hero3D() {
     const obs = new MutationObserver(read);
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-mode"] });
 
-    // Fewer particles on small / low-power devices; skip on reduced motion
+    // Device-aware budget: fewer particles + no AA on phones, skip motion if requested
     const small = window.innerWidth < 760;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setCount(reduce ? 300 : small ? 550 : 900);
+    setOpts({ small, reduce, count: reduce ? 200 : small ? 350 : 800 });
 
     // Pause the render loop when the hero is scrolled out of view (saves GPU → smooth scroll)
     let io: IntersectionObserver | null = null;
@@ -86,16 +86,18 @@ export default function Hero3D() {
     return () => { obs.disconnect(); io?.disconnect(); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
+  if (!opts) return <div ref={wrap} style={{ position: "absolute", inset: 0 }} />;
+
   return (
     <div ref={wrap} style={{ position: "absolute", inset: 0 }}>
       <Canvas
         camera={{ position: [0, 0, 9], fov: 55 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        frameloop={active ? "always" : "never"}
+        dpr={opts.small ? 1 : [1, 1.5]}
+        gl={{ antialias: !opts.small, alpha: true, powerPreference: "high-performance" }}
+        frameloop={active && !opts.reduce ? "always" : "never"}
         style={{ pointerEvents: "none" }}
       >
-        <Field color={colors.violet} count={count} />
+        <Field color={colors.violet} count={opts.count} />
         <Core color={colors.cyan} accent={colors.violet} />
       </Canvas>
     </div>
