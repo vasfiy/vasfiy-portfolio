@@ -101,6 +101,31 @@ export async function listMessages() {
 export async function deleteMessage(id: string) { await sb().from("messages").delete().eq("id", id); }
 export async function listViews() { const { data } = await sb().from("pageviews").select("path,created_at"); return data || []; }
 
+/* ---------- Dashboard / backup ---------- */
+export async function getCounts() {
+  const [items, msgs, views] = await Promise.all([
+    sb().from("items").select("kind"),
+    sb().from("messages").select("*", { count: "exact", head: true }),
+    sb().from("pageviews").select("*", { count: "exact", head: true }),
+  ]);
+  const byKind: Record<string, number> = {};
+  (items.data || []).forEach((r: any) => { byKind[r.kind] = (byKind[r.kind] || 0) + 1; });
+  return { byKind, messages: msgs.count || 0, views: views.count || 0 };
+}
+export async function exportAll() {
+  const [items, categories, settings] = await Promise.all([
+    sb().from("items").select("*"),
+    sb().from("categories").select("*"),
+    sb().from("settings").select("*"),
+  ]);
+  const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), items: items.data, categories: categories.data, settings: settings.data }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `vasfiy-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
 /* ---------- Client-side image compression ---------- */
 export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
   if (!/^image\//.test(file.type) || /gif|svg/.test(file.type)) return file;

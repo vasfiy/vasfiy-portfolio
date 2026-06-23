@@ -4,6 +4,7 @@ import { COLLECTIONS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import ItemManager from "./ItemManager";
 import { SiteText, Inbox, Analytics, MediaLib } from "./Panels";
+import Dashboard from "./Dashboard";
 
 const EXTRA = [
   { id: "sitetext", label: "Site text", icon: "📝" },
@@ -14,7 +15,7 @@ const EXTRA = [
 
 export default function AdminApp() {
   const [user, setUser] = useState<any>(undefined); // undefined = checking
-  const [active, setActive] = useState("gallery");
+  const [active, setActive] = useState("overview");
   const [navOpen, setNavOpen] = useState(false);
   const [photo, setPhoto] = useState("");
 
@@ -34,6 +35,7 @@ export default function AdminApp() {
       <aside className={"ad-side" + (navOpen ? " open" : "")}>
         <div className="ad-brand">{photo ? <img className="ad-avatar" src={photo} alt="" /> : <span className="brand-mark">KT</span>} <b>Admin</b></div>
         <nav>
+          <button className={active === "overview" ? "active" : ""} onClick={() => { setActive("overview"); setNavOpen(false); }}>📋 Overview</button>
           <p className="ad-navlabel">Content</p>
           {COLLECTIONS.map((c) => <button key={c.id} className={active === c.id ? "active" : ""} onClick={() => { setActive(c.id); setNavOpen(false); }}>{c.icon} {c.label}</button>)}
           <p className="ad-navlabel">Manage</p>
@@ -47,6 +49,7 @@ export default function AdminApp() {
       </aside>
       <button className="ad-burger" onClick={() => setNavOpen((o) => !o)} aria-label="Menu">☰</button>
       <main className="ad-main">
+        {active === "overview" && <Dashboard onGo={setActive} />}
         {col && <ItemManager collection={col} key={col.id} />}
         {active === "sitetext" && <SiteText />}
         {active === "media" && <MediaLib />}

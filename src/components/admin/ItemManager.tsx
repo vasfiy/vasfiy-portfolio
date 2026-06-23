@@ -72,6 +72,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const [form, setForm] = useState<any>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [q, setQ] = useState("");
   const [msg, setMsg] = useState("");
   const [albumFiles, setAlbumFiles] = useState<{ url: string; type: string }[]>([]);
   const [albumMeta, setAlbumMeta] = useState({ album: "", cat: "", caption: "" });
@@ -176,12 +177,13 @@ export default function ItemManager({ collection }: { collection: Collection }) 
       </div>
 
       <div className="ad-list">
+        {items.length > 4 && <input className="ad-filter" placeholder={`Filter ${c.label.toLowerCase()}…`} value={q} onChange={(e) => setQ(e.target.value)} />}
         {items.length === 0 && <p className="ad-hint">No items yet.</p>}
-        {items.length > 1 && <p className="ad-hint">Drag ⠿ to reorder.</p>}
-        {items.map((it, idx) => (
+        {items.length > 1 && !q && <p className="ad-hint">Drag ⠿ to reorder.</p>}
+        {items.filter((it) => !q || c.title(it).toLowerCase().includes(q.toLowerCase())).map((it, idx) => (
           <div className={"ad-item" + (editId === it.__id ? " active" : "") + (dragIdx === idx ? " dragging" : "")} key={it.__id}
-            draggable onDragStart={() => setDragIdx(idx)} onDragEnd={() => setDragIdx(null)}
-            onDragOver={(e) => e.preventDefault()} onDrop={() => dropTo(idx)}>
+            draggable={!q} onDragStart={() => setDragIdx(idx)} onDragEnd={() => setDragIdx(null)}
+            onDragOver={(e) => e.preventDefault()} onDrop={() => { if (!q) dropTo(idx); }}>
             <span className="ad-drag" title="Drag to reorder">⠿</span>
             <span className="ad-item-title">{it.pinned ? "📌 " : ""}{c.title(it)}</span>
             <span className="ad-item-actions">
