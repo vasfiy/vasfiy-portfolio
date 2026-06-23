@@ -64,6 +64,14 @@ export function groupAlbums(items: Photo[]): Album[] {
   return order.map((k) => map[k]);
 }
 
+export async function uploadVoice(blob: Blob): Promise<string> {
+  const ext = (blob.type.split("/")[1] || "webm").split(";")[0];
+  const path = `voice/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, blob, { contentType: blob.type, upsert: false });
+  if (error) throw error;
+  return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
+}
+
 export const isVideo = (v?: string) => /\.(mp4|mov|webm|m4v|ogv|ogg)(\?|$)/i.test(String(v || ""));
 export function ytId(u?: string) {
   if (!u) return "";

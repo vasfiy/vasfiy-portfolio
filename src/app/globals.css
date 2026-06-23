@@ -1321,3 +1321,20 @@ a.blog-viewall { width: max-content; }
 .crop-box { position: absolute; border: 2px solid var(--cyan); box-shadow: 0 0 0 9999px rgba(0,0,0,.5); cursor: move; touch-action: none; }
 .crop-handle { position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px; border-radius: 50%; background: var(--cyan); border: 2px solid #06121f; cursor: nwse-resize; touch-action: none; }
 .crop-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ============================================================
+   Voice recorder (contact form) + inbox audio
+   ============================================================ */
+.voice-rec { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 4px; }
+.voice-label { font-size: .82rem; color: var(--text-dim); }
+.voice-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.voice-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 9px 16px; cursor: pointer; font: inherit; font-size: .9rem; transition: border-color .15s; }
+.voice-btn:hover { border-color: var(--ink-accent); }
+.voice-btn.is-rec { border-color: #ff5470; color: #ff8095; }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff5470; animation: recpulse 1s infinite; }
+@keyframes recpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+.voice-row audio { height: 36px; max-width: 240px; }
+.voice-x { background: none; border: 0; color: var(--text-dim); cursor: pointer; font-size: 1rem; }
+.voice-x:hover { color: #ff6b6b; }
+.voice-err { color: #ff6b6b; font-size: .8rem; }
+.ad-msg-audio { width: 100%; max-width: 320px; height: 38px; margin-top: 8px; }

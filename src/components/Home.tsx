@@ -6,8 +6,9 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import Counter from "./Counter";
 import { pick } from "@/lib/i18n";
-import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime } from "@/lib/data";
+import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
 import { supabase } from "@/lib/data";
+import VoiceRecorder from "./VoiceRecorder";
 import type { SiteData, Lang } from "@/lib/types";
 
 const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
@@ -372,18 +373,23 @@ function Explore({ data }: { data: SiteData }) {
 function Contact({ st }: { st: any }) {
   const { lang, t } = useLang();
   const [status, setStatus] = useState<{ kind: "" | "ok" | "err" | "send"; msg: string }>({ kind: "", msg: "" });
+  const [voice, setVoice] = useState<Blob | null>(null);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = e.currentTarget;
     const fd = new FormData(f);
-    const payload = { name: String(fd.get("name") || ""), email: String(fd.get("email") || ""), message: String(fd.get("message") || "") };
+    const msg = String(fd.get("message") || "").trim();
+    if (!msg && !voice) { setStatus({ kind: "err", msg: t("contact.empty") }); return; }
     setStatus({ kind: "send", msg: t("contact.sending") });
     try {
+      let audio: string | null = null;
+      if (voice) { try { audio = await uploadVoice(voice); } catch {} }
+      const payload: any = { name: String(fd.get("name") || ""), email: String(fd.get("email") || ""), message: msg, audio };
       const { error } = await supabase.from("messages").insert(payload);
       if (error) throw error;
       // fire-and-forget email notification (no-op unless RESEND env is set)
       fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
-      setStatus({ kind: "ok", msg: t("contact.sent") }); f.reset();
+      setStatus({ kind: "ok", msg: t("contact.sent") }); f.reset(); setVoice(null);
     } catch {
       setStatus({ kind: "err", msg: t("contact.error") });
     }
@@ -403,7 +409,8 @@ function Contact({ st }: { st: any }) {
               <input type="text" name="name" required placeholder={t("contact.name")} />
               <input type="email" name="email" required placeholder={t("contact.email")} />
             </div>
-            <textarea name="message" rows={4} required placeholder={t("contact.message")} />
+            <textarea name="message" rows={4} placeholder={t("contact.message")} />
+            <VoiceRecorder label={t("contact.voice")} onChange={setVoice} />
             <button type="submit" className="btn btn-primary" disabled={status.kind === "send"}>{t("contact.send")}</button>
             <p className={"cf-status " + status.kind}>{status.msg}</p>
           </form>

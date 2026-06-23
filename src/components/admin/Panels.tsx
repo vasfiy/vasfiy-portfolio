@@ -106,7 +106,8 @@ export function Inbox() {
       {msgs.map((m) => (
         <div className="ad-card ad-msg-card" key={m.id}>
           <div className="ad-msg-top"><b>{m.name || "(no name)"}</b> <a href={"mailto:" + m.email}>{m.email}</a><span className="ad-msg-date">{new Date(m.created_at).toLocaleString()}</span></div>
-          <p>{m.message}</p>
+          {m.message && <p>{m.message}</p>}
+          {m.audio && <audio className="ad-msg-audio" controls src={m.audio} />}
           <button className="btn btn-ghost btn-sm danger" onClick={async () => { if (confirm("Delete message?")) { await A.deleteMessage(m.id); load(); } }}>Delete</button>
         </div>
       ))}
