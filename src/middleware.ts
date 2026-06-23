@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") || "").toLowerCase();
   if (host.startsWith("admin.vasfiy.com") && !req.nextUrl.pathname.startsWith("/admin")) {
     const url = req.nextUrl.clone();
-    url.pathname = req.nextUrl.pathname === "/" ? "/admin" : "/admin" + req.nextUrl.pathname;
+    url.pathname = "/admin"; // any path on the admin host serves the admin app
     return NextResponse.rewrite(url);
   }
   return NextResponse.next();

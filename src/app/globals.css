@@ -1009,7 +1009,7 @@ a.blog-viewall { width: max-content; }
 .album-title { margin-bottom: 24px; }
 .album-photos figure figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px; font-size: .78rem; color: #fff; background: linear-gradient(to top, rgba(0,0,0,.8), transparent); opacity: 0; transition: opacity .2s; }
 .album-photos figure:hover figcaption { opacity: 1; }
-.album-photos .vid-badge { position: absolute; top: 8px; right: 8px; }
+.album-photos .vid-badge { width: 44px; height: 44px; }
 .lb-count { opacity: .7; margin-left: 8px; font-size: .85em; }
 
 /* Admin: gallery album uploader */
@@ -1176,7 +1176,7 @@ a.blog-viewall { width: max-content; }
 .gprev-tile { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); border: 1px solid var(--border); display: block; }
 .gprev-tile img, .gprev-tile video { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
 .gprev-tile:hover img, .gprev-tile:hover video { transform: scale(1.07); }
-.gprev-tile .vid-badge { position: absolute; top: 8px; right: 8px; }
+.gprev-tile .vid-badge { width: 40px; height: 40px; }
 @media (max-width: 760px) { .gprev-grid { grid-template-columns: repeat(2, 1fr); } }
 
 /* Lesson attachments (admin list + public display) */
@@ -1359,3 +1359,16 @@ a.blog-viewall { width: max-content; }
 .search-hit-main span { font-size: .8rem; color: var(--text-dim); }
 .search-hit-kind { font-size: .72rem; color: var(--text-faint); font-family: var(--font-mono); flex-shrink: 0; }
 @media (max-width: 560px) { .search-fab { right: 80px; bottom: 22px; width: 46px; height: 46px; } }
+
+/* ============================================================
+   Crop modal
+   ============================================================ */
+.crop-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(4,8,16,.82); display: grid; place-items: center; padding: 20px; }
+.crop-modal { width: 100%; max-width: 600px; padding: 22px; border-radius: var(--radius); display: flex; flex-direction: column; gap: 14px; }
+.crop-modal h3 { font-size: 1.1rem; }
+.crop-ratios { display: flex; flex-wrap: wrap; gap: 6px; }
+.crop-stage { position: relative; display: inline-block; max-width: 100%; margin: 0 auto; line-height: 0; user-select: none; touch-action: none; }
+.crop-stage img { max-width: 100%; max-height: 56vh; display: block; border-radius: 8px; }
+.crop-box { position: absolute; border: 2px solid var(--cyan); box-shadow: 0 0 0 9999px rgba(0,0,0,.5); cursor: move; }
+.crop-handle { position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px; border-radius: 50%; background: var(--cyan); border: 2px solid #06121f; cursor: nwse-resize; }
+.crop-actions { display: flex; gap: 10px; flex-wrap: wrap; }
