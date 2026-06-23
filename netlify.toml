@@ -11,16 +11,4 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# admin.vasfiy.com → serve the /admin app (host-based rewrite).
-# Activates once admin.vasfiy.com is added as a domain alias for this site.
-[[redirects]]
-  from = "https://admin.vasfiy.com/*"
-  to = "/admin"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "http://admin.vasfiy.com/*"
-  to = "/admin"
-  status = 200
-  force = true
+# admin.vasfiy.com → /admin is handled by Next middleware (src/middleware.ts).

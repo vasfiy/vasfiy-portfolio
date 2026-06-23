@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { COLLECTIONS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import ItemManager from "./ItemManager";
@@ -41,8 +40,8 @@ export default function AdminApp() {
           {EXTRA.map((e) => <button key={e.id} className={active === e.id ? "active" : ""} onClick={() => { setActive(e.id); setNavOpen(false); }}>{e.icon} {e.label}</button>)}
         </nav>
         <div className="ad-side-foot">
-          <Link href="/" className="btn btn-ghost btn-sm" target="_blank">Open site ↗</Link>
-          <a href="/linux.html" className="btn btn-ghost btn-sm" target="_blank">Linux Lab ↗</a>
+          <a href="https://vasfiy.com" className="btn btn-ghost btn-sm" target="_blank" rel="noopener">Open site ↗</a>
+          <a href="https://vasfiy.com/linux" className="btn btn-ghost btn-sm" target="_blank" rel="noopener">Linux Lab ↗</a>
           <button className="btn btn-ghost btn-sm" onClick={() => A.signOut()}>Log out</button>
         </div>
       </aside>
