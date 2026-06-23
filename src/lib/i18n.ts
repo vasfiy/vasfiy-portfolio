@@ -20,6 +20,7 @@ export const DICT = {
     "gallery.title": "Gallery", "gallery.sub": "Albums, moments & snapshots.", "gallery.empty": "No photos yet.", "gallery.viewall": "View all albums →", "gallery.all": "All", "gallery.photos": "photos", "gallery.photo": "photo", "gallery.back": "← All albums",
     "library.title": "Library", "library.sub": "Books & resources worth your time.", "library.empty": "No books yet.", "library.read": "Read", "library.download": "Download", "library.by": "by", "library.viewall": "Open library →",
     "theme.title": "Color theme", "theme.mode": "Appearance", "footer.built": "Built with Next.js, Three.js & Supabase",
+    "search.label": "Search (⌘K)", "search.placeholder": "Search posts, albums, projects…", "search.none": "No results found.",
   },
   uz: {
     "nav.about": "Men haqimda", "nav.skills": "Ko'nikmalar", "nav.experience": "Tajriba", "nav.projects": "Loyihalar",
@@ -40,6 +41,7 @@ export const DICT = {
     "gallery.title": "Galereya", "gallery.sub": "Albomlar, lahzalar va suratlar.", "gallery.empty": "Hali rasm yo'q.", "gallery.viewall": "Barcha albomlarni ko'rish →", "gallery.all": "Hammasi", "gallery.photos": "ta rasm", "gallery.photo": "rasm", "gallery.back": "← Barcha albomlar",
     "library.title": "Kutubxona", "library.sub": "Vaqtingizga arziydigan kitob va resurslar.", "library.empty": "Hali kitob yo'q.", "library.read": "O'qish", "library.download": "Yuklab olish", "library.by": "muallif", "library.viewall": "Kutubxonani ochish →",
     "theme.title": "Rang temasi", "theme.mode": "Ko'rinish", "footer.built": "Next.js, Three.js va Supabase bilan qurilgan",
+    "search.label": "Qidiruv (⌘K)", "search.placeholder": "Postlar, albomlar, loyihalar…", "search.none": "Hech narsa topilmadi.",
   },
 } as const;
 
