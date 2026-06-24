@@ -337,6 +337,7 @@ function Explore({ data }: { data: SiteData }) {
   const cards = [
     { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
     { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
+    { id: "tools", href: "/tools", icon: "🧰", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
   ];
   return (
     <section className="section" id="explore">

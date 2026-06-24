@@ -4,7 +4,7 @@ export const DICT = {
   en: {
     "nav.about": "About", "nav.skills": "Skills", "nav.experience": "Experience", "nav.projects": "Projects",
     "nav.explore": "Explore", "nav.gallery": "Gallery", "nav.journal": "Journal", "nav.library": "Library",
-    "nav.contact": "Contact", "nav.lab": "Linux Lab", "nav.portfolio": "Portfolio",
+    "nav.contact": "Contact", "nav.lab": "Linux Lab", "nav.portfolio": "Portfolio", "nav.tools": "Tools", "explore.toolsDesc": "Free QR, password & text tools",
     "hero.cta": "Get in touch", "hero.cv": "Download CV", "hero.work": "View my work",
     "about.kicker": "About", "skills.kicker": "Skills", "skills.title": "Technical toolkit", "skills.langs": "Languages",
     "exp.kicker": "Experience", "exp.title": "Where I've worked",
@@ -25,7 +25,7 @@ export const DICT = {
   uz: {
     "nav.about": "Men haqimda", "nav.skills": "Ko'nikmalar", "nav.experience": "Tajriba", "nav.projects": "Loyihalar",
     "nav.explore": "Ko'rib chiqish", "nav.gallery": "Galereya", "nav.journal": "Jurnal", "nav.library": "Kutubxona",
-    "nav.contact": "Aloqa", "nav.lab": "Linux Lab", "nav.portfolio": "Portfolio",
+    "nav.contact": "Aloqa", "nav.lab": "Linux Lab", "nav.portfolio": "Portfolio", "nav.tools": "Vositalar", "explore.toolsDesc": "Bepul QR, parol va matn vositalari",
     "hero.cta": "Bog'lanish", "hero.cv": "CV yuklab olish", "hero.work": "Ishlarimni ko'rish",
     "about.kicker": "Men haqimda", "skills.kicker": "Ko'nikmalar", "skills.title": "Texnik to'plam", "skills.langs": "Tillar",
     "exp.kicker": "Tajriba", "exp.title": "Qayerda ishlaganman",
