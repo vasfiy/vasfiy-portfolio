@@ -1,0 +1,52 @@
+import { createClient } from "@supabase/supabase-js";
+
+export const runtime = "nodejs";
+
+/* Privacy-friendly page-view tracking. Stores no IP address and no cookie —
+   only coarse, aggregate signals (page, referrer host, browser, OS, device,
+   screen bucket, language, and country/city from Netlify's edge geo headers).
+   No-ops gracefully if the insert fails (e.g. before the SQL migration runs),
+   so navigation is never affected. */
+
+function parseUA(ua: string) {
+  const os = /Windows/.test(ua) ? "Windows" : /Mac OS X|Macintosh/.test(ua) ? "macOS" : /Android/.test(ua) ? "Android" : /iPhone|iPad|iPod|iOS/.test(ua) ? "iOS" : /Linux/.test(ua) ? "Linux" : "Other";
+  const browser = /Edg\//.test(ua) ? "Edge" : /OPR\/|Opera/.test(ua) ? "Opera" : /SamsungBrowser/.test(ua) ? "Samsung" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Other";
+  const device = /iPad|Tablet/.test(ua) ? "Tablet" : /Mobile|Android|iPhone|iPod/.test(ua) ? "Mobile" : "Desktop";
+  return { os, browser, device };
+}
+
+function refHost(ref: string) {
+  if (!ref) return "Direct";
+  try { const h = new URL(ref).hostname.replace(/^www\./, ""); return h || "Direct"; } catch { return "Other"; }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json().catch(() => ({} as any));
+    const ua = req.headers.get("user-agent") || "";
+    if (/bot|crawl|spider|preview|lighthouse|headless/i.test(ua)) return Response.json({ ok: true, skipped: "bot" });
+    const { os, browser, device } = parseUA(ua);
+
+    let country = "", city = "";
+    const geoRaw = req.headers.get("x-nf-geo");
+    if (geoRaw) { try { const g = JSON.parse(Buffer.from(geoRaw, "base64").toString("utf8")); country = g?.country?.code || g?.country?.name || ""; city = g?.city || ""; } catch {} }
+    if (!country) country = req.headers.get("x-country") || "";
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anon) return Response.json({ ok: true, skipped: "no-env" });
+    const sb = createClient(url, anon);
+    const { error } = await sb.from("pageviews").insert({
+      path: String(body.path || "/").slice(0, 200),
+      referrer: refHost(String(body.ref || "")).slice(0, 120),
+      browser, os, device,
+      screen: String(body.screen || "").slice(0, 16),
+      lang: String(body.lang || "").slice(0, 12),
+      country: country.slice(0, 60),
+      city: city.slice(0, 80),
+    });
+    return Response.json({ ok: !error, error: error?.message });
+  } catch {
+    return Response.json({ ok: false }, { status: 200 });
+  }
+}

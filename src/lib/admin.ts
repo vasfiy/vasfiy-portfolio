@@ -99,7 +99,7 @@ export async function listMessages() {
   return (data || []).slice().sort((a: any, b: any) => (b.created_at || "").localeCompare(a.created_at || ""));
 }
 export async function deleteMessage(id: string) { await sb().from("messages").delete().eq("id", id); }
-export async function listViews() { const { data } = await sb().from("pageviews").select("path,created_at"); return data || []; }
+export async function listViews() { const { data } = await sb().from("pageviews").select("*").order("created_at", { ascending: false }).limit(5000); return data || []; }
 
 /* ---------- Dashboard / backup ---------- */
 export async function getCounts() {

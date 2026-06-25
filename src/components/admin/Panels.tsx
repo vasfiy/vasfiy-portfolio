@@ -118,16 +118,43 @@ export function Inbox() {
 }
 
 /* ---------------- Analytics ---------------- */
+const COUNTRY_NAMES: Record<string, string> = { US: "United States", GB: "UK", UZ: "Uzbekistan", RU: "Russia", DE: "Germany", FR: "France", IN: "India", TR: "Türkiye", KZ: "Kazakhstan", CN: "China", JP: "Japan", CA: "Canada", BR: "Brazil", NL: "Netherlands", UA: "Ukraine", PL: "Poland", ES: "Spain", IT: "Italy", KR: "South Korea", AE: "UAE", SA: "Saudi Arabia" };
+const flag = (cc: string) => (/^[A-Za-z]{2}$/.test(cc) ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : "");
+
+function Breakdown({ title, rows, fmt }: { title: string; rows: [string, number][]; fmt?: (k: string) => string }) {
+  const max = rows[0]?.[1] || 1;
+  return (
+    <div className="ad-card">
+      <h3>{title}</h3>
+      {rows.length ? rows.map(([k, n]) => (
+        <div className="ad-bar-row" key={k}><span className="ad-bar-label">{fmt ? fmt(k) : k}</span><div className="ad-bar"><i style={{ width: (n / max) * 100 + "%" }} /></div><span className="ad-bar-n">{n}</span></div>
+      )) : <p className="ad-hint">No data yet.</p>}
+    </div>
+  );
+}
+
 export function Analytics() {
   const [views, setViews] = useState<any[]>([]);
-  useEffect(() => { A.listViews().then(setViews); }, []);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { A.listViews().then((v) => { setViews(v); setLoaded(true); }); }, []);
   const total = views.length;
   const week = views.filter((v) => Date.now() - new Date(v.created_at).getTime() < 7 * 864e5).length;
   const today = views.filter((v) => new Date(v.created_at).toDateString() === new Date().toDateString()).length;
-  const byPath: Record<string, number> = {};
-  views.forEach((v) => { byPath[v.path || "/"] = (byPath[v.path || "/"] || 0) + 1; });
-  const top = Object.entries(byPath).sort((a, b) => b[1] - a[1]).slice(0, 12);
-  const max = top[0]?.[1] || 1;
+  const countries = new Set(views.map((v) => v.country).filter(Boolean)).size;
+
+  const group = (key: string, label?: (v: any) => string) => {
+    const m: Record<string, number> = {};
+    views.forEach((v) => { const raw = label ? label(v) : v[key]; const k = (raw || "").toString().trim(); if (k) m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10) as [string, number][];
+  };
+  const top = group("path", (v) => v.path || "/");
+  const hasMeta = views.some((v) => v.country || v.device || v.browser);
+
+  // last 14-day trend
+  const days: { d: string; n: number }[] = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(Date.now() - i * 864e5); const ds = d.toDateString(); days.push({ d: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }), n: views.filter((v) => new Date(v.created_at).toDateString() === ds).length }); }
+  const dmax = Math.max(1, ...days.map((x) => x.n));
+
   return (
     <div className="ad-section">
       <div className="ad-head"><h2>📊 Analytics</h2></div>
@@ -135,14 +162,33 @@ export function Analytics() {
         <div className="ad-stat"><b>{total}</b><span>Total views</span></div>
         <div className="ad-stat"><b>{week}</b><span>Last 7 days</span></div>
         <div className="ad-stat"><b>{today}</b><span>Today</span></div>
+        <div className="ad-stat"><b>{countries || "—"}</b><span>Countries</span></div>
       </div>
+
       <div className="ad-card">
-        <h3>Top pages</h3>
-        {top.map(([p, n]) => (
-          <div className="ad-bar-row" key={p}><span className="ad-bar-label">{p}</span><div className="ad-bar"><i style={{ width: (n / max) * 100 + "%" }} /></div><span className="ad-bar-n">{n}</span></div>
-        ))}
-        {!top.length && <p className="ad-hint">No views recorded yet.</p>}
+        <h3>Last 14 days</h3>
+        <div className="ad-spark">
+          {days.map((x, i) => (
+            <div className="ad-spark-col" key={i} title={`${x.d}: ${x.n}`}><i style={{ height: (x.n / dmax) * 100 + "%" }} /><span>{x.d.split(" ")[1]}</span></div>
+          ))}
+        </div>
       </div>
+
+      <Breakdown title="Top pages" rows={top} />
+
+      {hasMeta ? (
+        <div className="ad-analytics-grid">
+          <Breakdown title="🌍 Countries" rows={group("country")} fmt={(k) => `${flag(k)} ${COUNTRY_NAMES[k] || k}`} />
+          <Breakdown title="💻 Devices" rows={group("device")} />
+          <Breakdown title="🧭 Browsers" rows={group("browser")} />
+          <Breakdown title="⚙️ Operating system" rows={group("os")} />
+          <Breakdown title="🔗 Referrers" rows={group("referrer")} />
+          <Breakdown title="🖥 Screen sizes" rows={group("screen")} />
+        </div>
+      ) : loaded && total > 0 ? (
+        <p className="ad-hint">Detailed breakdowns (country, device, browser…) will appear here once the analytics columns are added in Supabase and new visits come in.</p>
+      ) : null}
+      {loaded && !total && <p className="ad-hint">No views recorded yet.</p>}
     </div>
   );
 }

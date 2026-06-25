@@ -5,6 +5,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ThemeFab from "./ThemeFab";
 import Search from "./Search";
+import Tracker from "./Tracker";
 
 export default function SiteFrame({ children }: { children: React.ReactNode }) {
   const p = usePathname() || "";
@@ -20,6 +21,7 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
       <Footer />
       <ThemeFab />
       <Search />
+      <Tracker />
     </>
   );
 }
