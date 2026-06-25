@@ -1431,6 +1431,11 @@ a.blog-viewall { width: max-content; }
 .reader-inner iframe { flex: 1; width: 100%; border: 0; background: #fff; }
 /* Cert verify/PDF link */
 .cert-verify { display: inline-block; margin-top: 4px; font-size: .8rem; color: var(--ink-accent); font-weight: 600; }
+/* Visible "View certificate" button on cert cards */
+.cert-view-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 6px 13px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--grad-soft); color: var(--ink-accent); font-size: .8rem; font-weight: 600; font-family: inherit; cursor: pointer; text-decoration: none; transition: border-color .2s, transform .15s, background .2s; }
+.cert-view-btn:hover { border-color: var(--ink-accent); transform: translateY(-1px); }
+.cert-img-wrap { flex: 1; min-height: 0; display: grid; place-items: center; overflow: auto; padding: 16px; background: var(--bg); }
+.cert-img-wrap img { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; }
 
 /* Admin upload error message */
 .ad-up-err { margin: 6px 0 0; color: #ff6b81; font-size: .82rem; font-weight: 500; word-break: break-word; }

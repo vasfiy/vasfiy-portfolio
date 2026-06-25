@@ -222,6 +222,26 @@ function Education({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
   const edu = pinSort(data.education);
   const certs = pinSort(data.certs);
+  const [viewing, setViewing] = useState<{ src: string; title: string; pdf: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!viewing) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setViewing(null); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [viewing]);
+
+  // An uploaded PDF/image is shown in-site; an external verify URL (e.g. TryHackMe,
+  // which blocks embedding) opens in a new tab.
+  const certAction = (c: any) => {
+    const file = String(c.file || "").trim();
+    const url = String(c.url || "").trim();
+    if (/^https?:\/\//.test(file)) return { src: file, embed: true };
+    if (/^https?:\/\//.test(url)) return { src: url, embed: false };
+    return null;
+  };
+
   return (
     <section className="section" id="education">
       <div className="container">
@@ -242,18 +262,43 @@ function Education({ data }: { data: SiteData }) {
           <Reveal className="edu-col">
             <h3 className="edu-col-title">{t("edu.certTitle")}</h3>
             <div className="cert-list">
-              {certs.map((c, i) => (
-                <div className="cert-card glass" key={i}>
-                  <div className="cert-badge">{c.badge}</div>
-                  <div className="cert-info"><h4>{pick(c, "name", lang)}</h4><p className="cert-meta">{pick(c, "meta", lang)}</p>
-                    {(() => { const cv = c.file || c.url || ""; return /^https?:\/\//.test(cv) ? <a className="cert-verify" href={cv} target="_blank" rel="noopener">{lang === "uz" ? "Sertifikatni ko'rish ↗" : "View certificate ↗"}</a> : null; })()}
+              {certs.map((c, i) => {
+                const a = certAction(c);
+                const label = lang === "uz" ? "Sertifikatni ko'rish" : "View certificate";
+                return (
+                  <div className="cert-card glass" key={i}>
+                    <div className="cert-badge">{c.badge}</div>
+                    <div className="cert-info">
+                      <h4>{pick(c, "name", lang)}</h4>
+                      <p className="cert-meta">{pick(c, "meta", lang)}</p>
+                      {a && (a.embed
+                        ? <button type="button" className="cert-view-btn" onClick={() => setViewing({ src: a.src, title: pick(c, "name", lang), pdf: /\.pdf($|\?)/i.test(a.src) })}>📄 {label}</button>
+                        : <a className="cert-view-btn" href={a.src} target="_blank" rel="noopener">{label} ↗</a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Reveal>
         </div>
       </div>
+      {viewing && (
+        <div className="reader-modal open" role="dialog" aria-modal onClick={() => setViewing(null)}>
+          <div className="reader-inner glass" onClick={(e) => e.stopPropagation()}>
+            <div className="reader-bar">
+              <span className="reader-title">{viewing.title}</span>
+              <span className="reader-actions">
+                <a className="btn btn-ghost btn-sm" href={viewing.src} target="_blank" rel="noopener">↓ {lang === "uz" ? "Yuklab olish" : "Download"}</a>
+                <button className="reader-close" aria-label="Close" onClick={() => setViewing(null)}>×</button>
+              </span>
+            </div>
+            {viewing.pdf
+              ? <iframe src={viewing.src} title={viewing.title} />
+              : <div className="cert-img-wrap"><img src={viewing.src} alt={viewing.title} /></div>}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
