@@ -20,6 +20,15 @@ function refHost(ref: string) {
   try { const h = new URL(ref).hostname.replace(/^www\./, ""); return h || "Direct"; } catch { return "Other"; }
 }
 
+function detectGeo(req: Request) {
+  let country = "", city = "";
+  const geoRaw = req.headers.get("x-nf-geo");
+  if (geoRaw) { try { const g = JSON.parse(Buffer.from(geoRaw, "base64").toString("utf8")); country = g?.country?.code || g?.country?.name || ""; city = g?.city || ""; } catch {} }
+  if (!country) country = req.headers.get("x-country") || req.headers.get("x-nf-country") || req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "";
+  if (!city) city = req.headers.get("x-nf-city") || req.headers.get("x-vercel-ip-city") || "";
+  return { country: country.toUpperCase().slice(0, 60), city: decodeURIComponent(city).slice(0, 80) };
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({} as any));
@@ -27,10 +36,7 @@ export async function POST(req: Request) {
     if (/bot|crawl|spider|preview|lighthouse|headless/i.test(ua)) return Response.json({ ok: true, skipped: "bot" });
     const { os, browser, device } = parseUA(ua);
 
-    let country = "", city = "";
-    const geoRaw = req.headers.get("x-nf-geo");
-    if (geoRaw) { try { const g = JSON.parse(Buffer.from(geoRaw, "base64").toString("utf8")); country = g?.country?.code || g?.country?.name || ""; city = g?.city || ""; } catch {} }
-    if (!country) country = req.headers.get("x-country") || "";
+    const { country, city } = detectGeo(req);
 
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -49,4 +55,15 @@ export async function POST(req: Request) {
   } catch {
     return Response.json({ ok: false }, { status: 200 });
   }
+}
+
+// Temporary diagnostic: GET /api/track?debug=1 reports whether Netlify edge geo
+// headers reach this function, so we can confirm location capture works.
+export async function GET(req: Request) {
+  const u = new URL(req.url);
+  if (u.searchParams.get("debug") !== "1") return Response.json({ ok: true });
+  const headerKeys = ["x-nf-geo", "x-country", "x-nf-country", "x-nf-city", "cf-ipcountry", "x-vercel-ip-country"];
+  const present: Record<string, string> = {};
+  headerKeys.forEach((k) => { const v = req.headers.get(k); if (v) present[k] = k === "x-nf-geo" ? "(base64 present)" : v; });
+  return Response.json({ geo: detectGeo(req), headersSeen: present, ua: req.headers.get("user-agent") });
 }
