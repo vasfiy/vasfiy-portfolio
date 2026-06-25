@@ -237,7 +237,8 @@ function Education({ data }: { data: SiteData }) {
   const certAction = (c: any) => {
     const file = String(c.file || "").trim();
     const url = String(c.url || "").trim();
-    if (/^https?:\/\//.test(file)) return { src: file, embed: true };
+    // An uploaded file (Supabase http URL) or a site-hosted file (/certs/…) is embedded in-site.
+    if (/^(https?:\/\/|\/)/.test(file)) return { src: file, embed: true };
     if (/^https?:\/\//.test(url)) return { src: url, embed: false };
     return null;
   };
