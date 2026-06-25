@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import Counter from "./Counter";
@@ -223,25 +223,21 @@ function Education({ data }: { data: SiteData }) {
   const edu = pinSort(data.education);
   const certs = pinSort(data.certs);
   const [viewing, setViewing] = useState<{ src: string; title: string; pdf: boolean } | null>(null);
+  const readerRef = useRef<HTMLDivElement>(null);
+  const toggleFs = () => { const el = readerRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
 
   useEffect(() => {
     if (!viewing) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setViewing(null); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !document.fullscreenElement) setViewing(null); };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [viewing]);
 
-  // An uploaded PDF/image is shown in-site; an external verify URL (e.g. TryHackMe,
-  // which blocks embedding) opens in a new tab.
-  const certAction = (c: any) => {
-    const file = String(c.file || "").trim();
-    const url = String(c.url || "").trim();
-    // An uploaded file (Supabase http URL) or a site-hosted file (/certs/…) is embedded in-site.
-    if (/^(https?:\/\/|\/)/.test(file)) return { src: file, embed: true };
-    if (/^https?:\/\//.test(url)) return { src: url, embed: false };
-    return null;
-  };
+  // A site-hosted (/certs/…) or uploaded (Supabase) file is shown in-site; the verify URL goes to TryHackMe.
+  const fileSrc = (c: any) => { const f = String(c.file || "").trim(); return /^(https?:\/\/|\/)/.test(f) ? f : ""; };
+  const verifyUrl = (c: any) => { const u = String(c.url || "").trim(); return /^https?:\/\//.test(u) ? u : ""; };
+  const isImg = (s: string) => /\.(png|jpe?g|gif|webp|svg|avif)($|\?)/i.test(s);
 
   return (
     <section className="section" id="education">
@@ -264,18 +260,24 @@ function Education({ data }: { data: SiteData }) {
             <h3 className="edu-col-title">{t("edu.certTitle")}</h3>
             <div className="cert-list">
               {certs.map((c, i) => {
-                const a = certAction(c);
-                const label = lang === "uz" ? "Sertifikatni ko'rish" : "View certificate";
+                const name = pick(c, "name", lang);
+                const file = fileSrc(c);
+                const verify = verifyUrl(c);
+                const open = () => { if (file) setViewing({ src: file, title: name, pdf: !isImg(file) }); };
                 return (
-                  <div className="cert-card glass" key={i}>
+                  <div
+                    className={"cert-card glass" + (file ? " cert-clickable" : "")}
+                    key={i}
+                    onClick={file ? open : undefined}
+                    role={file ? "button" : undefined}
+                    tabIndex={file ? 0 : undefined}
+                    onKeyDown={file ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } : undefined}
+                  >
                     <div className="cert-badge">{c.badge}</div>
                     <div className="cert-info">
-                      <h4>{pick(c, "name", lang)}</h4>
+                      <h4>{name}{file && <span className="cert-doc" title={lang === "uz" ? "Bosib ko'ring" : "Click to view"}> 📄</span>}</h4>
                       <p className="cert-meta">{pick(c, "meta", lang)}</p>
-                      {a && (a.embed
-                        ? <button type="button" className="cert-view-btn" onClick={() => setViewing({ src: a.src, title: pick(c, "name", lang), pdf: /\.pdf($|\?)/i.test(a.src) })}>📄 {label}</button>
-                        : <a className="cert-view-btn" href={a.src} target="_blank" rel="noopener">{label} ↗</a>
-                      )}
+                      {verify && <a className="cert-view-btn" href={verify} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>{lang === "uz" ? "Sertifikat sahifasi" : "View certificate"} ↗</a>}
                     </div>
                   </div>
                 );
@@ -286,10 +288,11 @@ function Education({ data }: { data: SiteData }) {
       </div>
       {viewing && (
         <div className="reader-modal open" role="dialog" aria-modal onClick={() => setViewing(null)}>
-          <div className="reader-inner glass" onClick={(e) => e.stopPropagation()}>
+          <div className="reader-inner glass" ref={readerRef} onClick={(e) => e.stopPropagation()}>
             <div className="reader-bar">
               <span className="reader-title">{viewing.title}</span>
               <span className="reader-actions">
+                <button className="btn btn-ghost btn-sm" onClick={toggleFs} title={lang === "uz" ? "To'liq ekran" : "Fullscreen"}>⛶</button>
                 <a className="btn btn-ghost btn-sm" href={viewing.src} target="_blank" rel="noopener">↓ {lang === "uz" ? "Yuklab olish" : "Download"}</a>
                 <button className="reader-close" aria-label="Close" onClick={() => setViewing(null)}>×</button>
               </span>

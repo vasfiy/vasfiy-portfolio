@@ -24,8 +24,8 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
   const { lang, t } = useLang();
   const [filter, setFilter] = useState("all");
   const [reading, setReading] = useState<{ url: string; title: string } | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const toggleFs = () => { const el = iframeRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
+  const readerRef = useRef<HTMLDivElement>(null);
+  const toggleFs = () => { const el = readerRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
   const present = Array.from(new Set(books.map((b) => b.cat).filter(Boolean))) as string[];
   const items = pinSort(filter === "all" ? books : books.filter((b) => b.cat === filter));
 
@@ -84,7 +84,7 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
 
       {reading && (
         <div className="reader-modal open" onClick={(e) => { if (e.target === e.currentTarget) setReading(null); }}>
-          <div className="reader-inner glass">
+          <div className="reader-inner glass" ref={readerRef}>
             <div className="reader-bar">
               <span className="reader-title">{reading.title}</span>
               <span className="reader-actions">
@@ -93,7 +93,7 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
                 <button className="reader-close" aria-label="Close" onClick={() => setReading(null)}>×</button>
               </span>
             </div>
-            <iframe ref={iframeRef} src={reading.url} title={reading.title} />
+            <iframe src={reading.url} title={reading.title} />
           </div>
         </div>
       )}
