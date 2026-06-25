@@ -1431,3 +1431,7 @@ a.blog-viewall { width: max-content; }
 
 /* Admin upload error message */
 .ad-up-err { margin: 6px 0 0; color: #ff6b81; font-size: .82rem; font-weight: 500; word-break: break-word; }
+
+/* Reader fullscreen */
+.reader-inner:fullscreen { width: 100vw; height: 100vh; max-width: none; border-radius: 0; background: var(--bg); }
+.reader-inner:fullscreen iframe { height: 100%; }
