@@ -245,7 +245,9 @@ function Education({ data }: { data: SiteData }) {
               {certs.map((c, i) => (
                 <div className="cert-card glass" key={i}>
                   <div className="cert-badge">{c.badge}</div>
-                  <div className="cert-info"><h4>{pick(c, "name", lang)}</h4><p className="cert-meta">{pick(c, "meta", lang)}</p></div>
+                  <div className="cert-info"><h4>{pick(c, "name", lang)}</h4><p className="cert-meta">{pick(c, "meta", lang)}</p>
+                    {(() => { const cv = c.file || c.url || ""; return /^https?:\/\//.test(cv) ? <a className="cert-verify" href={cv} target="_blank" rel="noopener">{lang === "uz" ? "Sertifikatni ko'rish ↗" : "View certificate ↗"}</a> : null; })()}
+                  </div>
                 </div>
               ))}
             </div>

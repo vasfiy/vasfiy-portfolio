@@ -29,7 +29,7 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
   const addPhotos = (a: Album) => { target.current = { album: a.album, cat: a.cat }; fileRef.current?.click(); };
   const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files; if (!files || !files.length) return;
-    setBusy(`Uploading ${files.length}…`);
+    setBusy(`Uploading ${files.length}…`); let fail = 0; let lastErr = "";
     for (const f of Array.from(files)) {
       try {
         const file = f.type.startsWith("image") ? await A.compressImage(f) : f;
@@ -39,10 +39,10 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
         if (target.current.album) { obj.album = target.current.album; obj.albumUz = target.current.album; }
         if (target.current.cat) obj.cat = target.current.cat;
         await A.addItem("gallery", obj);
-      } catch {}
+      } catch (err: any) { fail++; lastErr = err?.message || String(err); }
     }
     if (fileRef.current) fileRef.current.value = "";
-    setBusy(""); refreshAll();
+    setBusy(fail ? `⚠ ${fail} upload(s) failed — ${lastErr}` : ""); refreshAll();
   };
   const rename = async (a: Album) => {
     const nn = prompt("New album name (blank = ungroup):", a.album || "");

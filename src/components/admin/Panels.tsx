@@ -79,8 +79,9 @@ export function SiteText() {
 function Uploader({ label, value, accept, image, onDone }: { label: string; value: string; accept: string; image?: boolean; onDone: (url: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const [cropFile, setCropFile] = useState<File | null>(null);
-  const up = async (f: File) => { setBusy(true); try { const file = image ? await A.compressImage(f, 1600, 0.88) : f; onDone(await A.uploadFile(file)); } finally { setBusy(false); } };
+  const up = async (f: File) => { setBusy(true); setErr(""); try { const file = image ? await A.compressImage(f, 1600, 0.88) : f; onDone(await A.uploadFile(file)); } catch (e: any) { setErr(`Upload failed — ${e?.message || e}`); } finally { setBusy(false); } };
   return (
     <div className="ad-field">
       <span>{label}</span>
@@ -89,6 +90,7 @@ function Uploader({ label, value, accept, image, onDone }: { label: string; valu
         <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => ref.current?.click()}>{busy ? "⏳…" : value ? "Replace" : "Upload"}</button>
         {value && (image ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 current ↗</a>)}
       </div>
+      {err && <p className="ad-up-err">⚠ {err}</p>}
       {cropFile && <CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); up(f2); }} />}
     </div>
   );

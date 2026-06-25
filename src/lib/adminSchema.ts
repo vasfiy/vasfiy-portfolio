@@ -102,6 +102,7 @@ export const COLLECTIONS: Collection[] = [
     fields: [
       { k: "badge", label: "Badge (THM / 🏅 / +)", t: "text" }, { k: "name", label: "Name (EN)", t: "text" },
       { k: "nameUz", label: "Name (UZ)", t: "text" }, { k: "meta", label: "Meta (EN)", t: "text" }, { k: "metaUz", label: "Meta (UZ)", t: "text" },
+      { k: "file", label: "Certificate PDF / image", t: "file", accept: ".pdf,image/*" }, { k: "url", label: "Verify URL (optional)", t: "text", ph: "https://…" },
     ],
     title: (i) => i.name || i.nameUz || "(certificate)",
   },

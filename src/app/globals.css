@@ -1415,3 +1415,19 @@ a.blog-viewall { width: max-content; }
 .pw-bar i { display: block; height: 100%; transition: width .25s; }
 .pw-bar i.s0 { background: #ff5470; } .pw-bar i.s1 { background: #ffb13d; } .pw-bar i.s2 { background: #4dd6c1; } .pw-bar i.s3 { background: var(--green, #46d369); }
 @media (max-width: 560px) { .tool-stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* In-site PDF reader modal (library) — ensure layout */
+.reader-modal { position: fixed; inset: 0; z-index: 360; background: rgba(4,8,16,.85); display: none; padding: 20px; }
+.reader-modal.open { display: grid; place-items: center; }
+.reader-inner { width: 100%; max-width: 960px; height: min(88vh, 1000px); display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; }
+.reader-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.reader-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.reader-close { background: none; border: 0; color: var(--text-dim); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.reader-close:hover { color: var(--text); }
+.reader-inner iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+/* Cert verify/PDF link */
+.cert-verify { display: inline-block; margin-top: 4px; font-size: .8rem; color: var(--ink-accent); font-weight: 600; }
+
+/* Admin upload error message */
+.ad-up-err { margin: 6px 0 0; color: #ff6b81; font-size: .82rem; font-weight: 500; word-break: break-word; }

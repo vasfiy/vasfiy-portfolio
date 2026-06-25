@@ -9,6 +9,7 @@ import CropModal from "./CropModal";
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
   const [cropFile, setCropFile] = useState<File | null>(null);
+  const [upErr, setUpErr] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   if (f.t === "textarea" || f.t === "list") {
     const v = f.t === "list" && Array.isArray(value) ? value.join("\n") : (value || "");
@@ -31,12 +32,13 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
     return (
       <div className="ad-files">
         <input ref={fileRef} type="file" multiple hidden onChange={async (e) => {
-          const files = e.target.files; if (!files) return; setBusy(true);
-          const added: any[] = [];
-          for (const file of Array.from(files)) { try { const url = await onUpload(file, file.type.startsWith("image")); added.push({ url, name: file.name, type: file.type }); } catch {} }
-          onChange([...list, ...added]); setBusy(false); if (fileRef.current) fileRef.current.value = "";
+          const files = e.target.files; if (!files) return; setBusy(true); setUpErr("");
+          const added: any[] = []; let failed = 0;
+          for (const file of Array.from(files)) { try { const url = await onUpload(file, file.type.startsWith("image")); added.push({ url, name: file.name, type: file.type }); } catch (err: any) { failed++; setUpErr(`Upload failed: ${file.name} — ${err?.message || err}`); } }
+          if (added.length) onChange([...list, ...added]); setBusy(false); if (fileRef.current) fileRef.current.value = "";
         }} />
         <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? "⏳ Uploading…" : "+ Add files (HTML / PDF / image / video)"}</button>
+        {upErr && <p className="ad-up-err">⚠ {upErr}</p>}
         <div className="ad-file-list">
           {list.map((a, i) => (
             <div className="ad-file-row" key={i}><a href={a.url} target="_blank" rel="noopener">{ic(a.type)} {a.name || a.url}</a><button type="button" onClick={() => onChange(list.filter((_, j) => j !== i))}>✕</button></div>
@@ -47,7 +49,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
   }
   if (f.t === "image" || f.t === "file") {
     const isImage = f.t === "image";
-    const doUpload = async (file: File) => { setBusy(true); try { const url = await onUpload(file, isImage); onChange(url); } finally { setBusy(false); } };
+    const doUpload = async (file: File) => { setBusy(true); setUpErr(""); try { const url = await onUpload(file, isImage); onChange(url); } catch (err: any) { setUpErr(`Upload failed — ${err?.message || err}`); } finally { setBusy(false); } };
     return (
       <div className="ad-upload">
         <input ref={fileRef} type="file" accept={f.accept || (isImage ? "image/*" : undefined)} hidden onChange={(e) => {
@@ -58,6 +60,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
         <button type="button" className="btn btn-ghost btn-sm" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? "⏳ Uploading…" : (value ? "Replace" : "Upload")}</button>
         {value && (isImage ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 file ↗</a>)}
         <input type="text" value={value || ""} placeholder="…or paste a URL" onChange={(e) => onChange(e.target.value)} />
+        {upErr && <p className="ad-up-err">⚠ {upErr}</p>}
         {cropFile && <CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); doUpload(f2); }} />}
       </div>
     );
@@ -112,10 +115,11 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
   // Gallery album multi-upload
   const addAlbumFiles = async (files: FileList) => {
-    setAlbumBusy(true);
+    setAlbumBusy(true); let fail = 0; let lastErr = "";
     for (const f of Array.from(files)) {
-      try { const isVid = f.type.startsWith("video"); const file = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch {}
+      try { const isVid = f.type.startsWith("video"); const file = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch (e: any) { fail++; lastErr = e?.message || String(e); }
     }
+    if (fail) flash(`⚠ ${fail} upload(s) failed — ${lastErr}`);
     setAlbumBusy(false);
   };
   const postAlbum = async () => {
