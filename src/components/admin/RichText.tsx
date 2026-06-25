@@ -19,6 +19,16 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   const link = () => { const u = prompt("Link URL:"); if (u) exec("createLink", u); };
   const insert = (html: string) => { focusEd(); document.execCommand("insertHTML", false, html + "<p><br></p>"); sync(); };
 
+  // Paste as clean text — strips foreign colours/fonts so pasted content is
+  // always visible and matches the editor styling. Newlines become paragraphs.
+  const onPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = (e.clipboardData.getData("text/plain") || "").replace(/\r/g, "");
+    const html = text.split(/\n{2,}/).map((para) => para ? "<p>" + para.replace(/\n/g, "<br>").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!)) + "</p>" : "").join("");
+    document.execCommand("insertHTML", false, html || text);
+    sync();
+  };
+
   const ytId = (u: string) => { const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,})/); return m ? m[1] : u.trim(); };
   const addYouTube = () => { const u = prompt("YouTube URL or video ID:"); if (!u) return; const id = ytId(u); insert(`<div class="rte-embed"><iframe src="https://www.youtube.com/embed/${id}" loading="lazy" allowfullscreen></iframe></div>`); };
 
@@ -58,7 +68,7 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
       </div>
       <input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "image"); if (imgRef.current) imgRef.current.value = ""; }} />
       <input ref={vidRef} type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "video"); if (vidRef.current) vidRef.current.value = ""; }} />
-      <div className="rte-body" ref={ref} contentEditable suppressContentEditableWarning data-ph={placeholder || ""} onInput={sync} onBlur={sync} />
+      <div className="rte-body" ref={ref} contentEditable suppressContentEditableWarning data-ph={placeholder || ""} onInput={sync} onBlur={sync} onPaste={onPaste} />
     </div>
   );
 }

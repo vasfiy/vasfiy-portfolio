@@ -1293,6 +1293,9 @@ a.blog-viewall { width: max-content; }
 .rte-body p { margin: 0 0 .6em; }
 .rte-body ul, .rte-body ol { padding-left: 22px; margin: 0 0 .6em; }
 .rte-body a { color: var(--cyan); }
+/* Neutralise foreign inline colours from pasted content so text stays visible */
+.rte-body [style] { color: var(--text) !important; background-color: transparent !important; }
+.rte-body a[style] { color: var(--cyan) !important; }
 .rte-body pre { background: var(--surface); padding: 10px 12px; border-radius: 8px; font-family: var(--font-mono); font-size: .85em; overflow-x: auto; }
 
 .ad-drag { cursor: grab; color: var(--text-faint); padding: 0 4px; user-select: none; }
