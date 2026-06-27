@@ -47,7 +47,8 @@ export default function AdminApp() {
           <button className="btn btn-ghost btn-sm" onClick={() => A.signOut()}>Log out</button>
         </div>
       </aside>
-      <button className="ad-burger" onClick={() => setNavOpen((o) => !o)} aria-label="Menu">☰</button>
+      {navOpen && <div className="ad-backdrop" onClick={() => setNavOpen(false)} aria-hidden />}
+      <button className="ad-burger" onClick={() => setNavOpen((o) => !o)} aria-label="Menu">{navOpen ? "✕" : "☰"}</button>
       <main className="ad-main">
         {active === "overview" && <Dashboard onGo={setActive} />}
         {col && <ItemManager collection={col} key={col.id} />}

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import { fmtDate, ytId, readingTime } from "@/lib/data";
@@ -10,7 +10,36 @@ export default function PostView({ post, related }: { post: Post | null; related
   const { lang, t } = useLang();
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [toc, setToc] = useState<{ id: string; text: string; sub: boolean }[]>([]);
+  const richRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setUrl(window.location.href.split("#")[0]); }, []);
+
+  // Reading progress bar tied to how far through the article you've scrolled
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.querySelector(".post-page") as HTMLElement | null;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      setProgress(total > 40 ? Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / total)) : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [post]);
+
+  // Build a table of contents from the article's headings
+  useEffect(() => {
+    const root = richRef.current;
+    if (!root) { setToc([]); return; }
+    const hs = Array.from(root.querySelectorAll("h2, h3")) as HTMLElement[];
+    const items = hs.map((h, i) => {
+      const id = "sec-" + i + "-" + (h.textContent || "").toLowerCase().replace(/[^\w]+/g, "-").slice(0, 28);
+      h.id = id;
+      return { id, text: h.textContent || "", sub: h.tagName === "H3" };
+    });
+    setToc(items.length >= 2 ? items : []);
+  }, [post]);
 
   if (!post) return (
     <article className="post-page container">
@@ -42,13 +71,26 @@ export default function PostView({ post, related }: { post: Post | null; related
 
   return (
     <article className="post-page container">
+      <div className="read-progress" aria-hidden><i style={{ transform: `scaleX(${progress})` }} /></div>
       <Link className="post-back" href="/blog">{t("blog.back")}</Link>
       {media()}
       <div className="post-text">
         <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(full)} {t("blog.min")}</span></div>
         <h1 className="post-title">{title}</h1>
+        {toc.length > 0 && (
+          <details className="post-toc" open>
+            <summary>{lang === "uz" ? "📑 Mundarija" : "📑 Contents"}</summary>
+            <ul>
+              {toc.map((it) => (
+                <li key={it.id} className={it.sub ? "toc-sub" : ""}>
+                  <a href={"#" + it.id} onClick={(e) => { e.preventDefault(); document.getElementById(it.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{it.text}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         {isRich
-          ? <div className="post-rich" dangerouslySetInnerHTML={{ __html: full }} />
+          ? <div className="post-rich" ref={richRef} dangerouslySetInnerHTML={{ __html: full }} />
           : paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
       </div>
       <div className="post-share">
