@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import * as A from "@/lib/admin";
+import { uiPrompt, uiConfirm } from "./Dialog";
 
 interface Album { key: string; album: string | null; cat: string | null; photos: any[]; }
 
@@ -45,18 +46,18 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
     setBusy(fail ? `⚠ ${fail} upload(s) failed — ${lastErr}` : ""); refreshAll();
   };
   const rename = async (a: Album) => {
-    const nn = prompt("New album name (blank = ungroup):", a.album || "");
+    const nn = await uiPrompt("New album name (blank = ungroup):", a.album || "");
     if (nn == null) return; setBusy("Renaming…");
     for (const p of a.photos) await A.updateItem(p.__id, { ...p, album: nn || undefined, albumUz: nn || undefined });
     setBusy(""); refreshAll();
   };
   const delAlbum = async (a: Album) => {
-    if (!confirm(`Delete album "${name(a)}" and its ${a.photos.length} photo(s)?`)) return;
+    if (!(await uiConfirm(`Delete album "${name(a)}" and its ${a.photos.length} photo(s)?`))) return;
     setBusy("Deleting…");
     for (const p of a.photos) await A.deleteItem(p.__id);
     setBusy(""); refreshAll();
   };
-  const delPhoto = async (p: any) => { if (!confirm("Delete this photo?")) return; await A.deleteItem(p.__id); refreshAll(); };
+  const delPhoto = async (p: any) => { if (!(await uiConfirm("Delete this photo?"))) return; await A.deleteItem(p.__id); refreshAll(); };
   const setCover = async (a: Album, p: any) => { for (const x of a.photos) await A.setPinned(x.__id, x.__id === p.__id); refreshAll(); };
 
   return (

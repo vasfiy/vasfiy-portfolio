@@ -5,6 +5,7 @@ import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
 import CropModal from "./CropModal";
+import { uiConfirm } from "./Dialog";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -104,7 +105,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
     } catch (e: any) { flash("Error: " + (e.message || e)); }
   };
   const edit = (it: any) => { setEditId(it.__id); setForm({ ...it }); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  const remove = async (it: any) => { if (!confirm("Delete this item?")) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
+  const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
@@ -214,7 +215,7 @@ function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<st
       <h3>Categories</h3>
       <div className="ad-cats">
         {Object.entries(cats).map(([k, v]: any) => (
-          <div className="ad-cat" key={k}><b>{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}</span><button className="danger" onClick={async () => { if (confirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button></div>
+          <div className="ad-cat" key={k}><b>{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}</span><button className="danger" onClick={async () => { if (await uiConfirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button></div>
         ))}
       </div>
       <div className="ad-grid4">

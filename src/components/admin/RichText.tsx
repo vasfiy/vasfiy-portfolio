@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import * as A from "@/lib/admin";
+import { uiPrompt } from "./Dialog";
 
 /* Lightweight dependency-free WYSIWYG editor (contentEditable + toolbar).
    Emits HTML. Supports inline images, videos and YouTube embeds so a Journal
@@ -16,8 +17,12 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   const focusEd = () => ref.current?.focus();
   const exec = (cmd: string, val?: string) => { focusEd(); document.execCommand(cmd, false, val); sync(); };
   const block = (tag: string) => exec("formatBlock", tag);
-  const link = () => { const u = prompt("Link URL:"); if (u) exec("createLink", u); };
-  const insert = (html: string) => { focusEd(); document.execCommand("insertHTML", false, html + "<p><br></p>"); sync(); };
+  // Save/restore the editor selection across the (focus-stealing) prompt modal
+  const savedRange = useRef<Range | null>(null);
+  const saveSel = () => { const s = window.getSelection(); savedRange.current = s && s.rangeCount ? s.getRangeAt(0).cloneRange() : null; };
+  const restoreSel = () => { const s = window.getSelection(); if (savedRange.current && s) { s.removeAllRanges(); s.addRange(savedRange.current); } };
+  const link = async () => { saveSel(); const u = await uiPrompt("Link URL:"); if (!u) return; focusEd(); restoreSel(); document.execCommand("createLink", false, u); sync(); };
+  const insert = (html: string) => { focusEd(); restoreSel(); document.execCommand("insertHTML", false, html + "<p><br></p>"); sync(); };
 
   // Paste as clean text — strips foreign colours/fonts so pasted content is
   // always visible and matches the editor styling. Newlines become paragraphs.
@@ -30,7 +35,7 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   };
 
   const ytId = (u: string) => { const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,})/); return m ? m[1] : u.trim(); };
-  const addYouTube = () => { const u = prompt("YouTube URL or video ID:"); if (!u) return; const id = ytId(u); insert(`<div class="rte-embed"><iframe src="https://www.youtube.com/embed/${id}" loading="lazy" allowfullscreen></iframe></div>`); };
+  const addYouTube = async () => { saveSel(); const u = await uiPrompt("YouTube URL or video ID:"); if (!u) return; const id = ytId(u); insert(`<div class="rte-embed"><iframe src="https://www.youtube.com/embed/${id}" loading="lazy" allowfullscreen></iframe></div>`); };
 
   const upload = async (file: File, kind: "image" | "video") => {
     setBusy(kind === "image" ? "Uploading image…" : "Uploading video…");
@@ -59,8 +64,8 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
         <Btn on={link} title="Link">🔗</Btn>
         <Btn on={() => block("<pre>")} title="Code block">{"</>"}</Btn>
         <span className="rte-sep" />
-        <Btn on={() => imgRef.current?.click()} title="Insert image">🖼</Btn>
-        <Btn on={() => vidRef.current?.click()} title="Insert video">🎬</Btn>
+        <Btn on={() => { saveSel(); imgRef.current?.click(); }} title="Insert image">🖼</Btn>
+        <Btn on={() => { saveSel(); vidRef.current?.click(); }} title="Insert video">🎬</Btn>
         <Btn on={addYouTube} title="Embed YouTube">▶</Btn>
         <span className="rte-sep" />
         <Btn on={() => exec("removeFormat")} title="Clear formatting">✕</Btn>

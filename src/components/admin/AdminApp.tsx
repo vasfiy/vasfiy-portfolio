@@ -5,6 +5,7 @@ import * as A from "@/lib/admin";
 import ItemManager from "./ItemManager";
 import { SiteText, Inbox, Analytics, MediaLib } from "./Panels";
 import Dashboard from "./Dashboard";
+import { DialogHost } from "./Dialog";
 
 const EXTRA = [
   { id: "sitetext", label: "Site text", icon: "📝" },
@@ -32,6 +33,7 @@ export default function AdminApp() {
   const col = COLLECTIONS.find((c) => c.id === active);
   return (
     <div className="ad-app">
+      <DialogHost />
       <aside className={"ad-side" + (navOpen ? " open" : "")}>
         <div className="ad-brand">{photo ? <img className="ad-avatar" src={photo} alt="" /> : <span className="brand-mark">KT</span>} <b>Admin</b></div>
         <nav>

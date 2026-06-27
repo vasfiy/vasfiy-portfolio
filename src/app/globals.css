@@ -1575,3 +1575,15 @@ a.blog-viewall { width: max-content; }
 [data-mode="light"] .ad-date { color-scheme: light; }
 .ad-date::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .8; }
 .ad-date::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* ===================== Themed prompt/confirm dialog ===================== */
+.ui-dialog-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 24px; background: rgba(2, 5, 12, .68); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: ui-fade .12s ease; }
+@keyframes ui-fade { from { opacity: 0; } to { opacity: 1; } }
+.ui-dialog { width: 100%; max-width: 430px; border: 1px solid var(--border-strong); border-radius: 16px; padding: 22px 22px 18px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); background-color: var(--bg); background-image: linear-gradient(180deg, var(--surface-2), var(--surface)); animation: ui-pop .16s ease; }
+@keyframes ui-pop { from { transform: translateY(10px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+.ui-dialog-msg { font-size: 1rem; color: var(--text); margin: 0 0 14px; line-height: 1.5; white-space: pre-wrap; }
+.ui-dialog-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; color: var(--text); font: inherit; font-size: .95rem; outline: none; transition: border-color .15s; }
+.ui-dialog-input:focus { border-color: var(--cyan); }
+.ui-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.ui-dialog-danger { background: #ff4d5e; color: #fff; border: 1px solid #ff4d5e; font-weight: 600; }
+.ui-dialog-danger:hover { background: #ff3a4c; border-color: #ff3a4c; }

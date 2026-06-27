@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { SITE_GROUPS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import CropModal from "./CropModal";
+import { uiConfirm } from "./Dialog";
 
 /* ---------------- Site text + Profile/CV ---------------- */
 const EXPLORE_KEYS: { k: string; label: string }[] = [
@@ -110,7 +111,7 @@ export function Inbox() {
           <div className="ad-msg-top"><b>{m.name || "(no name)"}</b> <a href={"mailto:" + m.email}>{m.email}</a><span className="ad-msg-date">{new Date(m.created_at).toLocaleString()}</span></div>
           {m.message && <p>{m.message}</p>}
           {m.audio && <audio className="ad-msg-audio" controls src={m.audio} />}
-          <button className="btn btn-ghost btn-sm danger" onClick={async () => { if (confirm("Delete message?")) { await A.deleteMessage(m.id); load(); } }}>Delete</button>
+          <button className="btn btn-ghost btn-sm danger" onClick={async () => { if (await uiConfirm("Delete message?")) { await A.deleteMessage(m.id); load(); } }}>Delete</button>
         </div>
       ))}
     </div>
@@ -213,7 +214,7 @@ export function MediaLib() {
             <div className="ad-media" key={f.name}>
               {/^image|webp|png|jpg|jpeg|gif/.test(f.type + f.name) ? <img src={f.url} alt="" /> : <div className="ad-media-doc">📄</div>}
               <button onClick={() => navigator.clipboard.writeText(f.url)} title="Copy URL">⧉</button>
-              <button className="danger" onClick={async () => { if (confirm("Delete file?")) { await A.removeStorage(f.name); load(); } }} title="Delete">🗑</button>
+              <button className="danger" onClick={async () => { if (await uiConfirm("Delete file?")) { await A.removeStorage(f.name); load(); } }} title="Delete">🗑</button>
             </div>
           ))}
         </div>
