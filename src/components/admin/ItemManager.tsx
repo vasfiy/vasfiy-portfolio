@@ -15,6 +15,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
     const v = f.t === "list" && Array.isArray(value) ? value.join("\n") : (value || "");
     return <textarea rows={f.t === "list" ? 3 : 4} value={v} placeholder={f.ph} onChange={(e) => onChange(e.target.value)} />;
   }
+  if (f.t === "date") return <input type="date" className="ad-date" value={value || ""} onChange={(e) => onChange(e.target.value)} />;
   if (f.t === "html") return <RichText value={value || ""} onChange={onChange} placeholder={f.ph} />;
   if (f.t === "select") return <select value={value || f.opts?.[0]} onChange={(e) => onChange(e.target.value)}>{f.opts?.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
   if (f.t === "cat") {
@@ -82,11 +83,13 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const [albumBusy, setAlbumBusy] = useState(false);
   const albumInput = useRef<HTMLInputElement>(null);
 
+  // New items default the date field to today (YYYY-MM-DD).
+  const freshForm = useCallback(() => (c.fields.some((f) => f.k === "date") ? { date: new Date().toISOString().slice(0, 10) } : {}), [c.fields]);
   const load = useCallback(async () => {
     setItems(await A.listItems(c.kind));
     if (c.cats) setCats(await A.listCats(c.kind));
   }, [c.kind, c.cats]);
-  useEffect(() => { load(); setForm({}); setEditId(null); }, [load]);
+  useEffect(() => { load(); setForm(freshForm()); setEditId(null); }, [load, freshForm]);
 
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2500); };
   const upload = async (file: File, isImage: boolean) => { const f = isImage ? await A.compressImage(file) : file; return A.uploadFile(f); };
@@ -97,7 +100,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
     if (c.kind === "blog" && obj.media && (obj.type === "image" || obj.type === "video") && !/^https?:|^data:/.test(obj.media)) { /* keep */ }
     try {
       if (editId) await A.updateItem(editId, obj); else await A.addItem(c.kind, obj);
-      setForm({}); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
+      setForm(freshForm()); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
     } catch (e: any) { flash("Error: " + (e.message || e)); }
   };
   const edit = (it: any) => { setEditId(it.__id); setForm({ ...it }); window.scrollTo({ top: 0, behavior: "smooth" }); };

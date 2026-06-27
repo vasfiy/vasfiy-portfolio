@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat" | "html";
+export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat" | "html" | "date";
 export interface Field { k: string; label: string; t: FieldType; opts?: string[]; ph?: string; accept?: string; }
 export interface Collection {
   kind: string;        // items.kind value
@@ -29,7 +29,7 @@ export const COLLECTIONS: Collection[] = [
   {
     kind: "blog", id: "blog", label: "Journal", icon: "✍️", cats: false, addTop: true,
     fields: [
-      { k: "date", label: "Date", t: "text", ph: "2026-06-20" },
+      { k: "date", label: "Date", t: "date" },
       { k: "type", label: "Type", t: "select", opts: ["text", "image", "youtube", "video"] },
       { k: "media", label: "Media (upload, or YouTube URL)", t: "file", accept: "image/*,video/*" },
       { k: "cat", label: "Category", t: "text", ph: "Travel" },
@@ -119,7 +119,7 @@ export const COLLECTIONS: Collection[] = [
   {
     kind: "lesson", id: "lessons", label: "Linux Lab", icon: "🐧", cats: true, addTop: true,
     fields: [
-      { k: "date", label: "Date", t: "text", ph: "2026-06-20" },
+      { k: "date", label: "Date", t: "date" },
       { k: "cat", label: "Category key", t: "cat" },
       { k: "title", label: "Title (EN)", t: "text" },
       { k: "titleUz", label: "Title (UZ)", t: "text" },

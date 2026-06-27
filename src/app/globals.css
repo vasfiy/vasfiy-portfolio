@@ -1569,3 +1569,9 @@ a.blog-viewall { width: max-content; }
   .bl-featured .bl-thumb { aspect-ratio: 16/9; min-height: 0; }
   .bl-search { max-width: none; }
 }
+
+/* Native date picker matches the admin theme (visible calendar icon) */
+.ad-date { color-scheme: dark; }
+[data-mode="light"] .ad-date { color-scheme: light; }
+.ad-date::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .8; }
+.ad-date::-webkit-calendar-picker-indicator:hover { opacity: 1; }
