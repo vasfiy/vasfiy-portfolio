@@ -5,13 +5,14 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import { pick } from "@/lib/i18n";
 import { blogSort, fmtDate, ytId, readingTime } from "@/lib/data";
-import type { Post } from "@/lib/types";
+import type { Post, Category } from "@/lib/types";
 
-export default function BlogList({ posts }: { posts: Post[] }) {
+export default function BlogList({ posts, cats = {} }: { posts: Post[]; cats?: Record<string, Category> }) {
   const { lang, t } = useLang();
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
-  const cats = Array.from(new Set(posts.map((p) => p.cat).filter(Boolean))) as string[];
+  const present = Array.from(new Set(posts.map((p) => p.cat).filter(Boolean))) as string[];
+  const catLabel = (c: string) => { const m = cats[c]; return m ? (m.icon ? m.icon + " " : "") + (m[lang] || m.en || c) : c; };
   const matched = blogSort(
     posts
       .filter((p) => filter === "all" || p.cat === filter)
@@ -41,10 +42,10 @@ export default function BlogList({ posts }: { posts: Post[] }) {
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={lang === "uz" ? "Postlarni qidirish…" : "Search posts…"} aria-label="Search posts" />
             {q && <button className="bl-search-x" onClick={() => setQ("")} aria-label="Clear">×</button>}
           </div>
-          {cats.length > 0 && (
+          {present.length > 0 && (
             <div className="filter-bar">
               <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{t("blog.all")}</button>
-              {cats.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{c}</button>)}
+              {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
             </div>
           )}
         </div>

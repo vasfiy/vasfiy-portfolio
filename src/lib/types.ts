@@ -3,7 +3,7 @@ export type Lang = "en" | "uz";
 export interface Job { role?: string; roleUz?: string; date?: string; company?: string; meta?: string; metaUz?: string; bullets?: string[]; bulletsUz?: string[]; pinned?: boolean; __id?: string; }
 export interface Skill { icon?: string; name?: string; nameUz?: string; tags?: string[]; pinned?: boolean; __id?: string; }
 export interface Cert { badge?: string; name?: string; nameUz?: string; meta?: string; metaUz?: string; file?: string; url?: string; pinned?: boolean; __id?: string; }
-export interface Project { icon?: string; period?: string; title?: string; titleUz?: string; sub?: string; subUz?: string; desc?: string; descUz?: string; tags?: string[]; linkUrl?: string; linkLabel?: string; linkLabelUz?: string; pinned?: boolean; __id?: string; }
+export interface Project { icon?: string; cat?: string; period?: string; title?: string; titleUz?: string; sub?: string; subUz?: string; desc?: string; descUz?: string; tags?: string[]; linkUrl?: string; linkLabel?: string; linkLabelUz?: string; pinned?: boolean; __id?: string; }
 export interface Education { degree?: string; degreeUz?: string; date?: string; dateUz?: string; school?: string; schoolUz?: string; pinned?: boolean; __id?: string; }
 export interface Language { label?: string; labelUz?: string; pct?: number | string; pinned?: boolean; __id?: string; }
 export interface Photo { src?: string; emoji?: string; album?: string; albumUz?: string; cat?: string; caption?: string; captionUz?: string; location?: string; video?: boolean; pinned?: boolean; __id?: string; }
@@ -25,6 +25,8 @@ export interface SiteData {
   challenges: Challenge[];
   galleryCats: Record<string, Category>;
   bookCats: Record<string, Category>;
+  /** All managed categories, keyed by item kind then category key. */
+  cats: Record<string, Record<string, Category>>;
   settings: Record<string, any>;
 }
 

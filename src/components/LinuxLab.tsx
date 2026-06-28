@@ -18,7 +18,7 @@ const LX = {
 const PROG_KEY = "kt-lesson-progress";
 const CTF_KEY = "kt-ctf-solved";
 
-export default function LinuxLab({ lessons, challenges = [], cats }: { lessons: any[]; challenges?: any[]; cats: Record<string, Category> }) {
+export default function LinuxLab({ lessons, challenges = [], cats, challengeCats = {} }: { lessons: any[]; challenges?: any[]; cats: Record<string, Category>; challengeCats?: Record<string, Category> }) {
   const { lang: ctxLang } = useLang();
   const lang = (ctxLang || "en") as Lang;
   const T = LX[lang] || LX.en;
@@ -130,7 +130,7 @@ export default function LinuxLab({ lessons, challenges = [], cats }: { lessons: 
         </div>
       </section>
 
-      <Challenges list={pinSort(challenges)} runCmd={runCmd} lang={lang} T={T} />
+      <Challenges list={pinSort(challenges)} runCmd={runCmd} lang={lang} T={T} cats={challengeCats} />
 
       <section className="section" id="terminal">
         <div className="container">
@@ -153,14 +153,18 @@ export default function LinuxLab({ lessons, challenges = [], cats }: { lessons: 
 }
 
 /* ---------------- CTF Challenges ---------------- */
-function Challenges({ list, runCmd, lang, T }: { list: any[]; runCmd: (c: string) => void; lang: Lang; T: any }) {
+function Challenges({ list, runCmd, lang, T, cats = {} }: { list: any[]; runCmd: (c: string) => void; lang: Lang; T: any; cats?: Record<string, Category> }) {
   const [solved, setSolved] = useState<string[]>([]);
   const [ans, setAns] = useState<Record<string, string>>({});
   const [fb, setFb] = useState<Record<string, "ok" | "err" | "">>({});
   const [hints, setHints] = useState<string[]>([]);
+  const [filter, setFilter] = useState("all");
   useEffect(() => { try { setSolved(JSON.parse(localStorage.getItem(CTF_KEY) || "[]")); } catch {} }, []);
 
   if (!list.length) return null;
+  const present = Array.from(new Set(list.map((c) => c.cat).filter(Boolean))) as string[];
+  const catLabel = (c: string) => { const m = cats[c]; return m ? (m.icon ? m.icon + " " : "") + (m[lang] || m.en || c) : c; };
+  const shown = filter === "all" ? list : list.filter((c) => c.cat === filter);
   const norm = (s: string) => String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
   const pts = (c: any) => parseInt(c.points) || 0;
   const total = list.reduce((s, c) => s + pts(c), 0);
@@ -186,8 +190,14 @@ function Challenges({ list, runCmd, lang, T }: { list: any[]; runCmd: (c: string
           <div className="lx-prog-bar" style={{ maxWidth: "none", flex: 1 }}><i style={{ width: (total ? (score / total) * 100 : 0) + "%" }} /></div>
           <div className="ctf-score-meta"><span>{solvedN}/{list.length} {T.solved}</span><span className="ctf-rank">🏅 {rank}</span></div>
         </div>
+        {present.length > 0 && (
+          <div className="filter-bar">
+            <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{T.all}</button>
+            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
+          </div>
+        )}
         <div className="ctf-grid">
-          {list.map((c) => {
+          {shown.map((c) => {
             const done = solved.includes(c.__id);
             const f = fb[c.__id];
             const showHint = hints.includes(c.__id);

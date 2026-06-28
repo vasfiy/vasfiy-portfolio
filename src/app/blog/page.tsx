@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const data = await getSiteData();
-  return <BlogList posts={data.blog} />;
+  return <BlogList posts={data.blog} cats={data.cats.blog || {}} />;
 }

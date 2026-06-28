@@ -27,12 +27,12 @@ export const COLLECTIONS: Collection[] = [
     title: (i) => (i.album ? "🗂 " + i.album + " · " : "") + (i.caption || i.captionUz || "photo"),
   },
   {
-    kind: "blog", id: "blog", label: "Journal", icon: "✍️", cats: false, addTop: true,
+    kind: "blog", id: "blog", label: "Journal", icon: "✍️", cats: true, addTop: true,
     fields: [
       { k: "date", label: "Date", t: "date" },
       { k: "type", label: "Type", t: "select", opts: ["text", "image", "youtube", "video"] },
       { k: "media", label: "Media (upload, or YouTube URL)", t: "file", accept: "image/*,video/*" },
-      { k: "cat", label: "Category", t: "text", ph: "Travel" },
+      { k: "cat", label: "Category", t: "cat" },
       { k: "title", label: "Title (EN)", t: "text" },
       { k: "titleUz", label: "Title (UZ)", t: "text" },
       { k: "body", label: "Short text (EN)", t: "textarea" },
@@ -44,9 +44,10 @@ export const COLLECTIONS: Collection[] = [
     title: (i) => (i.title || i.titleUz || "(untitled)") + (i.date ? " · " + i.date : ""),
   },
   {
-    kind: "project", id: "projects", label: "Projects", icon: "🚀",
+    kind: "project", id: "projects", label: "Projects", icon: "🚀", cats: true,
     fields: [
       { k: "icon", label: "Icon (emoji)", t: "text", ph: "🌐" },
+      { k: "cat", label: "Category", t: "cat" },
       { k: "period", label: "Period", t: "text", ph: "2023 – Present" },
       { k: "title", label: "Title (EN)", t: "text" },
       { k: "titleUz", label: "Title (UZ)", t: "text" },
@@ -131,7 +132,7 @@ export const COLLECTIONS: Collection[] = [
     title: (i) => (i.title || i.titleUz || "(lesson)") + (i.cat ? " · " + i.cat : ""),
   },
   {
-    kind: "challenge", id: "challenges", label: "CTF Challenges", icon: "🏴",
+    kind: "challenge", id: "challenges", label: "CTF Challenges", icon: "🏴", cats: true,
     fields: [
       { k: "title", label: "Title (EN)", t: "text" }, { k: "titleUz", label: "Title (UZ)", t: "text" },
       { k: "prompt", label: "Task / question (EN) — rich text", t: "html" },
@@ -140,7 +141,7 @@ export const COLLECTIONS: Collection[] = [
       { k: "answer", label: "Correct answer / flag (exact match)", t: "text" },
       { k: "points", label: "Points", t: "text", ph: "20" },
       { k: "hint", label: "Hint (EN)", t: "text" }, { k: "hintUz", label: "Hint (UZ)", t: "text" },
-      { k: "cat", label: "Category key", t: "text", ph: "linux / security / networking" },
+      { k: "cat", label: "Category", t: "cat" },
     ],
     title: (i) => (i.title || i.titleUz || "(challenge)") + (i.points ? ` · ${i.points} pts` : ""),
   },

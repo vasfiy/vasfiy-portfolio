@@ -14,7 +14,7 @@ const KIND_TO_ARR: Record<string, keyof SiteData> = {
 const CAT_KIND_TO_KEY: Record<string, keyof SiteData> = { gallery: "galleryCats", book: "bookCats" };
 
 function empty(): SiteData {
-  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], galleryCats: {}, bookCats: {}, settings: {} };
+  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], galleryCats: {}, bookCats: {}, cats: {}, settings: {} };
 }
 const byPos = (a: any, b: any) => (a.position || 0) - (b.position || 0);
 
@@ -32,8 +32,10 @@ export async function getSiteData(): Promise<SiteData> {
       if (arr) (data[arr] as any[]).push({ ...r.data, pinned: r.pinned, __id: r.id });
     });
     (cats.data || []).slice().sort(byPos).forEach((c: any) => {
+      const cat = { en: c.en, uz: c.uz, icon: c.icon };
       const k = CAT_KIND_TO_KEY[c.kind];
-      if (k) (data[k] as any)[c.key] = { en: c.en, uz: c.uz, icon: c.icon };
+      if (k) (data[k] as any)[c.key] = cat;
+      (data.cats[c.kind] ||= {})[c.key] = cat;
     });
     (settings.data || []).forEach((s: any) => { data.settings[s.key] = s.value; });
   } catch {

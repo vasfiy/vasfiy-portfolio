@@ -192,7 +192,12 @@ function Experience({ data }: { data: SiteData }) {
 /* ---------------- Projects ---------------- */
 function Projects({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
-  const projects = pinSort(data.projects);
+  const [filter, setFilter] = useState("all");
+  const all = pinSort(data.projects);
+  const cats = data.cats?.project || {};
+  const present = Array.from(new Set(all.map((p) => p.cat).filter(Boolean))) as string[];
+  const catLabel = (c: string) => { const m = cats[c]; return m ? (m.icon ? m.icon + " " : "") + (m[lang] || m.en || c) : c; };
+  const projects = filter === "all" ? all : all.filter((p) => p.cat === filter);
   return (
     <section className="section" id="projects">
       <div className="container">
@@ -200,6 +205,12 @@ function Projects({ data }: { data: SiteData }) {
           <span className="section-kicker"><span className="kicker-num">04</span> <span>{t("proj.kicker")}</span></span>
           <h2 className="section-title">{t("proj.title")}</h2>
         </Reveal>
+        {present.length > 0 && (
+          <div className="filter-bar" style={{ marginBottom: 24 }}>
+            <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{lang === "uz" ? "Hammasi" : "All"}</button>
+            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
+          </div>
+        )}
         <div className="projects-grid">
           {projects.map((p, i) => (
             <Reveal className="project-card glass" key={i}>
