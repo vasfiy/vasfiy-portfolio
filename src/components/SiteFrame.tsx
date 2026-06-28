@@ -6,8 +6,9 @@ import Footer from "./Footer";
 import ThemeFab from "./ThemeFab";
 import Search from "./Search";
 import Tracker from "./Tracker";
+import type { Page } from "@/lib/types";
 
-export default function SiteFrame({ children }: { children: React.ReactNode }) {
+export default function SiteFrame({ children, navPages = [] }: { children: React.ReactNode; navPages?: Page[] }) {
   const p = usePathname() || "";
   const [adminHost, setAdminHost] = useState(false);
   // admin.* host serves /admin via a transparent rewrite, so usePathname() stays "/" — detect by host too
@@ -16,7 +17,7 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
   if (p.startsWith("/admin") || adminHost) return <>{children}</>;
   return (
     <>
-      <Navbar />
+      <Navbar pages={navPages} />
       <main>{children}</main>
       <Footer />
       <ThemeFab />

@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { SiteData, Album, Photo, Post } from "./types";
+import type { SiteData, Album, Photo, Post, Page } from "./types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -9,12 +9,12 @@ export const supabase = createClient(url, key, { auth: { persistSession: false }
 const KIND_TO_ARR: Record<string, keyof SiteData> = {
   gallery: "gallery", blog: "blog", book: "books",
   experience: "experience", skill: "skills", cert: "certs",
-  project: "projects", education: "education", language: "languages", challenge: "challenges",
+  project: "projects", education: "education", language: "languages", challenge: "challenges", page: "pages",
 };
 const CAT_KIND_TO_KEY: Record<string, keyof SiteData> = { gallery: "galleryCats", book: "bookCats" };
 
 function empty(): SiteData {
-  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], galleryCats: {}, bookCats: {}, cats: {}, settings: {} };
+  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], pages: [], galleryCats: {}, bookCats: {}, cats: {}, settings: {} };
 }
 const byPos = (a: any, b: any) => (a.position || 0) - (b.position || 0);
 
@@ -42,6 +42,18 @@ export async function getSiteData(): Promise<SiteData> {
     /* network/RLS issue — return whatever we have */
   }
   return data;
+}
+
+/** Lightweight fetch of admin-created pages flagged to appear in the navbar. */
+export async function getNavPages(): Promise<Page[]> {
+  if (!url || !key) return [];
+  try {
+    const { data } = await supabase.from("items").select("*").eq("kind", "page");
+    return (data || [])
+      .slice().sort(byPos)
+      .map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }))
+      .filter((p: Page) => p.nav === "yes" && p.slug);
+  } catch { return []; }
 }
 
 /* ---------- helpers shared by client + server ---------- */

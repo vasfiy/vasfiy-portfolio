@@ -2,8 +2,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
+import { pick } from "@/lib/i18n";
+import type { Page } from "@/lib/types";
 
-export default function Navbar() {
+export default function Navbar({ pages = [] }: { pages?: Page[] }) {
   const { t, lang, toggle } = useLang();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -38,6 +40,7 @@ export default function Navbar() {
       <Link href="/gallery" onClick={close}>{t("nav.gallery")}</Link>
       <Link href="/blog" onClick={close}>{t("nav.journal")}</Link>
       <Link href="/library" onClick={close}>{t("nav.library")}</Link>
+      {pages.map((p) => <Link key={p.slug} href={`/p/${p.slug}`} onClick={close}>{p.icon ? p.icon + " " : ""}{pick(p, "title", lang) || p.slug}</Link>)}
       <Link href="/#contact" onClick={close}>{t("nav.contact")}</Link>
     </>
   );

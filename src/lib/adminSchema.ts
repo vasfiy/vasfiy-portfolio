@@ -145,6 +145,19 @@ export const COLLECTIONS: Collection[] = [
     ],
     title: (i) => (i.title || i.titleUz || "(challenge)") + (i.points ? ` · ${i.points} pts` : ""),
   },
+  {
+    kind: "page", id: "pages", label: "Pages", icon: "📄", addTop: true,
+    fields: [
+      { k: "slug", label: "URL slug (letters, numbers, dashes)", t: "text", ph: "resources" },
+      { k: "icon", label: "Icon (emoji)", t: "text", ph: "📚" },
+      { k: "nav", label: "Show in navbar?", t: "select", opts: ["no", "yes"] },
+      { k: "title", label: "Title (EN)", t: "text" },
+      { k: "titleUz", label: "Title (UZ)", t: "text" },
+      { k: "body", label: "Content (EN) — rich text", t: "html" },
+      { k: "bodyUz", label: "Content (UZ) — rich text", t: "html" },
+    ],
+    title: (i) => (i.title || i.titleUz || i.slug || "(page)") + (i.slug ? " · /p/" + i.slug : ""),
+  },
 ];
 
 /* Site text (settings.siteText) — grouped for a friendlier editor */

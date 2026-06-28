@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import SiteFrame from "@/components/SiteFrame";
 import PWARegister from "@/components/PWARegister";
+import { getNavPages } from "@/lib/data";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vasfiy.uz"),
@@ -22,7 +23,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#0a0e1a" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const navPages = await getNavPages();
   return (
     <html lang="en" data-theme="ocean" data-mode="dark">
       <head>
@@ -35,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="bg-grid" /><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" />
         </div>
         <Providers>
-          <SiteFrame>{children}</SiteFrame>
+          <SiteFrame navPages={navPages}>{children}</SiteFrame>
         </Providers>
         <PWARegister />
       </body>
