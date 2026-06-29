@@ -76,7 +76,12 @@ export async function listCats(kind: string) {
   return map;
 }
 export async function saveCat(kind: string, key: string, obj: { en?: string; uz?: string; icon?: string }) {
-  const { error } = await sb().from("categories").upsert({ kind, key, en: obj.en || "", uz: obj.uz || "", icon: obj.icon || "" }, { onConflict: "kind,key" });
+  // Insert-or-update by (kind,key) without relying on an ON CONFLICT constraint that may not exist.
+  const payload = { kind, key, en: obj.en || "", uz: obj.uz || "", icon: obj.icon || "" };
+  const { data: existing } = await sb().from("categories").select("key").eq("kind", kind).eq("key", key).maybeSingle();
+  const { error } = existing
+    ? await sb().from("categories").update(payload).eq("kind", kind).eq("key", key)
+    : await sb().from("categories").insert(payload);
   if (error) throw error;
 }
 export async function delCat(kind: string, key: string) { await sb().from("categories").delete().eq("kind", kind).eq("key", key); }
