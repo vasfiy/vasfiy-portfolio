@@ -26,7 +26,14 @@ export async function listItems(kind: string) {
   const rows = (data || []).slice().sort(byPos).map((r: any) => ({ ...r.data, pinned: r.pinned, position: r.position, __id: r.id }));
   return rows.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (a.position || 0) - (b.position || 0));
 }
-function clean(obj: any) { const o = { ...obj }; delete o.__id; delete o.pinned; delete o.position; return o; }
+// Postgres jsonb rejects NUL bytes (); strip them from any string value so saves never fail on stored content.
+function stripNul(v: any): any {
+  if (typeof v === "string") return v.replace(/\u0000/g, "");
+  if (Array.isArray(v)) return v.map(stripNul);
+  if (v && typeof v === "object") { const o: any = {}; for (const k in v) o[k] = stripNul(v[k]); return o; }
+  return v;
+}
+function clean(obj: any) { const o = stripNul({ ...obj }); delete o.__id; delete o.pinned; delete o.position; return o; }
 export async function addItem(kind: string, obj: any) {
   const { data } = await sb().from("items").select("position").eq("kind", kind);
   const pos = ((data || []).reduce((m: number, r: any) => Math.max(m, r.position || 0), 0)) + 1;

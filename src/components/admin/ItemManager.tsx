@@ -92,7 +92,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   }, [c.kind, c.cats]);
   useEffect(() => { load(); setForm(freshForm()); setEditId(null); }, [load, freshForm]);
 
-  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2500); };
+  const flash = (m: string) => { setMsg(m); if (!/^(Error|⚠)/.test(m)) setTimeout(() => setMsg(""), 2500); };
   const upload = async (file: File, isImage: boolean) => { const f = isImage ? await A.compressImage(file) : file; return A.uploadFile(f); };
 
   const save = async () => {
@@ -112,7 +112,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const setItemCat = async (it: any, cat: string) => {
     setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat } : x)));
     try { await A.updateItem(it.__id, { ...it, cat }); flash(cat ? "✓ Category set — live now" : "✓ Category cleared"); }
-    catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
+    catch (e: any) { console.error("setItemCat failed:", e); flash("Error saving category: " + (e?.message || e?.error_description || JSON.stringify(e))); await load(); }
   };
   const newCatThenAssign = async (it: any) => {
     const name = await uiPrompt("New category name:");
@@ -120,7 +120,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
     const key = name.trim();
     setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat: key } : x)));
     try { await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" }); await A.updateItem(it.__id, { ...it, cat: key }); await load(); flash("✓ Category created & assigned"); }
-    catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
+    catch (e: any) { console.error("newCatThenAssign failed:", e); flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); await load(); }
   };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
