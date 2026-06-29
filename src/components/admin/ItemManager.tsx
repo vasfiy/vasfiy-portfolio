@@ -108,15 +108,19 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
-  // Quick-assign a category to an existing item straight from the list
-  const setItemCat = async (it: any, cat: string) => { await A.updateItem(it.__id, { ...it, cat }); await load(); };
+  // Quick-assign a category to an existing item straight from the list (optimistic + feedback)
+  const setItemCat = async (it: any, cat: string) => {
+    setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat } : x)));
+    try { await A.updateItem(it.__id, { ...it, cat }); flash(cat ? "✓ Category set — live now" : "✓ Category cleared"); }
+    catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
+  };
   const newCatThenAssign = async (it: any) => {
     const name = await uiPrompt("New category name:");
     if (!name || !name.trim()) return;
     const key = name.trim();
-    await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" });
-    await A.updateItem(it.__id, { ...it, cat: key });
-    await load();
+    setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat: key } : x)));
+    try { await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" }); await A.updateItem(it.__id, { ...it, cat: key }); await load(); flash("✓ Category created & assigned"); }
+    catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
   };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
