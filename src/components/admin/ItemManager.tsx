@@ -5,7 +5,7 @@ import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
 import CropModal from "./CropModal";
-import { uiConfirm } from "./Dialog";
+import { uiConfirm, uiPrompt } from "./Dialog";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -108,6 +108,16 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
+  // Quick-assign a category to an existing item straight from the list
+  const setItemCat = async (it: any, cat: string) => { await A.updateItem(it.__id, { ...it, cat }); await load(); };
+  const newCatThenAssign = async (it: any) => {
+    const name = await uiPrompt("New category name:");
+    if (!name || !name.trim()) return;
+    const key = name.trim();
+    await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" });
+    await A.updateItem(it.__id, { ...it, cat: key });
+    await load();
+  };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
     if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
@@ -195,6 +205,14 @@ export default function ItemManager({ collection }: { collection: Collection }) 
             onDragOver={(e) => e.preventDefault()} onDrop={() => { if (!q) dropTo(idx); }}>
             <span className="ad-drag" title="Drag to reorder">⠿</span>
             <span className="ad-item-title">{it.pinned ? "📌 " : ""}{it.archived ? "🗄 " : ""}{c.title(it)}</span>
+            {c.cats && (
+              <select className="ad-item-cat" title="Category" value={it.cat || ""} onChange={(e) => { const v = e.target.value; if (v === "__new") newCatThenAssign(it); else setItemCat(it, v); }}>
+                <option value="">— no category —</option>
+                {Object.keys(cats).map((k) => <option key={k} value={k}>{(cats[k].icon ? cats[k].icon + " " : "") + (cats[k].en || k)}</option>)}
+                {it.cat && !cats[it.cat] && <option value={it.cat}>{it.cat} (unmanaged)</option>}
+                <option value="__new">＋ New category…</option>
+              </select>
+            )}
             <span className="ad-item-actions">
               <button title={it.archived ? "Unarchive (publish)" : "Archive (hide from site)"} className={it.archived ? "on" : ""} onClick={() => toggleArchive(it)}>🗄</button>
               <button title="Pin" className={it.pinned ? "on" : ""} onClick={() => togglePin(it)}>📌</button>

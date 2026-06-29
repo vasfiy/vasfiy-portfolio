@@ -1604,3 +1604,7 @@ a.blog-viewall { width: max-content; }
 .ad-cat-unmanaged { margin: 4px 0 10px; }
 .ad-cat-suggest { padding: 5px 12px; border: 1px dashed var(--border-strong); border-radius: 999px; background: none; color: var(--cyan); font: inherit; font-size: .82rem; cursor: pointer; margin: 0 6px 6px 0; }
 .ad-cat-suggest:hover { background: var(--grad-soft); border-style: solid; }
+
+/* Quick category assign in the admin item list */
+.ad-item-cat { max-width: 150px; flex-shrink: 0; padding: 4px 8px !important; font-size: .8rem !important; border-radius: 7px !important; }
+@media (max-width: 720px) { .ad-item-cat { max-width: 110px; } }
