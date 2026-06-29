@@ -1599,3 +1599,8 @@ a.blog-viewall { width: max-content; }
 .ad-cat-form .ad-cat-icon { max-width: 64px; text-align: center; }
 .ad-cat button[title="Edit"] { background: none; border: 0; color: var(--text-dim); cursor: pointer; padding: 2px 6px; }
 .ad-cat button[title="Edit"]:hover { color: var(--text); }
+
+/* Unmanaged (in-use) category suggestions */
+.ad-cat-unmanaged { margin: 4px 0 10px; }
+.ad-cat-suggest { padding: 5px 12px; border: 1px dashed var(--border-strong); border-radius: 999px; background: none; color: var(--cyan); font: inherit; font-size: .82rem; cursor: pointer; margin: 0 6px 6px 0; }
+.ad-cat-suggest:hover { background: var(--grad-soft); border-style: solid; }
