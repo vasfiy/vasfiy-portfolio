@@ -39,6 +39,12 @@ export async function updateItem(id: string, obj: any) {
 }
 export async function deleteItem(id: string) { const { error } = await sb().from("items").delete().eq("id", id); if (error) throw error; }
 export async function setPinned(id: string, val: boolean) { await sb().from("items").update({ pinned: val }).eq("id", id); }
+/** Temporarily archive/unarchive an item (kept in admin, hidden from the public site). */
+export async function setArchived(id: string, data: any, val: boolean) {
+  const obj = { ...data, archived: val };
+  const { error } = await sb().from("items").update({ data: clean(obj), updated_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw error;
+}
 export async function reorder(orderedIds: string[]) {
   // assign sequential positions matching the given visual order
   await Promise.all(orderedIds.map((id, i) => sb().from("items").update({ position: i }).eq("id", id)));
@@ -67,6 +73,18 @@ export async function saveCat(kind: string, key: string, obj: { en?: string; uz?
   if (error) throw error;
 }
 export async function delCat(kind: string, key: string) { await sb().from("categories").delete().eq("kind", kind).eq("key", key); }
+/* Archived categories live in a single `archivedCats` setting (no schema change). */
+export async function getArchivedCats(): Promise<Record<string, string[]>> {
+  const s = await getSettings();
+  return (s.archivedCats as Record<string, string[]>) || {};
+}
+export async function setCatArchived(kind: string, key: string, archived: boolean) {
+  const all = await getArchivedCats();
+  const list = new Set(all[kind] || []);
+  if (archived) list.add(key); else list.delete(key);
+  all[kind] = Array.from(list);
+  await setSetting("archivedCats", all);
+}
 
 /* ---------- Settings ---------- */
 export async function getSettings() {

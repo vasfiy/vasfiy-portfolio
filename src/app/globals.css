@@ -1587,3 +1587,15 @@ a.blog-viewall { width: max-content; }
 .ui-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .ui-dialog-danger { background: #ff4d5e; color: #fff; border: 1px solid #ff4d5e; font-weight: 600; }
 .ui-dialog-danger:hover { background: #ff3a4c; border-color: #ff3a4c; }
+
+/* Archived items in admin (hidden from public site) */
+.ad-item.archived { opacity: .5; }
+.ad-item.archived .ad-item-title { text-decoration: line-through; text-decoration-color: var(--text-faint); }
+.ad-item-actions button.on { color: var(--cyan); border-color: var(--cyan); }
+/* Category add/edit form */
+.ad-cat-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ad-cat-form input { flex: 1; min-width: 120px; }
+.ad-cat-form .ad-cat-key { max-width: 130px; }
+.ad-cat-form .ad-cat-icon { max-width: 64px; text-align: center; }
+.ad-cat button[title="Edit"] { background: none; border: 0; color: var(--text-dim); cursor: pointer; padding: 2px 6px; }
+.ad-cat button[title="Edit"]:hover { color: var(--text); }

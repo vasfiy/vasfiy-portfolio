@@ -107,6 +107,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const edit = (it: any) => { setEditId(it.__id); setForm({ ...it }); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
+  const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
     if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
@@ -189,12 +190,13 @@ export default function ItemManager({ collection }: { collection: Collection }) 
         {items.length === 0 && <p className="ad-hint">No items yet.</p>}
         {items.length > 1 && !q && <p className="ad-hint">Drag ⠿ to reorder.</p>}
         {items.filter((it) => !q || c.title(it).toLowerCase().includes(q.toLowerCase())).map((it, idx) => (
-          <div className={"ad-item" + (editId === it.__id ? " active" : "") + (dragIdx === idx ? " dragging" : "")} key={it.__id}
+          <div className={"ad-item" + (editId === it.__id ? " active" : "") + (dragIdx === idx ? " dragging" : "") + (it.archived ? " archived" : "")} key={it.__id}
             draggable={!q} onDragStart={() => setDragIdx(idx)} onDragEnd={() => setDragIdx(null)}
             onDragOver={(e) => e.preventDefault()} onDrop={() => { if (!q) dropTo(idx); }}>
             <span className="ad-drag" title="Drag to reorder">⠿</span>
-            <span className="ad-item-title">{it.pinned ? "📌 " : ""}{c.title(it)}</span>
+            <span className="ad-item-title">{it.pinned ? "📌 " : ""}{it.archived ? "🗄 " : ""}{c.title(it)}</span>
             <span className="ad-item-actions">
+              <button title={it.archived ? "Unarchive (publish)" : "Archive (hide from site)"} className={it.archived ? "on" : ""} onClick={() => toggleArchive(it)}>🗄</button>
               <button title="Pin" className={it.pinned ? "on" : ""} onClick={() => togglePin(it)}>📌</button>
               <button title="Up" onClick={() => move(it, "up")}>↑</button>
               <button title="Down" onClick={() => move(it, "down")}>↓</button>
@@ -210,19 +212,36 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
 function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<string, any>; reload: () => Promise<void> }) {
   const [n, setN] = useState({ key: "", en: "", uz: "", icon: "" });
+  const [editing, setEditing] = useState(false);
+  const [archived, setArchived] = useState<string[]>([]);
+  useEffect(() => { A.getArchivedCats().then((a) => setArchived(a[kind] || [])).catch(() => {}); }, [kind, cats]);
+  const save = async () => { if (!n.key.trim()) return; await A.saveCat(kind, n.key.trim(), n); setN({ key: "", en: "", uz: "", icon: "" }); setEditing(false); await reload(); };
+  const startEdit = (k: string, v: any) => { setN({ key: k, en: v.en || "", uz: v.uz || "", icon: v.icon || "" }); setEditing(true); };
+  const reset = () => { setN({ key: "", en: "", uz: "", icon: "" }); setEditing(false); };
+  const toggleArch = async (k: string) => { const next = !archived.includes(k); setArchived((p) => (next ? [...p, k] : p.filter((x) => x !== k))); await A.setCatArchived(kind, k, next); await reload(); };
   return (
     <div className="ad-card">
       <h3>Categories</h3>
       <div className="ad-cats">
-        {Object.entries(cats).map(([k, v]: any) => (
-          <div className="ad-cat" key={k}><b>{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}</span><button className="danger" onClick={async () => { if (await uiConfirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button></div>
-        ))}
+        {Object.entries(cats).map(([k, v]: any) => {
+          const isArch = archived.includes(k);
+          return (
+          <div className={"ad-cat" + (isArch ? " archived" : "")} key={k}>
+            <b>{v.icon ? v.icon + " " : ""}{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}{isArch ? " · 🗄 archived" : ""}</span>
+            <button title={isArch ? "Unarchive (show on site)" : "Archive (hide from site)"} className={isArch ? "on" : ""} onClick={() => toggleArch(k)}>🗄</button>
+            <button title="Edit" onClick={() => startEdit(k, v)}>✎</button>
+            <button className="danger" title="Delete" onClick={async () => { if (await uiConfirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button>
+          </div>
+          );
+        })}
       </div>
-      <div className="ad-grid4">
-        <input placeholder="key" value={n.key} onChange={(e) => setN({ ...n, key: e.target.value })} />
-        <input placeholder="EN" value={n.en} onChange={(e) => setN({ ...n, en: e.target.value })} />
-        <input placeholder="UZ" value={n.uz} onChange={(e) => setN({ ...n, uz: e.target.value })} />
-        <button className="btn btn-ghost btn-sm" onClick={async () => { if (!n.key) return; await A.saveCat(kind, n.key.trim(), n); setN({ key: "", en: "", uz: "", icon: "" }); await reload(); }}>Add</button>
+      <div className="ad-cat-form">
+        <input className="ad-cat-key" placeholder="key" value={n.key} disabled={editing} onChange={(e) => setN({ ...n, key: e.target.value })} />
+        <input className="ad-cat-icon" placeholder="🏷" value={n.icon} onChange={(e) => setN({ ...n, icon: e.target.value })} />
+        <input placeholder="EN name" value={n.en} onChange={(e) => setN({ ...n, en: e.target.value })} />
+        <input placeholder="UZ nomi" value={n.uz} onChange={(e) => setN({ ...n, uz: e.target.value })} />
+        <button className="btn btn-primary btn-sm" onClick={save}>{editing ? "Save" : "Add"}</button>
+        {editing && <button className="btn btn-ghost btn-sm" onClick={reset}>Cancel</button>}
       </div>
     </div>
   );

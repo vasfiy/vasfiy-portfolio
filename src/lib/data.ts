@@ -29,9 +29,11 @@ export async function getSiteData(): Promise<SiteData> {
     ]);
     (items.data || []).slice().sort(byPos).forEach((r: any) => {
       const arr = KIND_TO_ARR[r.kind];
-      if (arr) (data[arr] as any[]).push({ ...r.data, pinned: r.pinned, __id: r.id });
+      if (arr && !r.data?.archived) (data[arr] as any[]).push({ ...r.data, pinned: r.pinned, __id: r.id });
     });
+    const archCats: Record<string, string[]> = (settings.data || []).find((s: any) => s.key === "archivedCats")?.value || {};
     (cats.data || []).slice().sort(byPos).forEach((c: any) => {
+      if ((archCats[c.kind] || []).includes(c.key)) return; // hide archived categories from the public site
       const cat = { en: c.en, uz: c.uz, icon: c.icon };
       const k = CAT_KIND_TO_KEY[c.kind];
       if (k) (data[k] as any)[c.key] = cat;
@@ -52,7 +54,7 @@ export async function getNavPages(): Promise<Page[]> {
     return (data || [])
       .slice().sort(byPos)
       .map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }))
-      .filter((p: Page) => p.nav === "yes" && p.slug);
+      .filter((p: any) => p.nav === "yes" && p.slug && !p.archived);
   } catch { return []; }
 }
 

@@ -9,16 +9,18 @@ export const metadata: Metadata = {
 };
 
 async function getLabData() {
-  const [items, cats] = await Promise.all([
+  const [items, cats, setting] = await Promise.all([
     supabase.from("items").select("*").in("kind", ["lesson", "challenge"]),
     supabase.from("categories").select("*").in("kind", ["lesson", "challenge"]),
+    supabase.from("settings").select("value").eq("key", "archivedCats").maybeSingle(),
   ]);
-  const rows = (items.data || []).slice().sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
+  const arch: Record<string, string[]> = (setting.data?.value as any) || {};
+  const rows = (items.data || []).slice().sort((a: any, b: any) => (a.position || 0) - (b.position || 0)).filter((r: any) => !r.data?.archived);
   const lessons = rows.filter((r: any) => r.kind === "lesson").map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }));
   const challenges = rows.filter((r: any) => r.kind === "challenge").map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }));
   const catMap: Record<string, any> = {};
   const ctfCatMap: Record<string, any> = {};
-  (cats.data || []).forEach((c: any) => { (c.kind === "challenge" ? ctfCatMap : catMap)[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
+  (cats.data || []).forEach((c: any) => { if ((arch[c.kind] || []).includes(c.key)) return; (c.kind === "challenge" ? ctfCatMap : catMap)[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
   return { lessons, challenges, catMap, ctfCatMap };
 }
 
