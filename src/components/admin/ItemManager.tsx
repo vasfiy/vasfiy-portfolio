@@ -5,7 +5,7 @@ import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
 import CropModal from "./CropModal";
-import { uiConfirm, uiPrompt } from "./Dialog";
+import { uiConfirm } from "./Dialog";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -79,6 +79,8 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [q, setQ] = useState("");
   const [msg, setMsg] = useState("");
+  const [catPick, setCatPick] = useState<any | null>(null);
+  const [newCat, setNewCat] = useState("");
   const [albumFiles, setAlbumFiles] = useState<{ url: string; type: string }[]>([]);
   const [albumMeta, setAlbumMeta] = useState({ album: "", cat: "", caption: "" });
   const [albumBusy, setAlbumBusy] = useState(false);
@@ -108,19 +110,25 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
-  // Quick-assign a category to an existing item straight from the list (optimistic + feedback)
-  const setItemCat = async (it: any, cat: string) => {
-    setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat } : x)));
-    try { await A.updateItem(it.__id, { ...it, cat }); flash(cat ? "✓ Category set — live now" : "✓ Category cleared"); }
-    catch (e: any) { console.error("setItemCat failed:", e); flash("Error saving category: " + (e?.message || e?.error_description || JSON.stringify(e))); await load(); }
+  // Category assignment via a dedicated picker modal (replaces the inline dropdown)
+  const assignCat = async (it: any, cat: string) => {
+    try {
+      await A.updateItem(it.__id, { ...it, cat });
+      setCatPick(null); setNewCat("");
+      await load();
+      flash(cat ? "✓ Category set" : "✓ Category cleared");
+    } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
   };
-  const newCatThenAssign = async (it: any) => {
-    const name = await uiPrompt("New category name:");
-    if (!name || !name.trim()) return;
-    const key = name.trim();
-    setItems((arr) => arr.map((x) => (x.__id === it.__id ? { ...x, cat: key } : x)));
-    try { await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" }); await A.updateItem(it.__id, { ...it, cat: key }); await load(); flash("✓ Category created & assigned"); }
-    catch (e: any) { console.error("newCatThenAssign failed:", e); flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); await load(); }
+  const createCatAndAssign = async (it: any) => {
+    const key = newCat.trim();
+    if (!key) return;
+    try {
+      await A.saveCat(c.kind, key, { en: key, uz: "", icon: "" });
+      await A.updateItem(it.__id, { ...it, cat: key });
+      setCatPick(null); setNewCat("");
+      await load();
+      flash("✓ Category created & assigned");
+    } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
   };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
@@ -210,12 +218,9 @@ export default function ItemManager({ collection }: { collection: Collection }) 
             <span className="ad-drag" title="Drag to reorder">⠿</span>
             <span className="ad-item-title">{it.pinned ? "📌 " : ""}{it.archived ? "🗄 " : ""}{c.title(it)}</span>
             {c.cats && (
-              <select className="ad-item-cat" title="Category" value={it.cat || ""} onChange={(e) => { const v = e.target.value; if (v === "__new") newCatThenAssign(it); else setItemCat(it, v); }}>
-                <option value="">— no category —</option>
-                {Object.keys(cats).map((k) => <option key={k} value={k}>{(cats[k].icon ? cats[k].icon + " " : "") + (cats[k].en || k)}</option>)}
-                {it.cat && !cats[it.cat] && <option value={it.cat}>{it.cat} (unmanaged)</option>}
-                <option value="__new">＋ New category…</option>
-              </select>
+              <button type="button" className={"ad-item-cat-btn" + (it.cat ? " has" : "")} title="Assign category" onClick={() => { setNewCat(""); setCatPick(it); }}>
+                🏷 {it.cat ? ((cats[it.cat]?.icon ? cats[it.cat].icon + " " : "") + (cats[it.cat]?.en || it.cat)) : "Category"}
+              </button>
             )}
             <span className="ad-item-actions">
               <button title={it.archived ? "Unarchive (publish)" : "Archive (hide from site)"} className={it.archived ? "on" : ""} onClick={() => toggleArchive(it)}>🗄</button>
@@ -228,6 +233,28 @@ export default function ItemManager({ collection }: { collection: Collection }) 
           </div>
         ))}
       </div>
+
+      {catPick && (
+        <div className="ui-dialog-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) { setCatPick(null); setNewCat(""); } }}>
+          <div className="ui-dialog ad-catpick" role="dialog" aria-modal>
+            <p className="ui-dialog-msg">Category for: <b>{c.title(catPick)}</b></p>
+            <div className="ad-catpick-list">
+              <button type="button" className={"ad-catpick-opt" + (!catPick.cat ? " active" : "")} onClick={() => assignCat(catPick, "")}>— No category —</button>
+              {Object.keys(cats).map((k) => (
+                <button type="button" key={k} className={"ad-catpick-opt" + (catPick.cat === k ? " active" : "")} onClick={() => assignCat(catPick, k)}>{(cats[k].icon ? cats[k].icon + " " : "") + (cats[k].en || k)}</button>
+              ))}
+              {catPick.cat && !cats[catPick.cat] && (
+                <button type="button" className="ad-catpick-opt active" onClick={() => assignCat(catPick, catPick.cat)}>{catPick.cat} (current)</button>
+              )}
+            </div>
+            <div className="ad-catpick-new">
+              <input placeholder="New category name…" value={newCat} autoFocus onChange={(e) => setNewCat(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") createCatAndAssign(catPick); }} />
+              <button type="button" className="btn btn-primary btn-sm" disabled={!newCat.trim()} onClick={() => createCatAndAssign(catPick)}>＋ Create &amp; assign</button>
+            </div>
+            <div className="ui-dialog-actions"><button type="button" className="btn btn-ghost btn-sm" onClick={() => { setCatPick(null); setNewCat(""); }}>Close</button></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1608,3 +1608,15 @@ a.blog-viewall { width: max-content; }
 /* Quick category assign in the admin item list */
 .ad-item-cat { max-width: 150px; flex-shrink: 0; padding: 4px 8px !important; font-size: .8rem !important; border-radius: 7px !important; }
 @media (max-width: 720px) { .ad-item-cat { max-width: 110px; } }
+
+/* Category picker (replaces inline dropdown) */
+.ad-item-cat-btn { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; max-width: 160px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-dim); font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: border-color .15s, color .15s; }
+.ad-item-cat-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.ad-item-cat-btn.has { color: var(--cyan); border-color: var(--cyan); }
+.ad-catpick { max-width: 440px; }
+.ad-catpick-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; max-height: 240px; overflow-y: auto; }
+.ad-catpick-opt { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; cursor: pointer; transition: border-color .15s, background .15s; }
+.ad-catpick-opt:hover { border-color: var(--ink-accent); }
+.ad-catpick-opt.active { background: var(--grad-soft); border-color: var(--ink-accent); color: var(--ink-accent); font-weight: 600; }
+.ad-catpick-new { display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
+.ad-catpick-new input { flex: 1; }
