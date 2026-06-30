@@ -107,9 +107,13 @@ export function readingTime(text?: string) {
   const w = String(text || "").trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(w / 200));
 }
+const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_UZ = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"];
+// Deterministic (timezone- and locale-independent) so server and client render identically — avoids hydration mismatch (#418).
 export function fmtDate(d: string | undefined, lang: string) {
   if (!d) return "";
-  const dt = new Date(d);
-  if (isNaN(+dt)) return d;
-  try { return dt.toLocaleDateString(lang === "uz" ? "uz-UZ" : "en-US", { year: "numeric", month: "short", day: "numeric" }); } catch { return d; }
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d.trim());
+  if (!m) return d;
+  const months = lang === "uz" ? MONTHS_UZ : MONTHS_EN;
+  return `${months[+m[2] - 1] || m[2]} ${+m[3]}, ${m[1]}`;
 }
