@@ -11,7 +11,12 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   const imgRef = useRef<HTMLInputElement>(null);
   const vidRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState("");
-  useEffect(() => { if (ref.current && ref.current.innerHTML !== (value || "")) ref.current.innerHTML = value || ""; /* eslint-disable-next-line */ }, []);
+  // Load once; unwrap any <pre> misused as a text container so old content edits cleanly.
+  useEffect(() => {
+    const v = (value || "").replace(/<pre>\s*(<(?:p|div|h[1-6]|ul|ol|blockquote)[\s\S]*?)<\/pre>/gi, "$1");
+    if (ref.current && ref.current.innerHTML !== v) ref.current.innerHTML = v;
+    /* eslint-disable-next-line */
+  }, []);
 
   const sync = () => { if (ref.current) onChange(ref.current.innerHTML); };
   const focusEd = () => ref.current?.focus();

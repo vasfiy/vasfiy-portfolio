@@ -49,7 +49,10 @@ export default function PostView({ post, related }: { post: Post | null; related
   );
 
   const title = pick(post, "title", lang);
-  const full = pick(post, "full", lang) || pick(post, "body", lang);
+  // Unwrap a <pre> that was misused as a text container (it wraps <p> blocks) so the
+  // article renders as normal prose instead of a framed monospace code box.
+  const full = (pick(post, "full", lang) || pick(post, "body", lang))
+    .replace(/<pre>\s*(<(?:p|div|h[1-6]|ul|ol|blockquote)[\s\S]*?)<\/pre>/gi, "$1");
   const isRich = /<(p|div|h[1-6]|ul|ol|li|br|blockquote|pre|strong|em|a)\b/i.test(full);
   const paras = full.split(/\n\n+/).filter((s) => s.trim());
 

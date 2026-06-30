@@ -1618,5 +1618,6 @@ a.blog-viewall { width: max-content; }
 .ad-catpick-opt { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; cursor: pointer; transition: border-color .15s, background .15s; }
 .ad-catpick-opt:hover { border-color: var(--ink-accent); }
 .ad-catpick-opt.active { background: var(--grad-soft); border-color: var(--ink-accent); color: var(--ink-accent); font-weight: 600; }
-.ad-catpick-new { display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
-.ad-catpick-new input { flex: 1; }
+.ad-catpick-new { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; }
+.ad-catpick-new .ad-catpick-or { flex-basis: 100%; font-size: .8rem; color: var(--text-dim); margin-bottom: 2px; }
+.ad-catpick-new input { flex: 1; min-width: 140px; }
