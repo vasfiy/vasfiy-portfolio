@@ -188,7 +188,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
       {c.album && <AlbumManager cats={cats} onChange={load} />}
 
-      {c.cats && <CategoryManager kind={c.kind} cats={cats} used={Array.from(new Set(items.map((it) => it.cat).filter(Boolean))) as string[]} reload={load} />}
+      {c.cats && <CategoryManager kind={c.kind} cats={cats} reload={load} />}
 
       <div className="ad-card">
         <h3>{editId ? "Edit item" : "Add new"}</h3>
@@ -259,7 +259,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   );
 }
 
-function CategoryManager({ kind, cats, used = [], reload }: { kind: string; cats: Record<string, any>; used?: string[]; reload: () => Promise<void> }) {
+function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<string, any>; reload: () => Promise<void> }) {
   const [n, setN] = useState({ key: "", en: "", uz: "", icon: "" });
   const [editing, setEditing] = useState(false);
   const [archived, setArchived] = useState<string[]>([]);
@@ -284,16 +284,6 @@ function CategoryManager({ kind, cats, used = [], reload }: { kind: string; cats
           );
         })}
       </div>
-      {used.filter((u) => !cats[u]).length > 0 && (
-        <div className="ad-cat-unmanaged">
-          <p className="ad-hint">Used on items but not managed yet — click to name, localize, archive:</p>
-          <div className="ad-cats">
-            {used.filter((u) => !cats[u]).map((u) => (
-              <button type="button" key={u} className="ad-cat-suggest" onClick={() => { setEditing(false); setN({ key: u, en: u, uz: "", icon: "" }); }}>+ {u}</button>
-            ))}
-          </div>
-        </div>
-      )}
       <div className="ad-cat-form">
         <input className="ad-cat-key" placeholder="key" value={n.key} disabled={editing} onChange={(e) => setN({ ...n, key: e.target.value })} />
         <input className="ad-cat-icon" placeholder="🏷" value={n.icon} onChange={(e) => setN({ ...n, icon: e.target.value })} />
