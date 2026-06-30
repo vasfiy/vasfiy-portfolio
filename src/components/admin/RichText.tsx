@@ -27,15 +27,31 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   const saveSel = () => { const s = window.getSelection(); savedRange.current = s && s.rangeCount ? s.getRangeAt(0).cloneRange() : null; };
   const restoreSel = () => { const s = window.getSelection(); if (savedRange.current && s) { s.removeAllRanges(); s.addRange(savedRange.current); } };
   const link = async () => { saveSel(); const u = await uiPrompt("Link URL:"); if (!u) return; focusEd(); restoreSel(); document.execCommand("createLink", false, u); sync(); };
-  const insert = (html: string) => { focusEd(); restoreSel(); document.execCommand("insertHTML", false, html + "<p><br></p>"); sync(); };
 
-  // Paste as clean text — strips foreign colours/fonts so pasted content is
-  // always visible and matches the editor styling. Newlines become paragraphs.
+  // Reliable DOM insertion at the cursor (or end) — execCommand("insertHTML") is
+  // flaky after an async upload, which is why inserted images sometimes vanished.
+  const insert = (html: string) => {
+    const el = ref.current; if (!el) return;
+    el.focus();
+    const sel = window.getSelection();
+    if (savedRange.current && el.contains(savedRange.current.startContainer) && sel) { sel.removeAllRanges(); sel.addRange(savedRange.current); }
+    const temp = document.createElement("div"); temp.innerHTML = html + "<p><br></p>";
+    const frag = document.createDocumentFragment();
+    const nodes: ChildNode[] = [];
+    while (temp.firstChild) { nodes.push(temp.firstChild); frag.appendChild(temp.firstChild); }
+    if (sel && sel.rangeCount && el.contains(sel.anchorNode)) {
+      const r = sel.getRangeAt(0); r.collapse(false); r.insertNode(frag);
+      const last = nodes[nodes.length - 1];
+      if (last) { const nr = document.createRange(); nr.setStartAfter(last); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); }
+    } else { el.appendChild(frag); }
+    sync();
+  };
+
+  // Paste plain text at the cursor (insertText reliably handles empty editors and newlines).
   const onPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const text = (e.clipboardData.getData("text/plain") || "").replace(/\r/g, "");
-    const html = text.split(/\n{2,}/).map((para) => para ? "<p>" + para.replace(/\n/g, "<br>").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!)) + "</p>" : "").join("");
-    document.execCommand("insertHTML", false, html || text);
+    document.execCommand("insertText", false, text);
     sync();
   };
 
