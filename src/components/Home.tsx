@@ -324,6 +324,11 @@ function JournalPreview({ data }: { data: SiteData }) {
   const posts = blogSort(data.blog).slice(0, 3);
   if (!posts.length) return null;
   const thumb = (p: any, title: string) => {
+    const blocks = Array.isArray(p.blocks) ? p.blocks : [];
+    const img = blocks.find((b: any) => b.type === "image" && b.url);
+    if (img) return <div className="bl-thumb"><img src={img.url} alt={title} loading="lazy" /></div>;
+    const yt = blocks.find((b: any) => b.type === "youtube" && b.url);
+    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
     if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={p.media} alt={title} loading="lazy" /></div>;
     if (p.type === "video" && p.media) return <div className="bl-thumb"><video src={p.media} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
     if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;

@@ -23,6 +23,14 @@ export default function BlogList({ posts, cats = {} }: { posts: Post[]; cats?: R
   const items = showFeatured ? matched.slice(1) : matched;
 
   const thumb = (p: Post, title: string) => {
+    // New block model: cover = first image block (else first video/youtube).
+    const blocks = Array.isArray(p.blocks) ? p.blocks : [];
+    const img = blocks.find((b) => b.type === "image" && b.url);
+    if (img) return <div className="bl-thumb"><img src={img.url} alt={title} loading="lazy" /></div>;
+    const vid = blocks.find((b) => b.type === "video" && b.url);
+    if (vid) return <div className="bl-thumb"><video src={vid.url} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
+    const yt = blocks.find((b) => b.type === "youtube" && b.url);
+    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url!)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
     if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={p.media} alt={title} loading="lazy" /></div>;
     if (p.type === "video" && p.media) return <div className="bl-thumb"><video src={p.media} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
     if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;

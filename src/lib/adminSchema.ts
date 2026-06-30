@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat" | "html" | "date";
+export type FieldType = "text" | "textarea" | "list" | "select" | "image" | "file" | "files" | "cat" | "html" | "date" | "blocks";
 export interface Field { k: string; label: string; t: FieldType; opts?: string[]; ph?: string; accept?: string; }
 export interface Collection {
   kind: string;        // items.kind value
@@ -30,15 +30,12 @@ export const COLLECTIONS: Collection[] = [
     kind: "blog", id: "blog", label: "Journal", icon: "✍️", cats: true, addTop: true,
     fields: [
       { k: "date", label: "Date", t: "date" },
-      { k: "type", label: "Type", t: "select", opts: ["text", "image", "youtube", "video"] },
-      { k: "media", label: "Media (upload, or YouTube URL)", t: "file", accept: "image/*,video/*" },
       { k: "cat", label: "Category", t: "cat" },
       { k: "title", label: "Title (EN)", t: "text" },
       { k: "titleUz", label: "Title (UZ)", t: "text" },
-      { k: "body", label: "Short text (EN)", t: "textarea" },
-      { k: "bodyUz", label: "Short text (UZ)", t: "textarea" },
-      { k: "full", label: "Full article (EN) — rich text", t: "html" },
-      { k: "fullUz", label: "Full article (UZ) — rich text", t: "html" },
+      { k: "body", label: "Short summary (EN) — shown on the list card", t: "textarea" },
+      { k: "bodyUz", label: "Qisqa tavsif (UZ) — ro'yxat kartasida", t: "textarea" },
+      { k: "blocks", label: "Article — text & media blocks (first image = cover)", t: "blocks" },
       { k: "location", label: "Location", t: "text" },
     ],
     title: (i) => (i.title || i.titleUz || "(untitled)") + (i.date ? " · " + i.date : ""),

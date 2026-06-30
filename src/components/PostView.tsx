@@ -56,7 +56,24 @@ export default function PostView({ post, related }: { post: Post | null; related
   const isRich = /<(p|div|h[1-6]|ul|ol|li|br|blockquote|pre|strong|em|a)\b/i.test(full);
   const paras = full.split(/\n\n+/).filter((s) => s.trim());
 
+  // Block-based article (new model): first image is the cover, the rest render in order.
+  const blocks = Array.isArray(post.blocks) && post.blocks.length ? post.blocks : null;
+  const coverIdx = blocks ? blocks.findIndex((b) => b.type === "image" && b.url) : -1;
+  const cover = coverIdx >= 0 ? blocks![coverIdx] : null;
+  const bodyBlocks = blocks ? blocks.filter((_, i) => i !== coverIdx) : null;
+  const readSrc = blocks ? blocks.filter((b) => b.type === "text").map((b) => pick(b, "text", lang)).join(" ") : full;
+
+  const renderBlock = (b: any, i: number) => {
+    if (b.type === "text") { const t2 = pick(b, "text", lang); return t2.trim() ? <div className="post-block-text" key={i}>{t2.split(/\n{2,}/).filter((p: string) => p.trim()).map((p: string, j: number) => <p key={j}>{p.split("\n").map((ln: string, k: number) => <span key={k}>{k ? <br /> : null}{ln}</span>)}</p>)}</div> : null; }
+    if (b.type === "image" && b.url) return <figure className="post-block-img" key={i}><img src={b.url} alt={pick(b, "caption", lang) || ""} loading="lazy" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
+    if (b.type === "video" && b.url) return <figure className="post-block-img" key={i}><video src={b.url} controls preload="metadata" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
+    if (b.type === "youtube" && b.url) return <div className="post-media post-media-video post-block-yt" key={i}><iframe src={`https://www.youtube.com/embed/${ytId(b.url)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
+    if (b.type === "file" && b.url) return <a className="post-block-file" href={b.url} target="_blank" rel="noopener" key={i}>📎 {b.name || "Download"}</a>;
+    return null;
+  };
+
   const media = () => {
+    if (cover) return <div className="post-media"><img src={cover.url} alt={title} /></div>;
     if (post.type === "image" && post.media) return <div className="post-media"><img src={post.media} alt={title} /></div>;
     if (post.type === "video" && post.media) return <div className="post-media"><video src={post.media} controls preload="metadata" /></div>;
     if (post.type === "youtube" && post.media) return <div className="post-media post-media-video"><iframe src={`https://www.youtube.com/embed/${ytId(post.media)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
@@ -78,7 +95,7 @@ export default function PostView({ post, related }: { post: Post | null; related
       <Link className="post-back" href="/blog">{t("blog.back")}</Link>
       {media()}
       <div className="post-text">
-        <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(full)} {t("blog.min")}</span></div>
+        <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(readSrc)} {t("blog.min")}</span></div>
         <h1 className="post-title">{title}</h1>
         {toc.length > 0 && (
           <details className="post-toc" open>
@@ -92,9 +109,11 @@ export default function PostView({ post, related }: { post: Post | null; related
             </ul>
           </details>
         )}
-        {isRich
-          ? <div className="post-rich" ref={richRef} dangerouslySetInnerHTML={{ __html: full }} />
-          : paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
+        {bodyBlocks
+          ? <div className="post-rich" ref={richRef}>{bodyBlocks.map(renderBlock)}</div>
+          : isRich
+            ? <div className="post-rich" ref={richRef} dangerouslySetInnerHTML={{ __html: full }} />
+            : paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
       </div>
       <div className="post-share">
         <span className="post-share-label">{t("blog.share")}</span>

@@ -4,6 +4,7 @@ import type { Collection, Field } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
+import BlockEditor from "./BlockEditor";
 import CropModal from "./CropModal";
 import { uiConfirm } from "./Dialog";
 
@@ -18,6 +19,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
   }
   if (f.t === "date") return <input type="date" className="ad-date" value={value || ""} onChange={(e) => onChange(e.target.value)} />;
   if (f.t === "html") return <RichText value={value || ""} onChange={onChange} placeholder={f.ph} />;
+  if (f.t === "blocks") return <BlockEditor value={Array.isArray(value) ? value : []} onChange={onChange} onUpload={onUpload} />;
   if (f.t === "select") return <select value={value || f.opts?.[0]} onChange={(e) => onChange(e.target.value)}>{f.opts?.map((o) => <option key={o} value={o}>{o}</option>)}</select>;
   if (f.t === "cat") {
     const keys = Object.keys(cats);
@@ -108,7 +110,18 @@ export default function ItemManager({ collection }: { collection: Collection }) 
       setForm(freshForm()); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
     } catch (e: any) { flash("Error: " + (e.message || e)); }
   };
-  const edit = (it: any) => { setEditId(it.__id); setForm({ ...it }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const edit = (it: any) => {
+    const form: any = { ...it };
+    // Migrate older blog posts (media + rich-text "full") into editable blocks once.
+    if (c.kind === "blog" && !Array.isArray(it.blocks)) {
+      const toText = (h = "") => h.replace(/<\/(p|div|h[1-6]|li)>/gi, "\n\n").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n{3,}/g, "\n\n").trim();
+      const blocks: any[] = [];
+      if (it.media && /^https?:|^\//.test(it.media)) blocks.push({ type: it.type === "video" ? "video" : it.type === "youtube" ? "youtube" : "image", url: it.media });
+      if (it.full || it.fullUz) blocks.push({ type: "text", text: toText(it.full), textUz: toText(it.fullUz) });
+      if (blocks.length) form.blocks = blocks;
+    }
+    setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
