@@ -68,23 +68,38 @@ export async function moveItem(kind: string, id: string, dir: "up" | "down") {
   await sb().from("items").update({ position: a.position }).eq("id", b.id);
 }
 
-/* ---------- Categories ---------- */
+/* ---------- Categories ----------
+   The `categories` table has a CHECK constraint limiting `kind` to the original
+   set. Newer kinds (blog, project, challenge, page) are stored in an `extraCats`
+   setting instead, so no database change is required. */
+const CAT_TABLE_KINDS = new Set(["gallery", "book", "lesson"]);
+async function getExtraCats(): Promise<Record<string, Record<string, any>>> {
+  const s = await getSettings();
+  return (s.extraCats as any) || {};
+}
 export async function listCats(kind: string) {
+  if (!CAT_TABLE_KINDS.has(kind)) { const e = await getExtraCats(); return e[kind] || {}; }
   const { data } = await sb().from("categories").select("*").eq("kind", kind);
   const map: Record<string, any> = {};
   (data || []).slice().sort(byPos).forEach((c: any) => { map[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
   return map;
 }
 export async function saveCat(kind: string, key: string, obj: { en?: string; uz?: string; icon?: string }) {
-  // Insert-or-update by (kind,key) without relying on an ON CONFLICT constraint that may not exist.
-  const payload = { kind, key, en: obj.en || "", uz: obj.uz || "", icon: obj.icon || "" };
+  const cat = { en: obj.en || "", uz: obj.uz || "", icon: obj.icon || "" };
+  if (!CAT_TABLE_KINDS.has(kind)) {
+    const e = await getExtraCats(); (e[kind] ||= {})[key] = cat; await setSetting("extraCats", e); return;
+  }
+  const payload = { kind, key, ...cat };
   const { data: existing } = await sb().from("categories").select("key").eq("kind", kind).eq("key", key).maybeSingle();
   const { error } = existing
     ? await sb().from("categories").update(payload).eq("kind", kind).eq("key", key)
     : await sb().from("categories").insert(payload);
   if (error) throw error;
 }
-export async function delCat(kind: string, key: string) { await sb().from("categories").delete().eq("kind", kind).eq("key", key); }
+export async function delCat(kind: string, key: string) {
+  if (!CAT_TABLE_KINDS.has(kind)) { const e = await getExtraCats(); if (e[kind]) { delete e[kind][key]; await setSetting("extraCats", e); } return; }
+  await sb().from("categories").delete().eq("kind", kind).eq("key", key);
+}
 /* Archived categories live in a single `archivedCats` setting (no schema change). */
 export async function getArchivedCats(): Promise<Record<string, string[]>> {
   const s = await getSettings();

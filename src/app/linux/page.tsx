@@ -9,18 +9,22 @@ export const metadata: Metadata = {
 };
 
 async function getLabData() {
-  const [items, cats, setting] = await Promise.all([
+  const [items, cats, settings] = await Promise.all([
     supabase.from("items").select("*").in("kind", ["lesson", "challenge"]),
-    supabase.from("categories").select("*").in("kind", ["lesson", "challenge"]),
-    supabase.from("settings").select("value").eq("key", "archivedCats").maybeSingle(),
+    supabase.from("categories").select("*").eq("kind", "lesson"),
+    supabase.from("settings").select("key,value").in("key", ["archivedCats", "extraCats"]),
   ]);
-  const arch: Record<string, string[]> = (setting.data?.value as any) || {};
+  const sMap: Record<string, any> = {}; (settings.data || []).forEach((s: any) => { sMap[s.key] = s.value; });
+  const arch: Record<string, string[]> = sMap.archivedCats || {};
+  const extra: Record<string, Record<string, any>> = sMap.extraCats || {};
   const rows = (items.data || []).slice().sort((a: any, b: any) => (a.position || 0) - (b.position || 0)).filter((r: any) => !r.data?.archived);
   const lessons = rows.filter((r: any) => r.kind === "lesson").map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }));
   const challenges = rows.filter((r: any) => r.kind === "challenge").map((r: any) => ({ ...r.data, pinned: r.pinned, __id: r.id }));
+  // Lesson categories from the table; CTF (challenge) categories from the extraCats setting.
   const catMap: Record<string, any> = {};
+  (cats.data || []).forEach((c: any) => { if ((arch.lesson || []).includes(c.key)) return; catMap[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
   const ctfCatMap: Record<string, any> = {};
-  (cats.data || []).forEach((c: any) => { if ((arch[c.kind] || []).includes(c.key)) return; (c.kind === "challenge" ? ctfCatMap : catMap)[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
+  for (const key in (extra.challenge || {})) { if (!(arch.challenge || []).includes(key)) ctfCatMap[key] = extra.challenge[key]; }
   return { lessons, challenges, catMap, ctfCatMap };
 }
 

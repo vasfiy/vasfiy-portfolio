@@ -40,6 +40,14 @@ export async function getSiteData(): Promise<SiteData> {
       (data.cats[c.kind] ||= {})[c.key] = cat;
     });
     (settings.data || []).forEach((s: any) => { data.settings[s.key] = s.value; });
+    // Categories for newer kinds (blog/project/challenge/page) live in the `extraCats` setting.
+    const extra: Record<string, Record<string, any>> = (data.settings.extraCats as any) || {};
+    for (const kind in extra) {
+      for (const key in extra[kind]) {
+        if ((archCats[kind] || []).includes(key)) continue;
+        (data.cats[kind] ||= {})[key] = extra[kind][key];
+      }
+    }
   } catch {
     /* network/RLS issue — return whatever we have */
   }
