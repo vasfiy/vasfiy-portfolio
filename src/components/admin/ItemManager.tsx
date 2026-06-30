@@ -130,6 +130,18 @@ export default function ItemManager({ collection }: { collection: Collection }) 
       flash("✓ Category created & assigned");
     } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
   };
+  // Every category the user can pick/manage: managed ones + any value already in use on items.
+  const allCats: Record<string, any> = { ...cats };
+  Array.from(new Set(items.map((it) => it.cat).filter(Boolean))).forEach((v: any) => { if (!allCats[v]) allCats[v] = { en: v }; });
+  // Delete a category everywhere: remove the managed entry AND clear it off any items using it.
+  const deleteCat = async (key: string) => {
+    try {
+      await A.delCat(c.kind, key);
+      for (const it of items.filter((x) => x.cat === key)) await A.updateItem(it.__id, { ...it, cat: "" });
+      await load();
+      flash("✓ Category deleted");
+    } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
+  };
   const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
   const dropTo = async (toIdx: number) => {
     if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
@@ -188,7 +200,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
 
       {c.album && <AlbumManager cats={cats} onChange={load} />}
 
-      {c.cats && <CategoryManager kind={c.kind} cats={cats} reload={load} />}
+      {c.cats && <CategoryManager kind={c.kind} cats={allCats} onDelete={deleteCat} reload={load} />}
 
       <div className="ad-card">
         <h3>{editId ? "Edit item" : "Add new"}</h3>
@@ -240,12 +252,9 @@ export default function ItemManager({ collection }: { collection: Collection }) 
             <p className="ui-dialog-msg">Category for: <b>{c.title(catPick)}</b></p>
             <div className="ad-catpick-list">
               <button type="button" className={"ad-catpick-opt" + (!catPick.cat ? " active" : "")} onClick={() => assignCat(catPick, "")}>— No category —</button>
-              {Object.keys(cats).map((k) => (
-                <button type="button" key={k} className={"ad-catpick-opt" + (catPick.cat === k ? " active" : "")} onClick={() => assignCat(catPick, k)}>{(cats[k].icon ? cats[k].icon + " " : "") + (cats[k].en || k)}</button>
+              {Object.keys(allCats).map((k) => (
+                <button type="button" key={k} className={"ad-catpick-opt" + (catPick.cat === k ? " active" : "")} onClick={() => assignCat(catPick, k)}>{(allCats[k].icon ? allCats[k].icon + " " : "") + (allCats[k].en || k)}</button>
               ))}
-              {catPick.cat && !cats[catPick.cat] && (
-                <button type="button" className="ad-catpick-opt active" onClick={() => assignCat(catPick, catPick.cat)}>{catPick.cat} (current)</button>
-              )}
             </div>
             <div className="ad-catpick-new">
               <input placeholder="New category name…" value={newCat} autoFocus onChange={(e) => setNewCat(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") createCatAndAssign(catPick); }} />
@@ -259,7 +268,7 @@ export default function ItemManager({ collection }: { collection: Collection }) 
   );
 }
 
-function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<string, any>; reload: () => Promise<void> }) {
+function CategoryManager({ kind, cats, onDelete, reload }: { kind: string; cats: Record<string, any>; onDelete: (key: string) => Promise<void>; reload: () => Promise<void> }) {
   const [n, setN] = useState({ key: "", en: "", uz: "", icon: "" });
   const [editing, setEditing] = useState(false);
   const [archived, setArchived] = useState<string[]>([]);
@@ -279,7 +288,7 @@ function CategoryManager({ kind, cats, reload }: { kind: string; cats: Record<st
             <b>{v.icon ? v.icon + " " : ""}{k}</b> <span>{v.en}{v.uz ? " / " + v.uz : ""}{isArch ? " · 🗄 archived" : ""}</span>
             <button title={isArch ? "Unarchive (show on site)" : "Archive (hide from site)"} className={isArch ? "on" : ""} onClick={() => toggleArch(k)}>🗄</button>
             <button title="Edit" onClick={() => startEdit(k, v)}>✎</button>
-            <button className="danger" title="Delete" onClick={async () => { if (await uiConfirm("Delete category " + k + "?")) { await A.delCat(kind, k); await reload(); } }}>🗑</button>
+            <button className="danger" title="Delete" onClick={async () => { if (await uiConfirm("Delete category \"" + k + "\"? It will be removed from any posts using it.")) await onDelete(k); }}>🗑</button>
           </div>
           );
         })}
