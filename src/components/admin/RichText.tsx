@@ -28,22 +28,20 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
   const restoreSel = () => { const s = window.getSelection(); if (savedRange.current && s) { s.removeAllRanges(); s.addRange(savedRange.current); } };
   const link = async () => { saveSel(); const u = await uiPrompt("Link URL:"); if (!u) return; focusEd(); restoreSel(); document.execCommand("createLink", false, u); sync(); };
 
-  // Reliable DOM insertion at the cursor (or end) — execCommand("insertHTML") is
-  // flaky after an async upload, which is why inserted images sometimes vanished.
+  // Bulletproof insertion: try at the saved cursor, otherwise append to the end.
+  // Either way the media ends up in the content (the previous execCommand path could silently no-op).
   const insert = (html: string) => {
     const el = ref.current; if (!el) return;
-    el.focus();
-    const sel = window.getSelection();
-    if (savedRange.current && el.contains(savedRange.current.startContainer) && sel) { sel.removeAllRanges(); sel.addRange(savedRange.current); }
-    const temp = document.createElement("div"); temp.innerHTML = html + "<p><br></p>";
-    const frag = document.createDocumentFragment();
-    const nodes: ChildNode[] = [];
-    while (temp.firstChild) { nodes.push(temp.firstChild); frag.appendChild(temp.firstChild); }
-    if (sel && sel.rangeCount && el.contains(sel.anchorNode)) {
-      const r = sel.getRangeAt(0); r.collapse(false); r.insertNode(frag);
-      const last = nodes[nodes.length - 1];
-      if (last) { const nr = document.createRange(); nr.setStartAfter(last); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); }
-    } else { el.appendChild(frag); }
+    let inserted = false;
+    try {
+      const r = savedRange.current;
+      if (r && el.contains(r.startContainer)) {
+        const temp = document.createElement("div"); temp.innerHTML = html;
+        const frag = document.createDocumentFragment(); while (temp.firstChild) frag.appendChild(temp.firstChild);
+        r.collapse(false); r.insertNode(frag); inserted = true;
+      }
+    } catch { /* fall through to append */ }
+    if (!inserted) el.insertAdjacentHTML("beforeend", html + "<p><br></p>");
     sync();
   };
 
@@ -60,12 +58,15 @@ export default function RichText({ value, onChange, placeholder }: { value: stri
 
   const upload = async (file: File, kind: "image" | "video") => {
     setBusy(kind === "image" ? "Uploading image…" : "Uploading video…");
+    let url = "";
     try {
       const f = kind === "image" ? await A.compressImage(file, 1600, 0.85) : file;
-      const url = await A.uploadFile(f);
+      url = await A.uploadFile(f);
+    } catch (e: any) { console.error("RichText upload failed:", e); setBusy(`⚠ Upload failed — ${e?.message || e?.error?.message || JSON.stringify(e)}`); setTimeout(() => setBusy(""), 6000); return; }
+    try {
       insert(kind === "image" ? `<img src="${url}" alt="" loading="lazy">` : `<video src="${url}" controls preload="metadata"></video>`);
-    } catch (e: any) { setBusy(`⚠ Upload failed — ${e?.message || e}`); setTimeout(() => setBusy(""), 4000); return; }
-    setBusy("");
+      setBusy("✓ Inserted"); setTimeout(() => setBusy(""), 1500);
+    } catch (e: any) { console.error("RichText insert failed:", e); setBusy(`⚠ Insert failed — ${e?.message || e}`); setTimeout(() => setBusy(""), 6000); }
   };
 
   const Btn = ({ on, title, children }: { on: () => void; title: string; children: React.ReactNode }) => (
