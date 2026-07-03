@@ -12,6 +12,13 @@ export interface Post { type?: "text" | "image" | "video" | "youtube"; media?: s
 export interface Book { title?: string; titleUz?: string; author?: string; desc?: string; descUz?: string; cover?: string; file?: string; cat?: string; pinned?: boolean; __id?: string; }
 export interface Challenge { title?: string; titleUz?: string; prompt?: string; promptUz?: string; command?: string; hint?: string; hintUz?: string; answer?: string; points?: number | string; cat?: string; pinned?: boolean; __id?: string; }
 export interface Category { en?: string; uz?: string; icon?: string; }
+export interface Product {
+  title?: string; titleUz?: string; titleRu?: string; titleDe?: string;
+  desc?: string; descUz?: string; descRu?: string; descDe?: string;
+  images?: { url: string; name?: string; type?: string }[];
+  price?: string; currency?: string; origin?: string; stock?: string; cat?: string;
+  pinned?: boolean; archived?: boolean; __id?: string;
+}
 export interface Page { slug?: string; title?: string; titleUz?: string; icon?: string; nav?: string; body?: string; bodyUz?: string; pinned?: boolean; __id?: string; }
 
 export interface SiteData {
@@ -26,6 +33,7 @@ export interface SiteData {
   languages: Language[];
   challenges: Challenge[];
   pages: Page[];
+  products: Product[];
   galleryCats: Record<string, Category>;
   bookCats: Record<string, Category>;
   /** All managed categories, keyed by item kind then category key. */

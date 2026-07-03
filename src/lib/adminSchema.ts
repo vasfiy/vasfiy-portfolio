@@ -143,6 +143,26 @@ export const COLLECTIONS: Collection[] = [
     title: (i) => (i.title || i.titleUz || "(challenge)") + (i.points ? ` · ${i.points} pts` : ""),
   },
   {
+    kind: "product", id: "market", label: "Market", icon: "🛒", cats: true, addTop: true,
+    fields: [
+      { k: "images", label: "Photos (first = main)", t: "files" },
+      { k: "cat", label: "Category", t: "cat" },
+      { k: "price", label: "Price (number only)", t: "text", ph: "120" },
+      { k: "currency", label: "Currency", t: "select", opts: ["EUR", "USD", "UZS"] },
+      { k: "origin", label: "Direction", t: "select", opts: ["EU → UZ", "UZ → EU", "In stock (UZ)", "In stock (EU)"] },
+      { k: "stock", label: "Availability", t: "select", opts: ["in stock", "preorder", "sold out"] },
+      { k: "title", label: "Title (EN)", t: "text" },
+      { k: "titleUz", label: "Nomi (UZ)", t: "text" },
+      { k: "titleRu", label: "Название (RU)", t: "text" },
+      { k: "titleDe", label: "Titel (DE)", t: "text" },
+      { k: "desc", label: "Description (EN)", t: "textarea" },
+      { k: "descUz", label: "Tavsif (UZ)", t: "textarea" },
+      { k: "descRu", label: "Описание (RU)", t: "textarea" },
+      { k: "descDe", label: "Beschreibung (DE)", t: "textarea" },
+    ],
+    title: (i) => (i.title || i.titleUz || i.titleRu || "(product)") + (i.price ? ` · ${i.price} ${i.currency || ""}` : ""),
+  },
+  {
     kind: "page", id: "pages", label: "Pages", icon: "📄", addTop: true,
     fields: [
       { k: "slug", label: "URL slug (letters, numbers, dashes)", t: "text", ph: "resources" },

@@ -4,9 +4,50 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
+/* ---------- Cross-subdomain session storage ----------
+   The admin logs in at admin.vasfiy.com but in-place editing runs on vasfiy.com.
+   localStorage is per-origin, so the session is mirrored into chunked cookies on
+   .vasfiy.com (cookies cap ~4 KB each; the Supabase session doesn't fit in one).
+   On localhost the cookie is host-only, so previews keep working. */
+const CK = "kt-auth";
+const CHUNK = 3400;
+const ckDomain = () => {
+  const h = typeof location !== "undefined" ? location.hostname : "";
+  return h === "vasfiy.com" || h.endsWith(".vasfiy.com") ? "; Domain=.vasfiy.com" : "";
+};
+function readCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const jar: Record<string, string> = {};
+  document.cookie.split(/;\s*/).forEach((p) => { const i = p.indexOf("="); if (i > 0) jar[p.slice(0, i)] = p.slice(i + 1); });
+  let out = "";
+  for (let i = 0; ; i++) { const v = jar[`${CK}.${i}`]; if (v === undefined) break; out += v; }
+  return out ? decodeURIComponent(out) : null;
+}
+function writeCookie(value: string | null) {
+  if (typeof document === "undefined") return;
+  const base = `; Path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}${ckDomain()}`;
+  for (let i = 0; i < 10; i++) document.cookie = `${CK}.${i}=${base}; Max-Age=0`;
+  if (value == null) return;
+  const enc = encodeURIComponent(value);
+  for (let i = 0; i * CHUNK < enc.length; i++)
+    document.cookie = `${CK}.${i}=${enc.slice(i * CHUNK, (i + 1) * CHUNK)}${base}; Max-Age=31536000`;
+}
+const sharedStorage = {
+  getItem(k: string): string | null {
+    let v: string | null = null;
+    try { v = localStorage.getItem(k); } catch {}
+    if (v) { if (!readCookie()) writeCookie(v); return v; } // adopt existing sessions into the cookie
+    const c = readCookie();
+    if (c) { try { localStorage.setItem(k, c); } catch {} }
+    return c;
+  },
+  setItem(k: string, v: string) { try { localStorage.setItem(k, v); } catch {} writeCookie(v); },
+  removeItem(k: string) { try { localStorage.removeItem(k); } catch {} writeCookie(null); },
+};
+
 let _sb: SupabaseClient | null = null;
 export function sb(): SupabaseClient {
-  if (!_sb) _sb = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
+  if (!_sb) _sb = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, storage: sharedStorage as any } });
   return _sb;
 }
 

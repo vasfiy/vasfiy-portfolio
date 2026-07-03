@@ -11,12 +11,12 @@ export const supabase = createClient(url, key, { auth: { persistSession: false, 
 const KIND_TO_ARR: Record<string, keyof SiteData> = {
   gallery: "gallery", blog: "blog", book: "books",
   experience: "experience", skill: "skills", cert: "certs",
-  project: "projects", education: "education", language: "languages", challenge: "challenges", page: "pages",
+  project: "projects", education: "education", language: "languages", challenge: "challenges", page: "pages", product: "products",
 };
 const CAT_KIND_TO_KEY: Record<string, keyof SiteData> = { gallery: "galleryCats", book: "bookCats" };
 
 function empty(): SiteData {
-  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], pages: [], galleryCats: {}, bookCats: {}, cats: {}, settings: {} };
+  return { gallery: [], blog: [], books: [], experience: [], skills: [], certs: [], projects: [], education: [], languages: [], challenges: [], pages: [], products: [], galleryCats: {}, bookCats: {}, cats: {}, settings: {} };
 }
 const byPos = (a: any, b: any) => (a.position || 0) - (b.position || 0);
 

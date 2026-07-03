@@ -1694,3 +1694,57 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
   .hero-soc { position: absolute; right: 24px; bottom: -8px; width: 430px; margin: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .soc-line { animation: none; } .soc-live i { animation: none; } }
+
+/* ===================== Vasfiy Market ===================== */
+.mkt-header { position: sticky; top: 0; z-index: 100; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+.mkt-header-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; padding-bottom: 14px; }
+.mkt-logo { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: .04em; color: var(--text); text-decoration: none; white-space: nowrap; }
+.mkt-logo b { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.mkt-header-right { display: flex; align-items: center; gap: 14px; }
+.mkt-langs { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 3px; background: var(--surface); }
+.mkt-lang { padding: 4px 10px; border: 0; border-radius: 999px; background: none; color: var(--text-dim); font: inherit; font-size: .74rem; font-weight: 700; font-family: var(--font-mono); cursor: pointer; }
+.mkt-lang.active { background: var(--grad-soft); color: var(--ink-accent); }
+.mkt-main-link { font-size: .82rem; color: var(--text-dim); text-decoration: none; white-space: nowrap; }
+.mkt-main-link:hover { color: var(--text); }
+.mkt-main { min-height: 72vh; }
+.mkt-footer { border-top: 1px solid var(--border); padding: 22px 0 30px; font-size: .8rem; color: var(--text-faint); text-align: center; }
+
+.mkt-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 26px; }
+.mkt-empty { display: grid; place-items: center; gap: 10px; padding: 60px 24px; text-align: center; color: var(--text-dim); }
+.mkt-empty span { font-size: 2.6rem; }
+.mkt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.mkt-card { display: block; overflow: hidden; padding: 0; text-decoration: none; color: var(--text); transition: transform .2s, border-color .2s; }
+.mkt-card:hover { transform: translateY(-4px); border-color: var(--border-strong); }
+.mkt-card-img { position: relative; aspect-ratio: 4/3; background: var(--surface); }
+.mkt-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mkt-ph { display: grid; place-items: center; width: 100%; height: 100%; font-size: 2.4rem; }
+.mkt-origin { position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 999px; background: rgba(5,8,16,.72); color: #fff; font-family: var(--font-mono); font-size: .66rem; backdrop-filter: blur(6px); }
+.mkt-card-body { padding: 14px 16px 16px; }
+.mkt-card-body h3 { font-size: .98rem; font-weight: 600; margin-bottom: 8px; }
+.mkt-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mkt-price { font-family: var(--font-mono); font-weight: 700; color: var(--ink-accent); }
+.mkt-price.big { font-size: 1.5rem; }
+.mkt-stock { font-size: .72rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); }
+.mkt-stock.inStock { color: #4ade80; border-color: rgba(74,222,128,.4); }
+.mkt-stock.preorder { color: #fbbf24; border-color: rgba(251,191,36,.4); }
+.mkt-stock.soldOut { color: var(--text-faint); text-decoration: line-through; }
+
+.mkt-detail { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 18px; }
+@media (min-width: 900px) { .mkt-detail { grid-template-columns: 1.1fr 1fr; } }
+.mkt-gallery-main { aspect-ratio: 4/3; overflow: hidden; padding: 0; display: grid; place-items: center; }
+.mkt-gallery-main img { width: 100%; height: 100%; object-fit: contain; }
+.mkt-thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.mkt-thumb { width: 64px; height: 64px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border); background: var(--surface); cursor: pointer; padding: 0; }
+.mkt-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mkt-thumb.active { border-color: var(--ink-accent); }
+.mkt-info h1 { font-family: var(--font-display); font-size: clamp(1.5rem, 3.4vw, 2.2rem); margin-bottom: 14px; }
+.mkt-info-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+.mkt-origin-chip { font-size: .8rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; }
+.mkt-desc { color: var(--text-dim); line-height: 1.7; margin-bottom: 24px; white-space: pre-line; }
+.mkt-order { display: grid; gap: 10px; padding: 20px; }
+.mkt-order h3 { font-size: 1.05rem; margin-bottom: 4px; }
+.mkt-order input, .mkt-order textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; color: var(--text); font: inherit; font-size: .92rem; }
+.mkt-order input:focus, .mkt-order textarea:focus { outline: none; border-color: var(--cyan); }
+.mkt-ok { color: #4ade80; font-size: .88rem; }
+.mkt-err { color: #ff6b81; font-size: .88rem; }
+@media (max-width: 640px) { .mkt-header-right { gap: 8px; } .mkt-main-link { display: none; } }
