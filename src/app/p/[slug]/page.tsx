@@ -1,5 +1,6 @@
 import { getSiteData } from "@/lib/data";
 import PageView from "@/components/PageView";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { Page } from "@/lib/types";
 
@@ -21,5 +22,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CustomPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = await findPage(slug);
+  if (!page) notFound(); // real 404 status for SEO instead of a soft 200
   return <PageView page={page} />;
 }

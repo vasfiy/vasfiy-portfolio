@@ -57,13 +57,6 @@ export async function POST(req: Request) {
   }
 }
 
-// Temporary diagnostic: GET /api/track?debug=1 reports whether Netlify edge geo
-// headers reach this function, so we can confirm location capture works.
-export async function GET(req: Request) {
-  const u = new URL(req.url);
-  if (u.searchParams.get("debug") !== "1") return Response.json({ ok: true });
-  const headerKeys = ["x-nf-geo", "x-country", "x-nf-country", "x-nf-city", "cf-ipcountry", "x-vercel-ip-country"];
-  const present: Record<string, string> = {};
-  headerKeys.forEach((k) => { const v = req.headers.get(k); if (v) present[k] = k === "x-nf-geo" ? "(base64 present)" : v; });
-  return Response.json({ geo: detectGeo(req), headersSeen: present, ua: req.headers.get("user-agent") });
+export async function GET() {
+  return Response.json({ ok: true });
 }

@@ -4,7 +4,9 @@ import type { SiteData, Album, Photo, Post, Page } from "./types";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-export const supabase = createClient(url, key, { auth: { persistSession: false } });
+// Distinct storageKey: this read-only client must not share the auth storage slot
+// with the admin client, which triggers the "Multiple GoTrueClient instances" warning.
+export const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false, storageKey: "kt-public" } });
 
 const KIND_TO_ARR: Record<string, keyof SiteData> = {
   gallery: "gallery", blog: "blog", book: "books",

@@ -1,6 +1,6 @@
 import { getSiteData, blogSort } from "@/lib/data";
+import { SITE_URL as BASE } from "@/lib/site";
 
-const BASE = "https://vasfiy.uz";
 export const revalidate = 300;
 
 const esc = (s: string) => String(s || "").replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]!));

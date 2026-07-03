@@ -12,7 +12,7 @@ export default async function Page() {
     name: "Kamoliddin Tilonboyev",
     jobTitle: "SOC Analyst",
     description: st.heroDesc || "Aspiring SOC Analyst — blue-team operations, threat monitoring & network analysis.",
-    url: "https://vasfiy.uz",
+    url: "https://vasfiy.com",
     sameAs: [st.socialLinkedin, st.socialWebsite].filter(Boolean),
     knowsAbout: ["SOC Analysis", "Blue Team", "Wireshark", "SIEM", "Linux", "Python", "Network Security", "Incident Response"],
   };

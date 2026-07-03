@@ -13,6 +13,21 @@ import type { SiteData, Lang } from "@/lib/types";
 
 const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
 
+/* Load the ~0.8 MB Three.js hero only when it's worth it: skip on mobile and for
+   reduced-motion users, and defer to browser idle so it never blocks first paint. */
+function Hero3DLazy() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.innerWidth < 768) return;
+    const w = window as any;
+    const id = w.requestIdleCallback ? w.requestIdleCallback(() => setShow(true), { timeout: 2500 }) : window.setTimeout(() => setShow(true), 1400);
+    return () => { if (w.cancelIdleCallback) w.cancelIdleCallback(id); else clearTimeout(id); };
+  }, []);
+  return show ? <Hero3D /> : null;
+}
+
 export default function Home({ data }: { data: SiteData }) {
   const st = data.settings.siteText || {};
   return (
@@ -56,7 +71,7 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   return (
     <section className="hero" id="hero">
-      <div className="hero-canvas"><Hero3D /></div>
+      <div className="hero-canvas"><Hero3DLazy /></div>
       <div className="container hero-inner">
         <div className="hero-badge"><span className="dot" /> <span>{badge}</span></div>
         <h1 className="hero-title">

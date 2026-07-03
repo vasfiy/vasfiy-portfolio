@@ -37,9 +37,9 @@
   --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
 
   --maxw: 1120px;
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: var(--f-display), "Space Grotesk", system-ui, sans-serif;
+  --font-body: var(--f-body), "Inter", system-ui, sans-serif;
+  --font-mono: var(--f-mono), "JetBrains Mono", ui-monospace, monospace;
 }
 
 /* ---------- Color themes (switchable) ---------- */
@@ -1655,3 +1655,9 @@ a.blog-viewall { width: max-content; }
 .post-block-yt { margin: 22px 0; }
 .post-block-file { display: inline-flex; align-items: center; gap: 8px; margin: 10px 0; padding: 10px 16px; border: 1px solid var(--border-strong); border-radius: 10px; color: var(--ink-accent); text-decoration: none; font-weight: 600; }
 .post-block-file:hover { border-color: var(--ink-accent); }
+
+/* 404 page */
+.nf-page { display: grid; place-items: center; min-height: 70vh; text-align: center; }
+.nf-code { font-family: var(--font-mono); font-size: clamp(4rem, 14vw, 8rem); font-weight: 700; line-height: 1; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+.nf-inner .hero-desc { margin: 12px auto 26px; }
+.nf-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }

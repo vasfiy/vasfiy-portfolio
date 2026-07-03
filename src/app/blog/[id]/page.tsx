@@ -1,5 +1,6 @@
 import PostView from "@/components/PostView";
 import { getSiteData, blogSort } from "@/lib/data";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { Post } from "@/lib/types";
 
@@ -20,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!post) return { title: "Post — Kamoliddin Tilonboyev" };
   const title = post.title || post.titleUz || "Post";
   const desc = (post.body || post.bodyUz || "").slice(0, 160);
-  const img = post.type === "image" && post.media ? post.media : "/og-image.jpg";
+  const cover = (post.blocks || []).find((b) => b.type === "image" && b.url)?.url;
+  const img = cover || (post.type === "image" && post.media ? post.media : "/og-image.jpg");
   return {
     title: `${title} — Kamoliddin Tilonboyev`,
     description: desc,
@@ -32,5 +34,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { post, related } = await findPost(id);
+  if (!post) notFound(); // real 404 status for SEO instead of a soft 200
   return <PostView post={post} related={related} />;
 }
