@@ -19,11 +19,26 @@ export default function AdminApp() {
   const [active, setActive] = useState("overview");
   const [navOpen, setNavOpen] = useState(false);
   const [photo, setPhoto] = useState("");
+  const [editTarget, setEditTarget] = useState<string | null>(null);
 
   useEffect(() => {
     A.getUser().then(setUser);
     const { data } = A.sb().auth.onAuthStateChange((_e, session) => setUser(session?.user || null));
     return () => data.subscription.unsubscribe();
+  }, []);
+
+  // Deep links: /admin#blog opens a tab; /admin#blog?edit=<id> opens that item's editor.
+  useEffect(() => {
+    const apply = () => {
+      const h = window.location.hash.slice(1);
+      if (!h) return;
+      const [tab, qs] = h.split("?");
+      if (tab) setActive(tab);
+      setEditTarget(new URLSearchParams(qs || "").get("edit"));
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
   }, []);
   useEffect(() => { if (user) A.getSettings().then((s) => setPhoto(s.profilePhoto || "")).catch(() => {}); }, [user]);
 
@@ -53,7 +68,7 @@ export default function AdminApp() {
       <button className="ad-burger" onClick={() => setNavOpen((o) => !o)} aria-label="Menu">{navOpen ? "✕" : "☰"}</button>
       <main className="ad-main">
         {active === "overview" && <Dashboard onGo={setActive} />}
-        {col && <ItemManager collection={col} key={col.id} />}
+        {col && <ItemManager collection={col} key={col.id} initialEditId={editTarget} />}
         {active === "sitetext" && <SiteText />}
         {active === "media" && <MediaLib />}
         {active === "inbox" && <Inbox />}

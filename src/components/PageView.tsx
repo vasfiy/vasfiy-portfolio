@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
+import AdminEditLink from "./AdminEditLink";
 import type { Page } from "@/lib/types";
 
 export default function PageView({ page }: { page: Page | null }) {
@@ -17,6 +18,7 @@ export default function PageView({ page }: { page: Page | null }) {
   return (
     <article className="post-page container">
       <Link className="post-back" href="/">← {lang === "uz" ? "Bosh sahifa" : "Home"}</Link>
+      {page.__id && <AdminEditLink hash={`pages?edit=${page.__id}`} label={lang === "uz" ? "Sahifani tahrirlash" : "Edit page"} />}
       <h1 className="post-title">{page.icon ? page.icon + " " : ""}{title}</h1>
       <div className="post-text">
         {body

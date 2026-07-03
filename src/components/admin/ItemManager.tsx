@@ -72,7 +72,7 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
   return <input type="text" value={value || ""} placeholder={f.ph} onChange={(e) => onChange(e.target.value)} />;
 }
 
-export default function ItemManager({ collection }: { collection: Collection }) {
+export default function ItemManager({ collection, initialEditId }: { collection: Collection; initialEditId?: string | null }) {
   const c = collection;
   const [items, setItems] = useState<any[]>([]);
   const [cats, setCats] = useState<Record<string, any>>({});
@@ -123,6 +123,15 @@ export default function ItemManager({ collection }: { collection: Collection }) 
     setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
+
+  // Deep-linked "✎ Edit" from the public site: open that item's editor once items arrive.
+  const deepLinkDone = useRef(false);
+  useEffect(() => {
+    if (!initialEditId || deepLinkDone.current || !items.length) return;
+    const it = items.find((x) => x.__id === initialEditId);
+    if (it) { deepLinkDone.current = true; edit(it); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, initialEditId]);
   const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
   const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
   // Open the category picker for an item (nothing saves until "Save" is pressed).

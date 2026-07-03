@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import ThemeFab from "./ThemeFab";
 import Search from "./Search";
 import Tracker from "./Tracker";
+import EditMode from "./EditMode";
 import type { Page } from "@/lib/types";
 
 export default function SiteFrame({ children, navPages = [] }: { children: React.ReactNode; navPages?: Page[] }) {
@@ -23,6 +24,7 @@ export default function SiteFrame({ children, navPages = [] }: { children: React
       <ThemeFab />
       <Search />
       <Tracker />
+      <EditMode />
     </>
   );
 }

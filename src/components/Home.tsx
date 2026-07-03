@@ -9,6 +9,7 @@ import { pick } from "@/lib/i18n";
 import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
 import { supabase } from "@/lib/data";
 import VoiceRecorder from "./VoiceRecorder";
+import SocPanel from "./SocPanel";
 import type { SiteData, Lang } from "@/lib/types";
 
 const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
@@ -73,13 +74,13 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
     <section className="hero" id="hero">
       <div className="hero-canvas"><Hero3DLazy /></div>
       <div className="container hero-inner">
-        <div className="hero-badge"><span className="dot" /> <span>{badge}</span></div>
+        <div className="hero-badge"><span className="dot" /> <span data-edit="heroBadge">{badge}</span></div>
         <h1 className="hero-title">
           <span className="hero-hi">Hi, I&apos;m</span>
           <span className="gradient-text">Kamoliddin Tilonboyev</span>
         </h1>
         <p className="hero-role-line"><span className="hero-role-prefix">I&apos;m a</span> <span className="hero-role gradient-text">{typed}</span><span className="caret">|</span></p>
-        <p className="hero-desc">{desc}</p>
+        <p className="hero-desc" data-edit="heroDesc">{desc}</p>
         <div className="hero-cta">
           <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
           <Link href="/cv" className="btn btn-ghost">📄 {t("hero.cv")}</Link>
@@ -90,6 +91,7 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
           {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label="Website" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
           {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
         </div>
+        <div className="hero-soc"><SocPanel /></div>
       </div>
     </section>
   );
@@ -106,7 +108,7 @@ function About({ data, st }: { data: SiteData; st: any }) {
       <div className="container">
         <Reveal className="section-head">
           <span className="section-kicker"><span className="kicker-num">01</span> <span>{t("about.kicker")}</span></span>
-          <h2 className="section-title">{pick(st, "aboutTitle", lang) || "Defending systems, one alert at a time"}</h2>
+          <h2 className="section-title" data-edit="aboutTitle">{pick(st, "aboutTitle", lang) || "Defending systems, one alert at a time"}</h2>
         </Reveal>
         <div className="about-top">
           <Reveal className="photo-card glass">
@@ -117,7 +119,7 @@ function About({ data, st }: { data: SiteData; st: any }) {
           <Reveal className="about-text glass">
             {["aboutP1", "aboutP2", "aboutP3"].map((k) => {
               const v = pick(st, k, lang);
-              return v ? <p key={k} dangerouslySetInnerHTML={{ __html: v }} /> : null;
+              return v ? <p key={k} data-edit={k} dangerouslySetInnerHTML={{ __html: v }} /> : null;
             })}
           </Reveal>
         </div>

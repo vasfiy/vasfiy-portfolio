@@ -1,0 +1,28 @@
+name: Deploy to Netlify
+
+# Auto-deploys every push to main using the proven draft+publish method.
+# Requires one repository secret: NETLIFY_AUTH_TOKEN (Netlify personal access token).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: f2052064-3c94-456e-8354-4d42249c31db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Deploy (draft + publish)
+        run: bash scripts/deploy.sh

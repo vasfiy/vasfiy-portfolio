@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import { fmtDate, ytId, readingTime } from "@/lib/data";
+import AdminEditLink from "./AdminEditLink";
 import type { Post } from "@/lib/types";
 
 export default function PostView({ post, related }: { post: Post | null; related: Post[] }) {
@@ -93,6 +94,7 @@ export default function PostView({ post, related }: { post: Post | null; related
     <article className="post-page container">
       <div className="read-progress" aria-hidden><i style={{ transform: `scaleX(${progress})` }} /></div>
       <Link className="post-back" href="/blog">{t("blog.back")}</Link>
+      {post.__id && <AdminEditLink hash={`blog?edit=${post.__id}`} label={lang === "uz" ? "Postni tahrirlash" : "Edit post"} />}
       {media()}
       <div className="post-text">
         <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(readSrc)} {t("blog.min")}</span></div>
