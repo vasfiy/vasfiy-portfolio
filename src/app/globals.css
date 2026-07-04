@@ -1672,28 +1672,7 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
 .admin-edit-link { display: inline-flex; align-items: center; gap: 6px; margin-left: 12px; padding: 4px 12px; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--ink-accent); font-size: .8rem; font-weight: 600; text-decoration: none; }
 .admin-edit-link:hover { border-color: var(--ink-accent); }
 
-/* ===== SOC console hero panel ===== */
-.hero-inner { position: relative; }
-.hero-soc { margin: 38px 0 0; max-width: 560px; }
-.soc-panel { padding: 0; overflow: hidden; border: 1px solid var(--border-strong); }
-.soc-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface); }
-.soc-live { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; color: var(--text-dim); }
-.soc-live i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,.6); animation: soc-pulse 1.8s infinite; }
-@keyframes soc-pulse { 70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
-.soc-chips { display: inline-flex; gap: 6px; }
-.soc-chips b { font-family: var(--font-mono); font-size: .66rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink-accent); background: var(--grad-soft); }
-.soc-body { height: 208px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 14px; font-family: var(--font-mono); font-size: .74rem; line-height: 1.75; }
-.soc-line { color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: soc-in .3s ease; }
-.soc-line.ok { color: #4ade80; }
-.soc-line.alert { color: #ff6b81; font-weight: 600; }
-.soc-t { opacity: .55; margin-right: 6px; }
-@keyframes soc-in { from { opacity: 0; transform: translateY(6px); } }
-.soc-foot { padding: 8px 14px; border-top: 1px solid var(--border); font-family: var(--font-mono); font-size: .68rem; color: var(--text-faint); }
-.soc-foot a { color: var(--cyan); }
-@media (min-width: 1180px) {
-  .hero-soc { position: absolute; right: 24px; bottom: -8px; width: 430px; margin: 0; }
-}
-@media (prefers-reduced-motion: reduce) { .soc-line { animation: none; } .soc-live i { animation: none; } }
+
 
 /* ===================== Vasfiy Market ===================== */
 .mkt-header { position: sticky; top: 0; z-index: 100; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
@@ -1748,3 +1727,6 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
 .mkt-ok { color: #4ade80; font-size: .88rem; }
 .mkt-err { color: #ff6b81; font-size: .88rem; }
 @media (max-width: 640px) { .mkt-header-right { gap: 8px; } .mkt-main-link { display: none; } }
+
+/* Market preview on the homepage */
+.mkt-preview-more { margin-top: 24px; text-align: center; }

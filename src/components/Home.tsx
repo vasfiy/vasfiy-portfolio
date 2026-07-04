@@ -9,7 +9,6 @@ import { pick } from "@/lib/i18n";
 import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
 import { supabase } from "@/lib/data";
 import VoiceRecorder from "./VoiceRecorder";
-import SocPanel from "./SocPanel";
 import type { SiteData, Lang } from "@/lib/types";
 
 const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
@@ -41,6 +40,7 @@ export default function Home({ data }: { data: SiteData }) {
       <JournalPreview data={data} />
       <GalleryPreview data={data} />
       <Education data={data} />
+      <MarketPreview data={data} />
       <Explore data={data} />
       <Contact st={st} />
     </>
@@ -91,7 +91,6 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
           {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label="Website" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
           {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
         </div>
-        <div className="hero-soc"><SocPanel /></div>
       </div>
     </section>
   );
@@ -411,6 +410,43 @@ function GalleryPreview({ data }: { data: SiteData }) {
 }
 
 /* ---------------- Explore (digests) ---------------- */
+/* ---------------- Market preview (latest products; hidden until any exist) ---------------- */
+function MarketPreview({ data }: { data: SiteData }) {
+  const { lang, t } = useLang();
+  const items = pinSort(data.products).slice(0, 4);
+  if (!items.length) return null;
+  const fmtP = (p = "", cur = "") => { const n = Number(String(p).replace(/[^\d.]/g, "")); return n ? `${n.toLocaleString("en-US").replace(/,/g, " ")} ${cur}`.trim() : (p ? `${p} ${cur}` : ""); };
+  return (
+    <section className="section" id="market">
+      <div className="container">
+        <Reveal className="section-head">
+          <span className="section-kicker"><span className="kicker-num">🛒</span> <span>{t("market.title")}</span></span>
+          <h2 className="section-title">{t("market.sub")}</h2>
+        </Reveal>
+        <div className="mkt-grid mkt-preview-grid">
+          {items.map((p, i) => {
+            const img = (p.images || [])[0]?.url;
+            return (
+              <Reveal key={p.__id || i} className="digest-wrap">
+                <a className="mkt-card glass" href={`https://market.vasfiy.com/${p.__id}`}>
+                  <div className="mkt-card-img">{img ? <img src={img} alt={pick(p, "title", lang)} loading="lazy" /> : <span className="mkt-ph">📦</span>}
+                    {p.origin && <span className="mkt-origin">{p.origin}</span>}
+                  </div>
+                  <div className="mkt-card-body">
+                    <h3>{pick(p, "title", lang)}</h3>
+                    <div className="mkt-card-meta"><span className="mkt-price">{fmtP(p.price, p.currency)}</span></div>
+                  </div>
+                </a>
+              </Reveal>
+            );
+          })}
+        </div>
+        <div className="mkt-preview-more"><a className="btn btn-ghost" href="https://market.vasfiy.com">{t("market.viewall")}</a></div>
+      </div>
+    </section>
+  );
+}
+
 function Explore({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
   const albums = groupAlbums(data.gallery);
@@ -419,6 +455,7 @@ function Explore({ data }: { data: SiteData }) {
   const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
   void albums; void posts;
   const cards = [
+    { id: "market", href: "https://market.vasfiy.com", icon: "🛒", title: t("market.title"), desc: t("explore.marketDesc"), meta: "EN · UZ · RU · DE", cover: httpOnly(ec.market) || httpOnly((data.products.find((p) => (p.images || [])[0]?.url)?.images || [])[0]?.url), raw: true },
     { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
     { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
     { id: "tools", href: "/tools", icon: "🧰", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
