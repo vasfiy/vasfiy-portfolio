@@ -196,9 +196,34 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     } catch (e: any) { flash("Error: " + (e.message || e)); } finally { setAlbumBusy(false); }
   };
 
+  // One-click starter catalog for the marketplace (shown only while it's empty).
+  const [seeding, setSeeding] = useState(false);
+  const seedMarket = async () => {
+    setSeeding(true);
+    try {
+      const res = await fetch("/market-seed.json");
+      const seed = await res.json();
+      for (const [key, val] of Object.entries<any>(seed.cats || {})) await A.saveCat("product", key, val);
+      const existing = new Set(items.map((it) => it.title));
+      let n = 0;
+      for (const p of seed.products || []) { if (!existing.has(p.title)) { await A.addItem("product", p); n++; } }
+      await load();
+      flash(`✓ ${n} products loaded — live now`);
+    } catch (e: any) { flash("Error: " + (e?.message || e)); }
+    setSeeding(false);
+  };
+
   return (
     <div className="ad-section">
       <div className="ad-head"><h2>{c.icon} {c.label}</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
+
+      {c.kind === "product" && items.length === 0 && (
+        <div className="ad-card">
+          <h3>🌱 Starter catalog</h3>
+          <p className="ad-hint">Load 12 ready products (perfume, leather, shoes — EN/UZ/RU/DE texts, prices, photos). You can edit or delete each one afterwards.</p>
+          <button className="btn btn-primary" disabled={seeding} onClick={seedMarket}>{seeding ? "⏳ Loading…" : "Load 12 starter products"}</button>
+        </div>
+      )}
 
       {c.album && (
         <div className="ad-card">
