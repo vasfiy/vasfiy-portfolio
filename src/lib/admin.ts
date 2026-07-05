@@ -61,8 +61,23 @@ export async function signIn(email: string, password: string) {
 export async function signOut() { await sb().auth.signOut(); }
 export async function getUser() { try { const { data } = await sb().auth.getUser(); return data.user; } catch { return null; } }
 
+/* ---------- Settings-backed kinds ----------
+   The items table's kind CHECK constraint predates newer kinds and DDL isn't
+   possible from the client, so `product` rows live in the `marketProducts`
+   setting instead (settings writes are proven to work). Their ids are prefixed
+   "sp-" so id-only operations (update/delete/pin/archive/reorder) route here
+   transparently — the admin UI uses the same functions unchanged. */
+const SETTINGS_ITEM_KINDS = new Set(["product"]);
+const isSpId = (id: any) => typeof id === "string" && id.startsWith("sp-");
+async function spLoad(): Promise<any[]> { const s = await getSettings(); return ((s.marketProducts as any[]) || []); }
+async function spSave(arr: any[]) { await setSetting("marketProducts", arr); }
+
 /* ---------- Items ---------- */
 export async function listItems(kind: string) {
+  if (SETTINGS_ITEM_KINDS.has(kind)) {
+    const arr = await spLoad();
+    return arr.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  }
   const { data } = await sb().from("items").select("*").eq("kind", kind);
   const rows = (data || []).slice().sort(byPos).map((r: any) => ({ ...r.data, pinned: r.pinned, position: r.position, __id: r.id }));
   return rows.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (a.position || 0) - (b.position || 0));
@@ -76,28 +91,67 @@ function stripNul(v: any): any {
 }
 function clean(obj: any) { const o = stripNul({ ...obj }); delete o.__id; delete o.pinned; delete o.position; return o; }
 export async function addItem(kind: string, obj: any) {
+  if (SETTINGS_ITEM_KINDS.has(kind)) {
+    const arr = await spLoad();
+    const o = stripNul({ ...obj }); delete o.position;
+    o.__id = "sp-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    o.pinned = !!obj.pinned;
+    arr.push(o);
+    await spSave(arr);
+    return;
+  }
   const { data } = await sb().from("items").select("position").eq("kind", kind);
   const pos = ((data || []).reduce((m: number, r: any) => Math.max(m, r.position || 0), 0)) + 1;
   const { error } = await sb().from("items").insert({ kind, data: clean(obj), position: pos, pinned: !!obj.pinned });
   if (error) throw error;
 }
 export async function updateItem(id: string, obj: any) {
+  if (isSpId(id)) {
+    const arr = await spLoad();
+    const o = stripNul({ ...obj }); delete o.position; o.__id = id; o.pinned = !!obj.pinned;
+    await spSave(arr.map((x) => (x.__id === id ? o : x)));
+    return;
+  }
   const { error } = await sb().from("items").update({ data: clean(obj), pinned: !!obj.pinned, updated_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
-export async function deleteItem(id: string) { const { error } = await sb().from("items").delete().eq("id", id); if (error) throw error; }
-export async function setPinned(id: string, val: boolean) { await sb().from("items").update({ pinned: val }).eq("id", id); }
+export async function deleteItem(id: string) {
+  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.filter((x) => x.__id !== id)); return; }
+  const { error } = await sb().from("items").delete().eq("id", id); if (error) throw error;
+}
+export async function setPinned(id: string, val: boolean) {
+  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.map((x) => (x.__id === id ? { ...x, pinned: val } : x))); return; }
+  await sb().from("items").update({ pinned: val }).eq("id", id);
+}
 /** Temporarily archive/unarchive an item (kept in admin, hidden from the public site). */
 export async function setArchived(id: string, data: any, val: boolean) {
+  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.map((x) => (x.__id === id ? { ...x, archived: val } : x))); return; }
   const obj = { ...data, archived: val };
   const { error } = await sb().from("items").update({ data: clean(obj), updated_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 export async function reorder(orderedIds: string[]) {
+  if (orderedIds.some(isSpId)) {
+    const arr = await spLoad();
+    const byId: Record<string, any> = {}; arr.forEach((x) => { byId[x.__id] = x; });
+    const next = orderedIds.map((id) => byId[id]).filter(Boolean);
+    arr.forEach((x) => { if (!orderedIds.includes(x.__id)) next.push(x); });
+    await spSave(next);
+    return;
+  }
   // assign sequential positions matching the given visual order
   await Promise.all(orderedIds.map((id, i) => sb().from("items").update({ position: i }).eq("id", id)));
 }
 export async function moveItem(kind: string, id: string, dir: "up" | "down") {
+  if (SETTINGS_ITEM_KINDS.has(kind)) {
+    const arr = await spLoad();
+    const i = arr.findIndex((x) => x.__id === id);
+    const j = dir === "up" ? i - 1 : i + 1;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    await spSave(arr);
+    return;
+  }
   const { data: raw } = await sb().from("items").select("id,position").eq("kind", kind);
   if (!raw) return;
   const arr = raw.slice().sort(byPos);

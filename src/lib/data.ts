@@ -42,6 +42,9 @@ export async function getSiteData(): Promise<SiteData> {
       (data.cats[c.kind] ||= {})[c.key] = cat;
     });
     (settings.data || []).forEach((s: any) => { data.settings[s.key] = s.value; });
+    // Products live in the `marketProducts` setting (items.kind CHECK constraint
+    // predates the `product` kind and can't be altered from the client).
+    ((data.settings.marketProducts as any[]) || []).forEach((p: any) => { if (p && !p.archived) data.products.push({ ...p }); });
     // Categories for newer kinds (blog/project/challenge/page) live in the `extraCats` setting.
     const extra: Record<string, Record<string, any>> = (data.settings.extraCats as any) || {};
     for (const kind in extra) {
