@@ -213,9 +213,29 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     setSeeding(false);
   };
 
+  // One-click publisher for a post prepared in the repo (public/journal-prepared.json).
+  const [prepared, setPrepared] = useState<any | null>(null);
+  useEffect(() => {
+    if (c.kind !== "blog") return;
+    fetch("/journal-prepared.json").then((r) => (r.ok ? r.json() : null)).then(setPrepared).catch(() => {});
+  }, [c.kind]);
+  const publishPrepared = async () => {
+    if (!prepared) return;
+    try { await A.addItem("blog", prepared); setPrepared(null); await load(); flash("✓ Post published — live now"); }
+    catch (e: any) { flash("Error: " + (e?.message || e)); }
+  };
+
   return (
     <div className="ad-section">
       <div className="ad-head"><h2>{c.icon} {c.label}</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
+
+      {c.kind === "blog" && prepared && !items.some((it) => it.title === prepared.title) && (
+        <div className="ad-card">
+          <h3>📥 Tayyor post</h3>
+          <p className="ad-hint"><b>{prepared.titleUz || prepared.title}</b> — {prepared.date} · matn EN/UZ tayyor. Bir bosishda joylanadi; keyin Edit orqali rasm qo'shishingiz mumkin.</p>
+          <button className="btn btn-primary" onClick={publishPrepared}>Postni joylash</button>
+        </div>
+      )}
 
       {c.kind === "product" && items.length === 0 && (
         <div className="ad-card">
