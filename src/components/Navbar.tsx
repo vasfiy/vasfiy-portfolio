@@ -40,6 +40,7 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
       <Link href="/gallery" onClick={close}>{t("nav.gallery")}</Link>
       <Link href="/blog" onClick={close}>{t("nav.journal")}</Link>
       <Link href="/library" onClick={close}>{t("nav.library")}</Link>
+      <Link href="/learning" onClick={close}>{t("nav.learning")}</Link>
       {pages.map((p) => <Link key={p.slug} href={`/p/${p.slug}`} onClick={close}>{p.icon ? p.icon + " " : ""}{pick(p, "title", lang) || p.slug}</Link>)}
       <Link href="/#contact" onClick={close}>{t("nav.contact")}</Link>
     </>

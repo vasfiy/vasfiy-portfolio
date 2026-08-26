@@ -251,6 +251,8 @@ function Education({ data }: { data: SiteData }) {
   const certs = pinSort(data.certs);
   const [viewing, setViewing] = useState<{ src: string; title: string; pdf: boolean } | null>(null);
   const readerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
   const toggleFs = () => { const el = readerRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
 
   useEffect(() => {
@@ -265,6 +267,13 @@ function Education({ data }: { data: SiteData }) {
   const fileSrc = (c: any) => { const f = String(c.file || "").trim(); return /^(https?:\/\/|\/)/.test(f) ? f : ""; };
   const verifyUrl = (c: any) => { const u = String(c.url || "").trim(); return /^https?:\/\//.test(u) ? u : ""; };
   const isImg = (s: string) => /\.(png|jpe?g|gif|webp|svg|avif)($|\?)/i.test(s);
+  // `img` is shared with the static site, where it is stored relative ("assets/certs/x.jpg").
+  // Routes here are nested, so a relative value would resolve against the route — force root-relative.
+  const imgSrc = (c: any) => { const s = String(c.img || "").trim(); if (!s) return ""; return /^https?:\/\//.test(s) || s.startsWith("/") ? s : "/" + s.replace(/^\.?\//, ""); };
+  const slides = certs.filter((c) => imgSrc(c));
+  const step = () => { const t = trackRef.current; const s = t?.querySelector<HTMLElement>(".cert-slide"); return s ? s.getBoundingClientRect().width + 22 : t?.clientWidth || 0; };
+  const nudge = (dir: number) => trackRef.current?.scrollBy({ left: dir * step(), behavior: "smooth" });
+  const onTrackScroll = () => { const t = trackRef.current; if (!t) return; const w = step(); if (w) setActive(Math.min(Math.round(t.scrollLeft / w), slides.length - 1)); };
 
   return (
     <section className="section" id="education">
@@ -283,35 +292,45 @@ function Education({ data }: { data: SiteData }) {
               </div>
             ))}
           </Reveal>
-          <Reveal className="edu-col">
-            <h3 className="edu-col-title">{t("edu.certTitle")}</h3>
-            <div className="cert-list">
-              {certs.map((c, i) => {
+        </div>
+
+        <Reveal className="cert-block">
+          <h3 className="edu-col-title">{t("edu.certTitle")}</h3>
+          <div className="cert-carousel">
+            <button className="cert-nav cert-prev" type="button" aria-label={lang === "uz" ? "Oldingi" : "Previous"} onClick={() => nudge(-1)}>‹</button>
+            <div className="cert-track" ref={trackRef} onScroll={onTrackScroll}>
+              {slides.map((c, i) => {
                 const name = pick(c, "name", lang);
-                const file = fileSrc(c);
-                const verify = verifyUrl(c);
-                const open = () => { if (file) setViewing({ src: file, title: name, pdf: !isImg(file) }); };
+                const img = imgSrc(c);
+                const open = () => setViewing({ src: fileSrc(c) || img, title: name, pdf: !isImg(fileSrc(c) || img) });
                 return (
-                  <div
-                    className={"cert-card glass" + (file ? " cert-clickable" : "")}
-                    key={i}
-                    onClick={file ? open : undefined}
-                    role={file ? "button" : undefined}
-                    tabIndex={file ? 0 : undefined}
-                    onKeyDown={file ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } } : undefined}
+                  <figure
+                    className="cert-slide glass" key={c.__id || i}
+                    onClick={open} role="button" tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}
                   >
-                    <div className="cert-badge">{c.badge}</div>
-                    <div className="cert-info">
-                      <h4>{name}{file && <span className="cert-doc" title={lang === "uz" ? "Bosib ko'ring" : "Click to view"}> 📄</span>}</h4>
+                    <img src={img} alt={name} loading="lazy" />
+                    <figcaption>
+                      <h4>{name}</h4>
                       <p className="cert-meta">{pick(c, "meta", lang)}</p>
-                      {verify && <a className="cert-view-btn" href={verify} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>{lang === "uz" ? "Sertifikat sahifasi" : "View certificate"} ↗</a>}
-                    </div>
-                  </div>
+                      {verifyUrl(c) && <a className="cert-view-btn" href={verifyUrl(c)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>{lang === "uz" ? "Sertifikat sahifasi" : "View certificate"} ↗</a>}
+                    </figcaption>
+                  </figure>
                 );
               })}
             </div>
-          </Reveal>
-        </div>
+            <button className="cert-nav cert-next" type="button" aria-label={lang === "uz" ? "Keyingi" : "Next"} onClick={() => nudge(1)}>›</button>
+          </div>
+          <div className="cert-dots" role="tablist" aria-label={t("edu.certTitle")}>
+            {slides.map((c, i) => (
+              <button
+                key={c.__id || i} type="button" role="tab" aria-label={`${i + 1}`}
+                className={i === active ? "active" : ""}
+                onClick={() => trackRef.current?.scrollTo({ left: i * step(), behavior: "smooth" })}
+              />
+            ))}
+          </div>
+        </Reveal>
       </div>
       {viewing && (
         <div className="reader-modal open" role="dialog" aria-modal onClick={() => setViewing(null)}>
@@ -457,6 +476,7 @@ function Explore({ data }: { data: SiteData }) {
   const cards = [
     { id: "market", href: "https://market.vasfiy.com", icon: "🛒", title: t("market.title"), desc: t("explore.marketDesc"), meta: "EN · UZ · RU · DE", cover: httpOnly(ec.market) || httpOnly((data.products.find((p) => (p.images || [])[0]?.url)?.images || [])[0]?.url), raw: true },
     { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
+    { id: "learning", href: "/learning", icon: "📖", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? "course" : "courses"}`, cover: httpOnly(ec.learning) },
     { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
     { id: "tools", href: "/tools", icon: "🧰", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
   ];

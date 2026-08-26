@@ -350,17 +350,67 @@ img { max-width: 100%; display: block; }
 .project-links a:hover { opacity: 0.75; }
 
 /* ---------- Education & Certs ---------- */
-.edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.edu-grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
 .edu-col-title { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 18px; }
 .edu-card { padding: 24px 26px; }
 .edu-card h4 { font-family: var(--font-display); font-size: 1.1rem; }
-.cert-list { display: flex; flex-direction: column; gap: 14px; }
-.cert-card { padding: 18px 20px; display: flex; align-items: center; gap: 16px; transition: transform .2s, border-color .2s; }
-.cert-card:hover { transform: translateX(4px); border-color: var(--border-strong); }
-.cert-badge { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--grad-soft); border: 1px solid var(--border); font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: var(--ink-accent); flex-shrink: 0; }
-.cert-info h4 { font-size: 1rem; font-family: var(--font-display); font-weight: 600; }
 .cert-meta { font-size: 12.5px; color: var(--text-faint); font-family: var(--font-mono); }
-.cert-progress .cert-badge { color: var(--green); }
+
+/* ---------- Certificate carousel ---------- */
+.cert-block { margin-top: 44px; }
+.cert-carousel { position: relative; }
+.cert-track {
+  display: flex; gap: 22px; overflow-x: auto;
+  scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  padding: 6px 2px 18px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.cert-track::-webkit-scrollbar { display: none; }
+.cert-slide {
+  flex: 0 0 min(520px, 86%); scroll-snap-align: center;
+  margin: 0; padding: 0; border-radius: 18px; overflow: hidden;
+  cursor: zoom-in; transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+}
+.cert-slide:hover { transform: translateY(-6px); border-color: var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,.35); }
+.cert-slide img { width: 100%; height: auto; display: block; background: #fff; }
+.cert-slide figcaption { padding: 16px 18px 18px; }
+.cert-slide figcaption h4 { font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; margin-bottom: 4px; }
+.cert-nav {
+  position: absolute; top: 42%; transform: translateY(-50%); z-index: 3;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--bg-elev, rgba(20,20,24,.88)); color: var(--text);
+  border: 1px solid var(--border-strong); backdrop-filter: blur(8px);
+  font-size: 26px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+  transition: background .2s, transform .2s; user-select: none;
+}
+.cert-nav:hover { transform: translateY(-50%) scale(1.08); }
+.cert-prev { left: -10px; }
+.cert-next { right: -10px; }
+.cert-dots { display: flex; gap: 8px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
+.cert-dots button {
+  width: 8px; height: 8px; border-radius: 50%; border: 0; padding: 0;
+  background: var(--border-strong); cursor: pointer; transition: transform .2s, background .2s;
+}
+.cert-dots button.active { background: var(--ink-accent); transform: scale(1.35); }
+@media (max-width: 720px) { .cert-slide { flex-basis: 92%; } .cert-nav { display: none; } }
+
+/* ---------- Learning hub ---------- */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.course-card {
+  display: flex; flex-direction: column; gap: 12px; padding: 26px 28px;
+  text-decoration: none; color: inherit; position: relative;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.course-card:hover { transform: translateY(-6px); border-color: var(--border-strong); box-shadow: 0 18px 44px rgba(0,0,0,.3); }
+.course-icon { font-size: 2.2rem; line-height: 1; }
+.course-tag {
+  display: inline-block; align-self: flex-start; font-family: var(--font-mono); font-size: 11.5px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-accent);
+  border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px;
+}
+.course-body h3 { font-family: var(--font-display); font-size: 1.22rem; font-weight: 600; margin: 10px 0 8px; }
+.course-body p { color: var(--text-dim); font-size: .97rem; line-height: 1.6; margin-bottom: 10px; }
+.course-meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-faint); }
+.course-go { font-family: var(--font-mono); font-size: 13.5px; color: var(--ink-accent); margin-top: auto; }
 
 /* ---------- Contact ---------- */
 .contact-box { padding: 56px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; }

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CompTIA A+ Core 1 (220-1201) exam simulator — timed practice exams with real question types, scoring, and review. By Kamoliddin Tilonboyev." />
+  <link rel="canonical" href="https://vasfiy.com/aplus.html" />
+  <title>CompTIA A+ Core 1 Exam Simulator — Kamoliddin Tilonboyev</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E" />
+  <style>
+    .site-back { position: fixed; top: 10px; right: 12px; z-index: 50; font: 600 13px "Segoe UI", system-ui, sans-serif; }
+    .site-back a { color: #EAF0F7; opacity: .75; text-decoration: none; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); padding: 6px 12px; border-radius: 2px; }
+    .site-back a:hover { opacity: 1; }
+    /* Below this width the header wraps onto several rows and a fixed link would sit on top of the buttons. */
+    @media (max-width: 1100px) { .site-back { position: static; padding: 8px 12px 0; text-align: right; } }
+  </style>
+</head>
+<body>
+<div class="site-back"><a href="/learning">← Learning</a></div>
+<style>
+:root{
+  --chrome:#1F3A5F; --chrome-hi:#2E5285; --chrome-ink:#EAF0F7;
+  --ground:#EDEFF2; --panel:#FFFFFF; --panel-2:#F6F8FA;
+  --ink:#16202B; --ink-2:#4E5C6B; --ink-3:#77848F;
+  --line:#C4CCD4; --line-2:#DFE4E9;
+  --accent:#1F5FA8; --accent-soft:#E4EDF8;
+  --mark:#8A5D0A; --mark-soft:#FBF0D8;
+  --ok:#186A45; --ok-soft:#E2F1E9;
+  --bad:#96292A; --bad-soft:#F8E7E7;
+  --ui:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --chrome:#132132; --chrome-hi:#1E3A5C; --chrome-ink:#DCE6F1;
+    --ground:#0E1319; --panel:#161D25; --panel-2:#1C242E;
+    --ink:#DFE5EB; --ink-2:#9AA7B4; --ink-3:#77838F;
+    --line:#2E3944; --line-2:#232C36;
+    --accent:#63A2E8; --accent-soft:#182838;
+    --mark:#D6A445; --mark-soft:#2C2513;
+    --ok:#5CBE92; --ok-soft:#14261E;
+    --bad:#E58585; --bad-soft:#2A1717;
+  }
+}
+:root[data-theme="dark"]{
+  --chrome:#132132; --chrome-hi:#1E3A5C; --chrome-ink:#DCE6F1;
+  --ground:#0E1319; --panel:#161D25; --panel-2:#1C242E;
+  --ink:#DFE5EB; --ink-2:#9AA7B4; --ink-3:#77838F;
+  --line:#2E3944; --line-2:#232C36;
+  --accent:#63A2E8; --accent-soft:#182838;
+  --mark:#D6A445; --mark-soft:#2C2513;
+  --ok:#5CBE92; --ok-soft:#14261E;
+  --bad:#E58585; --bad-soft:#2A1717;
+}
+:root[data-theme="light"]{
+  --chrome:#1F3A5F; --chrome-hi:#2E5285; --chrome-ink:#EAF0F7;
+  --ground:#EDEFF2; --panel:#FFFFFF; --panel-2:#F6F8FA;
+  --ink:#16202B; --ink-2:#4E5C6B; --ink-3:#77848F;
+  --line:#C4CCD4; --line-2:#DFE4E9;
+  --accent:#1F5FA8; --accent-soft:#E4EDF8;
+  --mark:#8A5D0A; --mark-soft:#FBF0D8;
+  --ok:#186A45; --ok-soft:#E2F1E9;
+  --bad:#96292A; --bad-soft:#F8E7E7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55}
+.app{min-height:100dvh;display:flex;flex-direction:column}
+
+.chrome{background:var(--chrome);color:var(--chrome-ink);border-bottom:1px solid rgba(0,0,0,.35)}
+.chrome-in{width:100%;padding:12px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.chrome-title{font-size:16px;font-weight:600;letter-spacing:.2px;flex:1;min-width:220px}
+.chrome-title span{display:block;font-weight:400;font-size:13px;opacity:.72;letter-spacing:.3px}
+.meter{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px;background:rgba(255,255,255,.1);padding:6px 12px;border:1px solid rgba(255,255,255,.16)}
+.meter b{font-weight:600}
+.meter.low{background:rgba(214,120,80,.28);border-color:rgba(255,180,150,.45)}
+.chrome button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:var(--chrome-ink);font-size:13px;padding:6px 12px}
+.chrome button:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4)}
+
+main{flex:1;width:100%;padding:24px 28px 36px}
+.pane{background:var(--panel);border:1px solid var(--line);padding:26px 30px}
+.pane+.pane{margin-top:16px}
+
+h1{font-size:26px;font-weight:600;margin:0 0 4px;letter-spacing:-.3px;text-wrap:balance}
+h2{font-weight:600;margin:0 0 14px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2);font-size:13px}
+h3{font-size:19px;font-weight:600;margin:0 0 8px}
+p{margin:0 0 12px}
+.lede{color:var(--ink-2);margin:0 0 20px;max-width:78ch;font-size:17px}
+
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+
+.card{background:var(--panel);border:1px solid var(--line);padding:20px 24px;display:flex;flex-direction:column;gap:10px}
+.card .n{font-family:var(--mono);font-size:13px;color:var(--ink-3);letter-spacing:.5px}
+.card h3{margin:0}
+.card ul{margin:0;padding-left:20px;color:var(--ink-2);font-size:16px}
+.card li{margin-bottom:3px}
+
+button{font:inherit;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:10px 20px;cursor:pointer;border-radius:2px}
+button:hover{background:var(--accent-soft);border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.primary:hover{filter:brightness(1.1)}
+button.danger{color:var(--bad);border-color:var(--line)}
+button.danger:hover{background:var(--bad-soft);border-color:var(--bad)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);padding:7px 10px;border-radius:2px;width:100%}
+textarea{font-family:var(--mono);font-size:13px;line-height:1.5;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+label.fld{display:block;margin-bottom:12px}
+label.fld>span{display:block;font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.hint{font-size:12px;color:var(--ink-3);margin-top:4px}
+
+.qhead{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border-bottom:1px solid var(--line-2);padding-bottom:12px;margin-bottom:20px}
+.qnum{font-family:var(--mono);font-size:13px;letter-spacing:.6px;color:var(--ink-3);text-transform:uppercase}
+.qtype{font-family:var(--mono);font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line-2);padding:3px 10px}
+.qtext{font-size:20px;line-height:1.55;margin:0 0 8px;max-width:85ch}
+.qinstr{font-size:16px;font-weight:600;color:var(--ink-2);margin:0 0 16px}
+
+.exhibit{background:var(--panel-2);border:1px solid var(--line-2);border-left:3px solid var(--accent);padding:14px 16px;margin:0 0 18px;font-family:var(--mono);font-size:14.5px;line-height:1.6;white-space:pre;overflow-x:auto}
+
+.opts{display:flex;flex-direction:column;gap:3px;margin:0 0 4px;max-width:110ch}
+.opt{display:flex;gap:13px;align-items:flex-start;padding:12px 14px;border:1px solid transparent;cursor:pointer;line-height:1.5;font-size:18px}
+.opt:hover{background:var(--panel-2)}
+.opt input{margin:5px 0 0;flex:none;accent-color:var(--accent);width:17px;height:17px}
+.opt .lt{font-family:var(--mono);font-size:16px;color:var(--ink-3);flex:none;min-width:18px}
+.opt.sel{background:var(--accent-soft);border-color:var(--accent)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+
+.mrow{display:grid;grid-template-columns:minmax(150px,280px) 1fr;gap:12px;align-items:center;margin-bottom:10px;max-width:110ch}
+.mrow>span{font-size:17px;font-weight:600}
+.orow{display:flex;gap:12px;align-items:center;border:1px solid var(--line-2);background:var(--panel-2);padding:11px 14px;margin-bottom:7px;max-width:110ch}
+.orow .seq{font-family:var(--mono);font-size:15px;color:var(--ink-3);min-width:20px}
+.orow .txt{flex:1;font-size:17px}
+.orow button{padding:4px 12px;font-size:15px;line-height:1.4}
+.fill{max-width:320px;font-family:var(--mono);font-size:18px}
+
+.footbar{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);margin-top:16px}
+.footbar-in{width:100%;padding:14px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.markbox{display:flex;gap:9px;align-items:center;font-size:17px;cursor:pointer;padding:9px 14px;border:1px solid var(--line)}
+.markbox input{accent-color:var(--mark);width:16px;height:16px}
+.markbox.on{background:var(--mark-soft);border-color:var(--mark);color:var(--mark);font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+th{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+tbody tr:hover{background:var(--panel-2)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.pill{display:inline-block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border:1px solid var(--line)}
+.pill.a{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pill.u{color:var(--ink-3)}
+.pill.m{background:var(--mark-soft);border-color:var(--mark);color:var(--mark)}
+.pill.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.jump{background:none;border:none;color:var(--accent);padding:0;text-decoration:underline;cursor:pointer}
+
+.stat{background:var(--panel-2);border:1px solid var(--line-2);padding:16px 20px}
+.stat .k{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.stat .v{font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.stat .v.ok{color:var(--ok)} .stat .v.bad{color:var(--bad)}
+
+.bar{height:10px;background:var(--panel-2);border:1px solid var(--line-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.bar>i.ok{background:var(--ok)} .bar>i.bad{background:var(--bad)}
+.brow{display:grid;grid-template-columns:minmax(180px,300px) 1fr 72px;gap:14px;align-items:center;margin-bottom:11px;font-size:16px}
+.brow .sc{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;font-size:15px;color:var(--ink-2)}
+
+.rev{border:1px solid var(--line-2);padding:16px 20px;margin-bottom:12px}
+.rev.right{border-left:3px solid var(--ok)}
+.rev.wrong{border-left:3px solid var(--bad)}
+.rev .rq{font-size:17px;margin:8px 0 10px;max-width:95ch}
+.rev .ans{font-size:16px;margin:0 0 5px}
+.rev .ans b{font-weight:600}
+.exp{font-size:16px;color:var(--ink-2);background:var(--panel-2);border-top:1px solid var(--line-2);margin:12px -20px -16px;padding:13px 20px;max-width:none}
+
+.notice{font-size:15px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line-2);border-left:3px solid var(--accent);padding:12px 16px;margin:0 0 18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:700px){.mrow{grid-template-columns:1fr}.chrome-in{gap:10px;padding:10px 14px}main{padding:16px 14px 26px}.pane{padding:18px 16px}.footbar-in{padding:12px 14px}.qtext{font-size:18px}.opt{font-size:17px}}
+</style>
+
+<div class="app">
+  <header class="chrome">
+    <div class="chrome-in">
+      <div class="chrome-title" id="chTitle">CompTIA A+ Certification Exam: Core 1 (220-1201)<span id="chSub">Practice Delivery Environment</span></div>
+      <div class="meter" id="chCount" hidden>Item <b><span id="mCur">1</span></b> of <b><span id="mTot">1</span></b></div>
+      <div class="meter" id="chTime" hidden>Time remaining <b id="mTime">90:00</b></div>
+      <button onclick="toggleNight()" id="btnNight" title="The live exam is delivered in light mode only">Night mode</button>
+      <button onclick="toggleFull()" id="btnFull">Full screen</button>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <div class="footbar" id="foot" hidden><div class="footbar-in" id="footIn"></div></div>
+</div>
+
+<script>
+var BANK = [
+/* ============ SET A — DOMAIN 1: MOBILE DEVICES ============ */
+{id:"A01",set:"A",obj:"1.1",type:"mc",
+ text:"A technician is asked to increase the memory in a thin-and-light business laptop. After removing the bottom cover, the technician finds no memory slots — the DRAM packages are attached directly to the system board. What is the ONLY supported way to give this user more memory?",
+ options:["Install a higher-capacity M.2 drive and enable virtual memory expansion","Replace the system board with a variant that ships with more memory","Add a SO-DIMM to the secondary bank located under the battery","Flash the UEFI with a memory-density override"],
+ answer:1,
+ explain:"Soldered memory cannot be removed or upgraded. The only supported path is a full system board replacement with a board that was manufactured with more memory. A larger drive and a page/swap file are not RAM, and no firmware setting can increase installed memory."},
+{id:"A02",set:"A",obj:"1.1",type:"mc",
+ text:"A technician installs a replacement drive in a laptop. The drive is secured with a single screw, seats into a keyed edge connector, and requires no separate data or power cable. Which drive form factor was installed?",
+ options:["2.5-inch SATA SSD","3.5-inch magnetic hard drive","M.2 SSD","eSATA external drive"],
+ answer:2,
+ explain:"M.2 drives seat into an edge connector and are held down by a single screw — the installation is very similar to installing RAM. Both 2.5-inch SSDs and 3.5-inch hard drives require separate SATA data and power connections."},
+{id:"A03",set:"A",obj:"1.1",type:"mr",pick:2,
+ text:"A user asks how to prolong the life of a new laptop battery and mentions a habit of fully draining the battery before every charge. Which TWO statements about Li-ion and LiPo batteries should the technician give the user?",
+ options:["The battery chemistry exhibits a significant memory effect","There is no memory effect with this battery chemistry","Charging the battery does not diminish its capacity","The battery must be fully discharged before each charge to retain capacity","The battery must be calibrated by the UEFI before first use"],
+ answer:[1,2],
+ explain:"Li-ion and LiPo cells have no memory effect, and charging them does not reduce capacity. The full-discharge habit comes from older NiCd chemistry and provides no benefit here."},
+{id:"A04",set:"A",obj:"1.1",type:"mc",
+ text:"Which memory module is designed for laptops and mobile devices and is physically shorter than the module used in a desktop?",
+ options:["DIMM","RIMM","SO-DIMM","SIMM"],
+ answer:2,
+ explain:"SO-DIMM (Small Outline Dual In-line Memory Module) is the laptop and mobile form factor. Full-size DIMMs are used in desktops and servers; RIMM and SIMM are obsolete desktop formats."},
+{id:"A05",set:"A",obj:"1.1",type:"mc",
+ text:"A user reports that one key on a laptop keyboard sticks. The technician plans to remove the key cap. What is the MOST important precaution before starting?",
+ options:["Discharge the battery to below 20 percent","Check the manufacturer instructions, because the cap and the components beneath it break easily","Replace the entire keyboard, because key caps cannot be removed","Remove the system board to gain access from underneath"],
+ answer:1,
+ explain:"Key cap removal is a delicate procedure and the retaining clips underneath break easily. Removal steps differ by manufacturer, so the documented procedure should be checked first. A full keyboard replacement is a later escalation, not the first step."},
+{id:"A06",set:"A",obj:"1.1",type:"mc",
+ text:"A technician has a 3.5-inch magnetic hard drive on the bench and needs an internal replacement drive for a laptop. Why can this drive NOT be used?",
+ options:["Laptop drive bays use the 2.5-inch form factor","Magnetic drives cannot be installed in portable systems","3.5-inch drives require an M.2 adapter","Laptops support only solid-state storage"],
+ answer:0,
+ explain:"Internal laptop drives use the 2.5-inch form factor; 3.5-inch is the desktop size. Magnetic drives are usable in laptops as long as they are 2.5-inch."},
+{id:"A07",set:"A",obj:"1.1",type:"order",
+ text:"A technician is replacing a laptop hard drive with an SSD and must preserve the installed operating system, applications, and user data. The laptop has only one drive bay and an external USB drive is available. Place the steps in the correct order.",
+ items:["Create an image file of the existing hard drive on external storage","Power the laptop off and open the drive access cover","Remove the mounting screws and slide the hard drive out","Install the SSD and secure it in the bay","Restore the image to the SSD and boot the system"],
+ explain:"With a single drive bay the image must be captured while the original drive is still installed and readable — this also protects the data before any disassembly. Only then is the machine powered down, the drive swapped, and the image restored. Imaging avoids a fresh OS install and moves everything at once."},
+{id:"A08",set:"A",obj:"1.1",type:"mc",
+ text:"A technician has a USB-to-SATA adapter and can connect both the old hard drive and the new SSD at the same time. Which migration method removes the need for an intermediate image file?",
+ options:["Drive-to-drive imaging","Image file creation and restore","Clean OS installation with manual data copy","System board replacement"],
+ answer:0,
+ explain:"When both drives can be connected simultaneously, the imaging software copies directly from one drive to the other, so no intermediate image file is created. The image-file method is used when only one drive can be connected at a time."},
+{id:"A09",set:"A",obj:"1.1",type:"mc",
+ text:"A company requires that laptops be unlocked with a fingerprint reader instead of a typed password. Which authentication factor does this implement?",
+ options:["Something you know","Something you have","Something you are","Somewhere you are"],
+ answer:2,
+ explain:"Biometrics — fingerprint, face, iris — is the \"something you are\" factor. A password is something you know; a smart card or token is something you have; geolocation is somewhere you are."},
+{id:"A10",set:"A",obj:"1.1",type:"mc",
+ text:"After replacing a cracked laptop display, a technician reassembles the system. Windows loads normally, but the wireless signal strength is now very poor everywhere in the building, while a USB wireless adapter works fine. What is the MOST likely cause?",
+ options:["The replacement display panel is not compatible with the wireless card","The Wi-Fi antenna wires that run around the display were not reconnected","The wireless card was disabled by the display replacement","The 802.11 driver was corrupted during reassembly"],
+ answer:1,
+ explain:"Laptop Wi-Fi antennas are routed around the display bezel because the elevated position improves reception. They are disconnected whenever the screen is opened and are easy to leave unattached or pinched. A working USB adapter confirms the radio subsystem and driver are fine."},
+{id:"A11",set:"A",obj:"1.1",type:"mc",
+ text:"A user records training videos with a laptop and complains about poor audio quality, although the microphone works during casual video calls. Which recommendation BEST addresses the complaint?",
+ options:["Move the laptop closer to the wireless access point","Use an analog or USB external microphone instead of the built-in microphone","Replace the display assembly that contains the microphone","Enable Bluetooth so the microphone can use a higher bitrate"],
+ answer:1,
+ explain:"The built-in microphone is mounted in the display and is adequate for casual calls, but not for production audio. An external analog or USB microphone is the standard fix."},
+{id:"A12",set:"A",obj:"1.1",type:"mc",
+ text:"Which pair correctly matches the wireless technology built into a typical laptop with the type of network it creates?",
+ options:["802.11 creates a PAN and Bluetooth creates a LAN","802.11 creates a LAN and Bluetooth creates a PAN","Both create a PAN","Both create a WAN"],
+ answer:1,
+ explain:"802.11 provides local area network connectivity at high speed. Bluetooth is short range and creates a personal area network for peripherals near the user."},
+{id:"A13",set:"A",obj:"1.2",type:"mc",
+ text:"A user has a single connector on a new laptop that charges the system, drives an external monitor, and transfers data. The connector is oval, has 24 pins, and can be inserted in either orientation. Which connector is described?",
+ options:["Lightning","Micro-USB","USB-C","Mini-USB"],
+ answer:2,
+ explain:"USB-C is the 24-pin double-sided connector used by both hosts and devices. Lightning is 8-pin and Apple proprietary; Micro-USB and Mini-USB are single-orientation legacy connectors."},
+{id:"A14",set:"A",obj:"1.2",type:"mr",pick:2,
+ text:"Which TWO statements accurately describe USB-C?",
+ options:["It is an Apple-proprietary connector limited to iPhone and iPad","The same connector can also carry DisplayPort, HDMI, and Thunderbolt signals","It uses 8-pin digital signaling","It can act as a USB 2.0, 3.0, 3.1, or 4 connection depending on the host and device","It is physically keyed so it can only be inserted one way"],
+ answer:[1,3],
+ explain:"USB-C is a connector, not a speed: the same physical connector can operate as USB 2.0 through USB4 and can carry alternate signals such as DisplayPort, HDMI, and Thunderbolt. It is an open standard and is reversible. The 8-pin proprietary design describes Lightning."},
+{id:"A15",set:"A",obj:"1.2",type:"mc",
+ text:"A technician documents the cable supplied with an older iPad. The connector is proprietary, uses 8-pin digital signaling, and can be inserted either way. Which connector is it?",
+ options:["USB-C","Lightning","Micro-USB","TRRS"],
+ answer:1,
+ explain:"Lightning is Apple proprietary with 8-pin digital signaling. Compared with Micro-USB it offers higher power output, reversible insertion, and a simpler design."},
+{id:"A16",set:"A",obj:"1.2",type:"mc",
+ text:"A technician sorts a box of legacy charging cables. Which statement correctly compares Mini-USB and Micro-USB?",
+ options:["Mini-USB is the older connector and is slightly larger than Micro-USB","Micro-USB is the older connector and is slightly larger than Mini-USB","Both connectors are physically identical and differ only in pin count","Mini-USB is reversible and Micro-USB is not"],
+ answer:0,
+ explain:"Mini-USB came first and is slightly larger. Micro-USB replaced it and became the worldwide standard on older Android phones. Neither connector is reversible."},
+{id:"A17",set:"A",obj:"1.2",type:"fill",
+ text:"A technician documents the maximum operating distance of NFC for a facility security review. Enter the maximum distance in centimeters using digits only.",
+ accept:["4","4cm","4 cm"],display:"4",
+ explain:"NFC operates at approximately 4 centimeters or less. That very short range is a security feature: it makes casual interception impractical and forces deliberate proximity for payments and authentication."},
+{id:"A18",set:"A",obj:"1.2",type:"mc",
+ text:"A user needs a wired headset that provides both stereo audio and microphone input through a single 3.5 mm analog jack on a laptop. Which connector standard supports this?",
+ options:["TS","TRS","TRRS","XLR"],
+ answer:2,
+ explain:"TRRS (tip-ring-ring-sleeve) provides four contacts: left audio, right audio, ground, and microphone. TRS has three contacts and carries stereo audio only; TS is mono; XLR is a professional audio connector not used for laptop headsets."},
+{id:"A19",set:"A",obj:"1.2",type:"match",
+ text:"Match each mobile connector to the description that identifies it.",
+ prompts:["USB-C","Lightning","Micro-USB","Mini-USB"],
+ choices:["24-pin double-sided connector that can carry DisplayPort, HDMI, and Thunderbolt","Apple proprietary 8-pin connector that can be inserted either way","Small single-orientation USB connector that became the worldwide standard on older phones","Older single-orientation USB connector, slightly larger than the one that replaced it"],
+ answer:[0,1,2,3],
+ explain:"Pin count is the fastest discriminator: 24 pins is USB-C, 8 pins is Lightning. Between the legacy pair, Mini came first and is larger, and Micro replaced it and became the global standard."},
+{id:"A20",set:"A",obj:"1.2",type:"mc",
+ text:"An engineer needs a laptop to use a specialized desktop adapter card while at their desk, and also wants a single connection for power, dual monitors, keyboard, and mouse. Which accessory BEST meets all of these requirements?",
+ options:["A port replicator","A docking station","A powered USB hub","A Thunderbolt-to-HDMI adapter"],
+ answer:1,
+ explain:"A docking station extends the laptop interfaces and, unlike a port replicator, can provide slots for desktop adapter (expansion) cards. A port replicator connects over USB and duplicates existing interfaces but does not commonly offer an expansion card option."},
+{id:"A21",set:"A",obj:"1.2",type:"mc",
+ text:"Which statement BEST describes a port replicator?",
+ options:["It is a docking station that always includes expansion card slots","It usually connects using USB and duplicates existing interfaces, but does not commonly offer an expansion card option","It requires Thunderbolt and cannot be used with USB","It connects wirelessly to the laptop over Bluetooth"],
+ answer:1,
+ explain:"A port replicator is similar to a docking station and usually connects over USB, but expansion card slots are not a common feature — that capability is the distinguishing feature of a docking station."},
+{id:"A22",set:"A",obj:"1.2",type:"mc",
+ text:"A graphic designer wants a stylus with pressure sensitivity and programmable buttons for an Apple iPad. Which recommendation is correct?",
+ options:["Any capacitive stylus, because all styluses behave identically","An Apple Pencil, because the stylus must be compatible with the tablet","A drawing pad with an external digitizer, because the iPad has no digitizer","A Bluetooth trackpad configured for pressure input"],
+ answer:1,
+ explain:"An active stylus communicates directly with the device to deliver pressure sensitivity and button input, so it must be compatible with that tablet — an iPad requires an Apple Pencil. A generic capacitive stylus only imitates a fingertip."},
+{id:"A23",set:"A",obj:"1.2",type:"mc",
+ text:"A user needs very precise pen input on a desktop computer that has no touchscreen. Which accessory should be recommended?",
+ options:["A trackpad with multi-finger gesture support","A drawing pad used with an active stylus and an external digitizer","A TRRS graphics headset","A port replicator with a stylus port"],
+ answer:1,
+ explain:"A drawing pad provides an external digitizer surface that an active stylus writes on, giving very precise input on systems that have no built-in touch or pen digitizer."},
+{id:"A24",set:"A",obj:"1.2",type:"mc",
+ text:"A user reports that the cursor jumps and text is inserted in the wrong place while typing long documents on a laptop. The user prefers an external mouse. What is the BEST resolution?",
+ options:["Replace the keyboard ribbon cable","Disable the trackpad to prevent inadvertent clicks and cursor movement","Pair a Bluetooth trackpad and disable the mouse","Enable drag and tap on the trackpad"],
+ answer:1,
+ explain:"Palm contact with the trackpad while typing causes inadvertent clicks and cursor movement. Because the user already prefers an external mouse, disabling the trackpad resolves the problem. Enabling drag and tap would make it worse."},
+{id:"A25",set:"A",obj:"1.2",type:"mc",
+ text:"A field technician must get a laptop online at a customer site that has no wireless network. The technician has a smartphone with a strong cellular signal. Which feature provides internet access to the laptop?",
+ options:["NFC pairing between the phone and the laptop","Hotspot and tethering","A Bluetooth PAN link to a smartwatch","Airplane mode with voice retained"],
+ answer:1,
+ explain:"Hotspot and tethering turn the phone into a personal wireless router that extends the cellular data network to other devices. Availability depends on the phone and provider, and additional data charges may apply."},
+{id:"A26",set:"A",obj:"1.2",type:"mr",pick:3,
+ text:"Which THREE devices are commonly connected to a smartphone using Bluetooth?",
+ options:["A wireless headset","A health monitor","A network file share","A smartwatch","A wired 3.5 mm speaker"],
+ answer:[0,1,3],
+ explain:"Bluetooth creates a short-range PAN for peripherals: headsets and headphones, health monitors, smartwatches, external speakers, and automobile integration. A network file share is reached over 802.11 or cellular, and a wired speaker uses the analog jack."},
+{id:"A27",set:"A",obj:"1.3",type:"mc",
+ text:"An airline requires that all radio transmission be disabled during taxi. Which mobile device setting disables all cellular network communication in a single action?",
+ options:["Data roaming off","Airplane mode","Hotspot off","Wi-Fi calling off"],
+ answer:1,
+ explain:"Airplane mode disables cellular networking. Individual radios can be managed separately — for example disabling cellular data while keeping voice service — but airplane mode is the single control that turns the radios off."},
+{id:"A28",set:"A",obj:"1.3",type:"mc",
+ text:"A carrier advertises a standard supporting 150 Mbit/s download rates, based on GSM and EDGE. A later revision of the same standard supports 300 Mbit/s. Which technologies are described?",
+ options:["3G and 4G","LTE and LTE Advanced","5G and 5G Advanced","EDGE and GPRS"],
+ answer:1,
+ explain:"LTE is a 4G technology derived from GSM and EDGE with a standard supporting 150 Mbit/s download. LTE Advanced raises that to 300 Mbit/s."},
+{id:"A29",set:"A",obj:"1.3",type:"mr",pick:2,
+ text:"A logistics company plans a large IoT sensor deployment and is evaluating 5G. Which TWO statements about 5G are accurate?",
+ options:["It was launched worldwide in 2020 and uses higher frequencies","Typical real-world speeds range from 100 to 900 Mbit/s, with an eventual target of 10 Gbit/s","It is limited to voice traffic and cannot carry IoT data","It reduces available bandwidth, which restricts cloud processing","It is another name for LTE Advanced"],
+ answer:[0,1],
+ explain:"5G launched worldwide in 2020 and operates at higher frequencies, delivering roughly 100–900 Mbit/s today with an eventual target near 10 Gbit/s. The additional bandwidth makes larger transfers, faster monitoring, and more cloud processing practical for IoT."},
+{id:"A30",set:"A",obj:"1.3",type:"mc",
+ text:"A user swaps the small physical card from one phone into another phone and finds that the second phone now uses the original phone number and carrier settings. Which component was moved?",
+ options:["The eSIM","The SIM","The MDM profile","The IMEI module"],
+ answer:1,
+ explain:"The SIM is the unique identifier for a cellular device and holds the SIM ID, phone number, and carrier network information. An eSIM performs the same function but is embedded in the device and cannot be physically removed."},
+{id:"A31",set:"A",obj:"1.3",type:"order",
+ text:"A user needs help pairing a new Bluetooth headset with a smartphone. Place the pairing steps in the correct order.",
+ items:["Enable Bluetooth on both the phone and the headset","Put the headset into discoverable mode","Select the discovered headset from the list on the phone","Enter or confirm the matching PIN on both devices","Test connectivity by playing audio through the headset"],
+ explain:"Both radios must be on before anything can be discovered, and the accessory must be discoverable before it appears in the list. The PIN confirmation is the built-in security step, and testing verifies the pairing. Pairing is performed once; later connections are automatic."},
+{id:"A32",set:"A",obj:"1.3",type:"mc",
+ text:"A mapping application reports that it cannot determine a precise location while the user stands between tall buildings. What is the minimum number of GPS satellites the receiver must see for precise navigation?",
+ options:["1","2","3","4"],
+ answer:3,
+ explain:"GPS determines position from timing differences and requires visibility of at least four satellites to resolve longitude, latitude, and altitude. Mobile devices supplement GPS with Wi-Fi and cellular tower data when satellite visibility is poor."},
+{id:"A33",set:"A",obj:"1.3",type:"mc",
+ text:"An organization purchases the mobile devices, retains full control of them, and also allows employees to use them for personal activity. Which deployment model is in use?",
+ options:["BYOD","COPE","CYOD","MDM"],
+ answer:1,
+ explain:"COPE — corporate owned, personally enabled — means the company buys and fully controls the device while permitting personal use. CYOD is the same model with the user choosing the device. BYOD is employee-owned. MDM is the management platform, not a deployment model."},
+{id:"A34",set:"A",obj:"1.3",type:"mr",pick:3,
+ text:"A security team is documenting what their MDM platform enforces on enrolled devices. Which THREE are standard MDM policy enforcement capabilities?",
+ options:["Configuring corporate email accounts without user involvement","Requiring screen locks and PINs on managed devices","Allowing or restricting application installation","Increasing the cellular data speed provided by the carrier","Replacing the device SIM remotely to change the phone number"],
+ answer:[0,1,2],
+ explain:"MDM centrally manages policy on company-owned and user-owned devices: it pushes email account details, forces screen locks and PINs, requires specific authentication types, and permits or blocks applications. It cannot change carrier speeds or physically replace a SIM."},
+{id:"A35",set:"A",obj:"1.3",type:"config",
+ text:"Configure the mobile deployment scenario below. Select the correct answer for each requirement.",
+ rows:[
+  {label:"Employee owns the device and must meet company requirements",choices:["BYOD","COPE","CYOD"],answer:0},
+  {label:"Company buys the device, keeps full control, allows personal use",choices:["BYOD","COPE","CYOD"],answer:1},
+  {label:"Same as company owned, but the user picks the model",choices:["BYOD","COPE","CYOD"],answer:2},
+  {label:"Platform that enforces the policies on all of the above",choices:["MDM","SIM","GPS"],answer:0}],
+ explain:"BYOD is employee-owned and the hardest to secure because it is both a home and a work device. COPE is company-owned with personal use permitted. CYOD is COPE with user choice of device. MDM is the platform that centrally enforces policy across all of these models."},
+{id:"A36",set:"A",obj:"1.3",type:"mc",
+ text:"A user returns from an international trip with an unexpectedly large carrier bill. Photo and video backup ran continuously over the cellular network. Which action BEST prevents this from recurring?",
+ options:["Disable GPS location services on the device","Restrict data synchronization to 802.11 networks and verify data restrictions with the carrier in writing","Switch the device from a SIM to an eSIM","Enable the hotspot so backups use the personal router"],
+ answer:1,
+ explain:"Synchronization of photos, mail, calendar, and contacts should be limited to 802.11 when data caps and roaming charges apply, and carrier data restrictions should be confirmed in writing. Enabling the hotspot still consumes cellular data."},
+
+/* ============ SET B — DOMAIN 2: NETWORKING ============ */
+{id:"B01",set:"B",obj:"2.1",type:"fill",
+ text:"A firewall rule must permit encrypted remote console access to a Linux server. Enter the port number that must be allowed. Use digits only.",
+ accept:["22","tcp/22","tcp 22"],display:"22",
+ explain:"SSH provides an encrypted communication link on tcp/22. It looks and acts like Telnet but the session is encrypted, which is why Telnet on tcp/23 should not be used in production."},
+{id:"B02",set:"B",obj:"2.1",type:"mc",
+ text:"A technician configures a firewall for an FTP server operating in active mode. Which ports must be permitted for control and data respectively?",
+ options:["tcp/20 control and tcp/21 data","tcp/21 control and tcp/20 data","tcp/22 control and tcp/23 data","udp/20 control and udp/21 data"],
+ answer:1,
+ explain:"FTP uses tcp/21 for the control connection and tcp/20 for active-mode data transfer. The control channel carries the commands; the data channel carries the file content."},
+{id:"B03",set:"B",obj:"2.1",type:"mc",
+ text:"A security audit finds that administrators log in to switches over a protocol on tcp/23 that transmits credentials in the clear. Which replacement should be implemented?",
+ options:["Telnet on tcp/22","SSH on tcp/22","RDP on tcp/3389","LDAP on tcp/389"],
+ answer:1,
+ explain:"Telnet on tcp/23 sends everything in the clear, including credentials. SSH on tcp/22 provides the same console access over an encrypted link and is the correct production replacement."},
+{id:"B04",set:"B",obj:"2.1",type:"mc",
+ text:"A mobile device is configured to send outbound mail to a corporate mail server, and the same protocol is used for server-to-server mail transfer. Which protocol and port are used?",
+ options:["POP3 on tcp/110","IMAP4 on tcp/143","SMTP on tcp/25","LDAP on tcp/389"],
+ answer:2,
+ explain:"SMTP on tcp/25 transfers mail between servers and is also used by clients and mobile devices to send outbound mail. POP3 and IMAP4 are used to receive mail."},
+{id:"B05",set:"B",obj:"2.1",type:"mc",
+ text:"Users report that no internet site loads by name, although a site loads normally when its IP address is entered directly. Which service and port should the technician investigate first?",
+ options:["DHCP on udp/67","DNS on udp/53","NTP on udp/123","HTTP on tcp/80"],
+ answer:1,
+ explain:"Names resolve to IP addresses through DNS on udp/53. Access by IP address proves that routing and the web service are healthy, which isolates the failure to name resolution."},
+{id:"B06",set:"B",obj:"2.1",type:"mc",
+ text:"Workstations on a subnet are not receiving IP address configurations automatically. Which ports must be permitted between the clients and the server providing that configuration?",
+ options:["udp/67 and udp/68","tcp/67 and tcp/68","udp/53 and udp/123","tcp/137 and tcp/139"],
+ answer:0,
+ explain:"DHCP automates IP address, subnet mask, and option assignment using udp/67 and udp/68. It is connectionless, which is why it uses UDP — a client with no IP address yet cannot complete a TCP handshake."},
+{id:"B07",set:"B",obj:"2.1",type:"mc",
+ text:"A user reads corporate mail from a laptop, a phone, and a tablet, and requires that the read and folder state stay identical on all three. Which protocol and port should be configured?",
+ options:["POP3 on tcp/110","IMAP4 on tcp/143","SMTP on tcp/25","SMB on tcp/445"],
+ answer:1,
+ explain:"IMAP4 on tcp/143 includes mailbox management from multiple clients, so folder and read state stay synchronized. POP3 on tcp/110 provides basic mail transfer without that multi-client inbox management."},
+{id:"B08",set:"B",obj:"2.1",type:"mc",
+ text:"A Windows file and printer sharing deployment is configured for direct communication without the NetBIOS transport. Which port carries this traffic?",
+ options:["udp/137","tcp/139","tcp/445","tcp/389"],
+ answer:2,
+ explain:"SMB communicates directly over tcp/445 without NetBIOS. When NetBIOS over TCP/IP is used instead, udp/137 provides name services and tcp/139 provides the session service."},
+{id:"B09",set:"B",obj:"2.1",type:"mc",
+ text:"An application must query a Microsoft Active Directory network directory for user attributes. Which protocol and port are used?",
+ options:["LDAP on tcp/389","RDP on tcp/3389","SMB on tcp/445","SMTP on tcp/25"],
+ answer:0,
+ explain:"LDAP on tcp/389 stores and retrieves information in a network directory and is commonly used with Microsoft Active Directory."},
+{id:"B10",set:"B",obj:"2.1",type:"mc",
+ text:"A help desk technician must take control of a remote Windows desktop. Which protocol and port must be permitted through the firewall?",
+ options:["SSH on tcp/22","Telnet on tcp/23","RDP on tcp/3389","LDAP on tcp/389"],
+ answer:2,
+ explain:"Remote Desktop Protocol shares a desktop over tcp/3389 and can present an entire desktop or a single application. Clients exist for Windows, macOS, Linux, iOS, and Android."},
+{id:"B11",set:"B",obj:"2.1",type:"match",
+ text:"Match each protocol to its default port. Every option is used once.",
+ prompts:["SSH","SMTP","IMAP4","RDP"],
+ choices:["tcp/22","tcp/25","tcp/143","tcp/3389"],
+ answer:[0,1,2,3],
+ explain:"SSH tcp/22, SMTP tcp/25, IMAP4 tcp/143, RDP tcp/3389. Port numbers exist for communication, not security, but well-known values must match on client and server and are the basis for port-based firewall rules."},
+{id:"B12",set:"B",obj:"2.1",type:"mr",pick:3,
+ text:"An application developer must justify choosing TCP over UDP for a file transfer feature. Which THREE characteristics of TCP support that decision?",
+ options:["A formal connection setup and close","Recovery from errors, including retransmission of lost data","Flow control that lets the receiver manage how much data is sent","No overhead for tracking delivery","The sender alone determines how much data is transmitted"],
+ answer:[0,1,2],
+ explain:"TCP is connection-oriented with a formal open and close, provides reliable delivery with error recovery and reordering, and offers flow control so the receiver can throttle the sender. The last two options describe UDP."},
+{id:"B13",set:"B",obj:"2.1",type:"mc",
+ text:"Which situation BEST justifies choosing UDP instead of TCP?",
+ options:["Transferring a large archive that must arrive without corruption","Real-time voice traffic, where retransmitted audio would arrive too late to be useful","A remote administration session that must be encrypted","A web transaction that requires acknowledgment of every segment"],
+ answer:1,
+ explain:"Real-time communication cannot stop and resend, because time does not stop for the network. UDP is also used by connectionless protocols such as DHCP and TFTP, where the application itself decides what to do about missing data."},
+{id:"B14",set:"B",obj:"2.1",type:"mc",
+ text:"A workstation opens a connection to a web server. The client side of the conversation uses a temporary port number determined in real time. Which range does that port fall in?",
+ options:["0 through 1023","1024 through 65535","1 through 100","49152 through 49999 only"],
+ answer:1,
+ explain:"Ephemeral (temporary) ports run from 1024 through 65535 and are chosen by the client at connection time. Non-ephemeral ports, 0 through 1023, are the well-known values used by servers and services."},
+{id:"B15",set:"B",obj:"2.1",type:"mr",pick:3,
+ text:"Which THREE values together identify the server side of an IPv4 socket?",
+ options:["The server IP address","The protocol in use","The server application port number","The MAC address of the client","The DNS TTL value"],
+ answer:[0,1,2],
+ explain:"A socket is defined by IP address, protocol, and port number. The server side uses the server address, protocol, and service port; the client side uses its own address, the protocol, and an ephemeral port."},
+{id:"B16",set:"B",obj:"2.1",type:"order",
+ text:"A protocol analyzer captures a single frame carrying a web request. Place the components in the order they appear from the outside of the frame inward.",
+ items:["Ethernet header","IP header","TCP header","HTTP data"],
+ explain:"The frame is built from the outside in: the Ethernet header carries the IP packet, the IP packet carries the TCP segment, and the TCP segment carries the application data. The Ethernet trailer closes the frame after the payload."},
+{id:"B17",set:"B",obj:"2.1",type:"mr",pick:2,
+ text:"Which TWO protocols are connectionless and therefore transported by UDP?",
+ options:["DHCP","SSH","TFTP","HTTPS","RDP"],
+ answer:[0,2],
+ explain:"DHCP and TFTP are connectionless and use UDP. SSH, HTTPS, and RDP are connection-oriented protocols carried by TCP, where the return receipt matters more than the delay."},
+{id:"B18",set:"B",obj:"2.1",type:"config",
+ text:"A firewall administrator is building port-based rules. Select the correct port for each service.",
+ rows:[
+  {label:"DNS name resolution",choices:["udp/53","tcp/25","udp/123","tcp/389"],answer:0},
+  {label:"Time synchronization",choices:["udp/53","tcp/25","udp/123","tcp/389"],answer:2},
+  {label:"Server-to-server mail transfer",choices:["udp/53","tcp/25","udp/123","tcp/389"],answer:1},
+  {label:"Directory lookups in Active Directory",choices:["udp/53","tcp/25","udp/123","tcp/389"],answer:3}],
+ explain:"DNS udp/53, NTP udp/123, SMTP tcp/25, LDAP tcp/389. Well-known ports must match on both sides of the conversation, which is exactly what makes port-based firewall rules possible."},
+{id:"B19",set:"B",obj:"2.2",type:"mc",
+ text:"A wireless survey lists an access point supporting 802.11ax. Which generation marketing name corresponds to this standard?",
+ options:["Wi-Fi 5","Wi-Fi 6 and Wi-Fi 6E","Wi-Fi 7","Wi-Fi 4"],
+ answer:1,
+ explain:"802.11ax is marketed as Wi-Fi 6, and Wi-Fi 6E when it is extended into the 6 GHz band. 802.11ac is Wi-Fi 5 and 802.11be is Wi-Fi 7."},
+{id:"B20",set:"B",obj:"2.2",type:"mc",
+ text:"Which IEEE standard corresponds to Wi-Fi 7?",
+ options:["802.11ac","802.11ax","802.11be","802.11n"],
+ answer:2,
+ explain:"802.11be is Wi-Fi 7. The IEEE 802.11 committee publishes the standards and each new amendment increments the generation name."},
+{id:"B21",set:"B",obj:"2.2",type:"mr",pick:3,
+ text:"Which THREE frequency ranges are used by current 802.11 wireless networks?",
+ options:["900 MHz","2.4 GHz","5 GHz","6 GHz","60 GHz"],
+ answer:[1,2,3],
+ explain:"Modern 802.11 networks operate in the 2.4 GHz, 5 GHz, and 6 GHz ranges, sometimes in combination. The 6 GHz range spans roughly 5925 MHz to 7125 MHz and is what Wi-Fi 6E and Wi-Fi 7 extend into."},
+{id:"B22",set:"B",obj:"2.2",type:"mc",
+ text:"An administrator wants the widest channel bandwidth available to 802.11 and finds it is supported only in the newest spectrum. Which combination is correct?",
+ options:["320 MHz channels in the 6 GHz range","160 MHz channels in the 2.4 GHz range","80 MHz channels in the 2.4 GHz range","40 MHz channels in the 6 GHz range"],
+ answer:0,
+ explain:"Channel bandwidth is the amount of frequency in use — 20, 40, 80, 160, and now 320 MHz. The 320 MHz width exists only in the 6 GHz spectrum. The 2.4 GHz range is narrow and crowded, so wide channels are impractical there."},
+{id:"B23",set:"B",obj:"2.2",type:"mc",
+ text:"A user reports that a Bluetooth keyboard disconnects when carried more than about ten meters from the computer, and that interference appears near the wireless access point. Which statement explains both observations?",
+ options:["Bluetooth operates in the licensed 5 GHz band and is limited to 10 meters","Bluetooth operates in the unlicensed 2.4 GHz ISM band, the same range used by 802.11, and most consumer devices reach about 10 meters","Bluetooth uses the 6 GHz band and is blocked by access point transmissions","Bluetooth range is unlimited but throughput drops with distance"],
+ answer:1,
+ explain:"Bluetooth uses the unlicensed 2.4 GHz ISM band shared with 802.11, which explains the interference, and most consumer devices operate to about 10 meters, which explains the disconnect."},
+{id:"B24",set:"B",obj:"2.2",type:"mc",
+ text:"A warehouse tracks inventory with tags that contain no battery. A reader transmits radio energy, the tag is powered by that energy, and the tag transmits its identifier back. Which technology is described?",
+ options:["NFC","RFID","GPS","Bluetooth"],
+ answer:1,
+ explain:"RFID uses radar-like technology: radio energy from the reader powers a passive tag, which transmits its ID back. It is used for access badges, inventory and assembly line tracking, and animal identification. Some tag formats are active and powered."},
+{id:"B25",set:"B",obj:"2.2",type:"mr",pick:2,
+ text:"A phone is tapped against a speaker and the two devices immediately establish a Bluetooth connection without a manual pairing sequence. Which TWO statements about the technology that enabled this are accurate?",
+ options:["It is two-way wireless communication that builds on RFID, which is mostly one-way","It can bootstrap other wireless connections, such as Bluetooth pairing","It requires line of sight to at least four satellites","It operates over distances of up to 10 meters","It replaces the SIM in cellular devices"],
+ answer:[0,1],
+ explain:"NFC is two-way communication built on RFID technology, which is mostly one-way. Besides payment systems and identity tokens, NFC is commonly used to bootstrap other wireless connections such as Bluetooth pairing."},
+{id:"B26",set:"B",obj:"2.3",type:"mc",
+ text:"An organization requires that all user web requests be made on the users' behalf by an intermediate device that can cache content, filter URLs, and scan for malicious content. Which device provides this?",
+ options:["Load balancer","Proxy server","Syslog server","DHCP server"],
+ answer:1,
+ explain:"A proxy server receives the client request, performs the request itself, and returns the result to the client. That position in the conversation is what enables access control, caching, URL filtering, and content scanning."},
+{id:"B27",set:"B",obj:"2.3",type:"mc",
+ text:"A web application farm must survive the failure of any single server without the end user noticing. Which device provides this capability?",
+ options:["Proxy server","Load balancer","Spam gateway","Print server"],
+ answer:1,
+ explain:"A load balancer distributes traffic across multiple servers invisibly to the end user and provides fault tolerance with very fast convergence, so a single server outage has no user-visible effect."},
+{id:"B28",set:"B",obj:"2.3",type:"mc",
+ text:"A security team needs log messages from firewalls, switches, and servers consolidated into one central system that feeds the SIEM. Which standard and service provide this?",
+ options:["Syslog","NTP","LDAP","SMB"],
+ answer:0,
+ explain:"Syslog is the standard for message logging and allows diverse systems to send messages to a central logging receiver, which is typically integrated into the SIEM. Plan for substantial disk space."},
+{id:"B29",set:"B",obj:"2.3",type:"fill",
+ text:"Log timestamps across servers are inconsistent, which breaks the security team's correlation. Enter the UDP port number of the service that synchronizes system clocks. Use digits only.",
+ accept:["123","udp/123","udp 123"],display:"123",
+ explain:"NTP listens on udp/123 and responds to time requests from NTP clients, with daily synchronization being common. Consistent time matters for encryption, logins, backups, and log timestamps."},
+{id:"B30",set:"B",obj:"2.3",type:"mc",
+ text:"A refinery operates a large multi-site industrial control system in which computers manage physical production equipment in real time. Which requirement is MOST important for this network?",
+ options:["Publishing the control interface to the internet for vendor access","Extensive segmentation with no access from the outside","Running the control system on the same VLAN as user workstations","Assigning control equipment addresses by DHCP from the guest pool"],
+ answer:1,
+ explain:"SCADA and ICS environments manage power generation, refining, manufacturing, and logistics equipment and require extensive segmentation with no access from the outside."},
+{id:"B31",set:"B",obj:"2.3",type:"mc",
+ text:"A building alarm system and a time card system both run purpose-built software on hardware that provides no direct access to the operating system. How are these systems classified?",
+ options:["Legacy systems","Embedded systems","Load balancers","Proxy servers"],
+ answer:1,
+ explain:"Embedded systems are purpose-built devices where direct operating system access is unusual — alarm systems, door security, and time card systems are typical examples. Legacy means very old, and often very important, rather than purpose-built."},
+{id:"B32",set:"B",obj:"2.3",type:"mr",pick:3,
+ text:"A printer is being shared to the entire network. Which THREE printing protocols may be used?",
+ options:["SMB","IPP","LPD","SMTP","LDAP"],
+ answer:[0,1,2],
+ explain:"Network printing uses SMB (Server Message Block), IPP (Internet Printing Protocol), and LPD (Line Printer Daemon). The print server function may be software on a computer connected to the printer, or built into the printer itself."},
+{id:"B33",set:"B",obj:"2.3",type:"mc",
+ text:"A small office wants a single appliance providing firewall, IDS/IPS, URL filtering, malware inspection, spam filtering, bandwidth shaping, and VPN termination. Which term describes this device?",
+ options:["Proxy server","All-in-one security appliance or UTM","Syslog collector","Authentication server"],
+ answer:1,
+ explain:"An all-in-one security appliance — also called a next-generation firewall, Unified Threat Management device, or web security gateway — combines URL filtering, content inspection, malware inspection, spam filtering, routing and switching, firewall, IDS/IPS, bandwidth shaping, and VPN endpoint functions."},
+{id:"B34",set:"B",obj:"2.4",type:"mc",exhibit:";; QUESTION SECTION:\n;www.example.com.\t\tIN\tA\n\n;; ANSWER SECTION:\nwww.example.com.\t300\tIN\tA\t104.22.72.108\nwww.example.com.\t300\tIN\tA\t172.67.41.114\nwww.example.com.\t300\tIN\tA\t104.22.73.108",
+ text:"Refer to the exhibit. A technician runs a DNS lookup and receives the output shown. Which statement about this response is correct?",
+ options:["The name resolves to three IPv6 addresses and the records expire after 300 minutes","The name resolves to three IPv4 addresses and the records may be cached for 300 seconds","The records are aliases, so a CNAME lookup is required to obtain an address","The 300 value is the priority of the mail exchanger"],
+ answer:1,
+ explain:"A records hold IPv4 addresses, and the numeric column preceding IN is the TTL in seconds — here 300 seconds of cache lifetime. Multiple A records for one name distribute the load across several servers. AAAA records would indicate IPv6."},
+{id:"B35",set:"B",obj:"2.4",type:"fill",
+ text:"A server is being published with an IPv6 address and the DNS zone must be updated. Enter the DNS record type that maps a host name to an IPv6 address.",
+ accept:["aaaa","aaaa record","quad a"],display:"AAAA",
+ explain:"AAAA records hold IPv6 addresses and A records hold IPv4 addresses. Both record types live on the same DNS server and are queried the same way."},
+{id:"B36",set:"B",obj:"2.4",type:"mc",
+ text:"One physical server hosts chat, FTP, and web services. The administrator wants chat.example.com, ftp.example.com, and www.example.com to all resolve to the single canonical host name mail.example.com. Which record type accomplishes this?",
+ options:["A","MX","CNAME","TXT"],
+ answer:2,
+ explain:"A CNAME record makes one name an alias of another canonical name, which is exactly how one physical server presents several service names. Only the canonical name needs an A or AAAA record."},
+{id:"B37",set:"B",obj:"2.4",type:"mr",pick:2,
+ text:"An administrator is configuring the MX records for a domain. Which TWO statements are accurate?",
+ options:["An MX record contains the host name of the mail server, not an IP address","An MX record contains the IPv4 address of the mail server","More than one MX record can be listed, with the lower integer indicating higher priority","More than one MX record can be listed, with the higher integer indicating higher priority","MX records are stored as TXT records for verification"],
+ answer:[0,2],
+ explain:"An MX record identifies the mail exchanger by name, and that name must itself resolve through an A or AAAA record. Several MX records can be listed, and the lower the integer, the higher the priority."},
+{id:"B38",set:"B",obj:"2.4",type:"mr",pick:3,
+ text:"Which THREE email security mechanisms are published in the DNS as TXT records?",
+ options:["SPF","DKIM","DMARC","IMAP4","LPD"],
+ answer:[0,1,2],
+ explain:"SPF lists the servers authorized to send mail for the domain, DKIM publishes the public key used to validate the digital signature on outgoing mail, and DMARC publishes the policy for messages that fail SPF or DKIM. All three are TXT records, which is also why TXT records are used for domain ownership verification."},
+{id:"B39",set:"B",obj:"2.4",type:"mc",
+ text:"A domain owner wants to tell external mail servers exactly what to do with messages that claim to be from the domain but fail validation, and wants compliance reports sent back. Which mechanism provides this?",
+ options:["SPF","DKIM","DMARC","CNAME"],
+ answer:2,
+ explain:"DMARC extends SPF and DKIM by publishing the domain owner's policy — accept, send to spam, or reject — for messages that fail validation, and it can request compliance reports for the email administrator. SPF lists authorized senders and DKIM signs outgoing mail, but neither dictates the receiving server's action."},
+{id:"B40",set:"B",obj:"2.4",type:"config",
+ text:"Configure the DNS zone below. Select the correct record type for each requirement.",
+ rows:[
+  {label:"Map a host name to an IPv4 address",choices:["A","AAAA","CNAME","MX","TXT"],answer:0},
+  {label:"Map a host name to an IPv6 address",choices:["A","AAAA","CNAME","MX","TXT"],answer:1},
+  {label:"Make one name an alias of another canonical name",choices:["A","AAAA","CNAME","MX","TXT"],answer:2},
+  {label:"Identify the mail server host name for the domain",choices:["A","AAAA","CNAME","MX","TXT"],answer:3},
+  {label:"Publish the SPF policy for the domain",choices:["A","AAAA","CNAME","MX","TXT"],answer:4}],
+ explain:"A and AAAA hold IPv4 and IPv6 addresses, CNAME creates an alias of a canonical name, MX names the mail exchanger, and TXT carries human-readable text used for SPF, DKIM, DMARC, and domain verification."},
+{id:"B41",set:"B",obj:"2.4",type:"mc",
+ text:"Why is DNS described as a distributed database rather than a single directory?",
+ options:["Every DNS server holds a complete copy of every domain on the internet","The load is balanced across many servers arranged in a hierarchy, from root server clusters down through top-level domains","Each client stores its own authoritative copy of the zone","Records are distributed by DHCP at lease renewal"],
+ answer:1,
+ explain:"DNS is hierarchical and distributed: 13 root server clusters made up of over 1,000 actual servers sit above hundreds of generic top-level domains and over 275 country code top-level domains, which spreads the load across many servers."}
+];
+
+/* ---------- state ---------- */
+var STORE_KEY="comptia_1201_custom_v1";
+var custom=[];
+try{var raw=localStorage.getItem(STORE_KEY); if(raw) custom=JSON.parse(raw)||[];}catch(e){custom=[];}
+function saveCustom(){try{localStorage.setItem(STORE_KEY,JSON.stringify(custom));}catch(e){}}
+function allQ(){return BANK.concat(custom);}
+
+/* The live CompTIA exam is delivered in light mode only, so light is the default here.
+   Night mode is an override for late study sessions. */
+var THEME_KEY="comptia_1201_theme";
+var theme="light";
+try{theme=localStorage.getItem(THEME_KEY)||"light";}catch(e){}
+document.documentElement.setAttribute("data-theme",theme);
+function toggleNight(){
+  theme=theme==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",theme);
+  try{localStorage.setItem(THEME_KEY,theme);}catch(e){}
+  paintChromeButtons();
+}
+function toggleFull(){
+  var el=document.documentElement;
+  if(!document.fullscreenElement){ (el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen&&el.webkitRequestFullscreen()); }
+  else { document.exitFullscreen?document.exitFullscreen():document.webkitExitFullscreen&&document.webkitExitFullscreen(); }
+}
+function paintChromeButtons(){
+  var n=document.getElementById("btnNight"),f=document.getElementById("btnFull");
+  if(n) n.textContent=theme==="dark"?"Exam lighting":"Night mode";
+  if(f) f.textContent=document.fullscreenElement?"Exit full screen":"Full screen";
+}
+document.addEventListener("fullscreenchange",paintChromeButtons);
+
+var S={view:"home",exam:null,editType:"mc"};
+var view=document.getElementById("view"),foot=document.getElementById("foot"),footIn=document.getElementById("footIn");
+var chCount=document.getElementById("chCount"),chTime=document.getElementById("chTime");
+var chTitle=document.getElementById("chTitle"),chSub=document.getElementById("chSub");
+var timer=null;
+
+var TYPE_LABEL={mc:"Multiple choice",mr:"Multiple response",match:"Drag and drop",order:"Sequencing",fill:"Fill in the blank",config:"Performance-based"};
+var SETS={A:{name:"Set A — Domain 1: Mobile Devices",obj:"Objectives 1.1, 1.2, 1.3"},
+          B:{name:"Set B — Domain 2: Networking",obj:"Objectives 2.1, 2.2, 2.3, 2.4"}};
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function letter(i){return "ABCDEFGH".charAt(i);}
+
+/* ---------- exam engine ---------- */
+function startExam(setId,count,minutes,randomize){
+  var pool=allQ().filter(function(q){return setId==="ALL"||q.set===setId;});
+  if(!pool.length){alert("No questions in this set.");return;}
+  var items=randomize?shuffle(pool):pool.slice();
+  if(count>0&&count<items.length) items=items.slice(0,count);
+  items=items.map(function(q){return prep(q,randomize);});
+  S.exam={setId:setId,items:items,cur:0,secs:minutes*60,ended:false,minutes:minutes};
+  S.view="exam";
+  if(timer)clearInterval(timer);
+  if(minutes>0) timer=setInterval(tick,1000);
+  render();
+}
+function prep(q,randomize){
+  var c=JSON.parse(JSON.stringify(q));
+  c.resp=null;c.marked=false;
+  if((c.type==="mc"||c.type==="mr")&&randomize){
+    var idx=shuffle(c.options.map(function(_,i){return i;}));
+    c.options=idx.map(function(i){return q.options[i];});
+    if(c.type==="mc") c.answer=idx.indexOf(q.answer);
+    else c.answer=q.answer.map(function(a){return idx.indexOf(a);}).sort(function(x,y){return x-y;});
+  }
+  if(c.type==="order"){
+    c.order=shuffle(c.items.map(function(_,i){return i;}));
+    if(c.order.join()===c.items.map(function(_,i){return i;}).join()) c.order.reverse();
+  }
+  if(c.type==="match"&&randomize){
+    var ci=shuffle(c.choices.map(function(_,i){return i;}));
+    var newChoices=ci.map(function(i){return q.choices[i];});
+    c.answer=q.answer.map(function(a){return ci.indexOf(a);});
+    c.choices=newChoices;
+    c.resp=q.prompts.map(function(){return -1;});
+  }else if(c.type==="match"){c.resp=q.prompts.map(function(){return -1;});}
+  if(c.type==="config") c.resp=c.rows.map(function(){return -1;});
+  if(c.type==="mr") c.resp=[];
+  return c;
+}
+function tick(){
+  var e=S.exam;if(!e||e.ended)return;
+  e.secs--;
+  if(e.secs<=0){e.secs=0;clearInterval(timer);endExam();return;}
+  paintTime();
+}
+function paintTime(){
+  var e=S.exam;if(!e)return;
+  var m=Math.floor(e.secs/60),s=e.secs%60;
+  document.getElementById("mTime").textContent=m+":"+(s<10?"0":"")+s;
+  chTime.className="meter"+(e.secs<300?" low":"");
+}
+function answered(q){
+  if(q.type==="mc") return q.resp!==null&&q.resp!==undefined;
+  if(q.type==="mr") return q.resp&&q.resp.length>0;
+  if(q.type==="fill") return q.resp&&String(q.resp).trim()!=="";
+  if(q.type==="match") return q.resp&&q.resp.every(function(r){return r>=0;});
+  if(q.type==="config") return q.resp&&q.resp.every(function(r){return r>=0;});
+  if(q.type==="order") return true;
+  return false;
+}
+function correct(q){
+  if(q.type==="mc") return q.resp===q.answer;
+  if(q.type==="mr"){var r=(q.resp||[]).slice().sort(function(a,b){return a-b;});return r.join()===q.answer.slice().sort(function(a,b){return a-b;}).join();}
+  if(q.type==="fill"){var v=String(q.resp||"").trim().toLowerCase().replace(/\s+/g," ");return q.accept.some(function(a){return a.toLowerCase()===v;});}
+  if(q.type==="match") return (q.resp||[]).join()===q.answer.join();
+  if(q.type==="config") return (q.resp||[]).join()===q.rows.map(function(r){return r.answer;}).join();
+  if(q.type==="order") return q.order.join()===q.items.map(function(_,i){return i;}).join();
+  return false;
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  if(S.view==="home") renderHome();
+  else if(S.view==="exam") renderExam();
+  else if(S.view==="review") renderReview();
+  else if(S.view==="result") renderResult();
+  else if(S.view==="editor") renderEditor();
+  window.scrollTo(0,0);
+}
+function chromeSet(title,sub,showMeters){
+  chTitle.innerHTML=esc(title)+"<span>"+esc(sub)+"</span>";
+  chCount.hidden=!showMeters;
+  chTime.hidden=!showMeters||!S.exam||S.exam.minutes===0;
+}
+
+function renderHome(){
+  chromeSet("CompTIA A+ Certification Exam: Core 1 (220-1201)","Practice delivery environment",false);
+  foot.hidden=true;
+  var qs=allQ();
+  var cA=qs.filter(function(q){return q.set==="A";}).length,cB=qs.filter(function(q){return q.set==="B";}).length;
+  view.innerHTML=
+  '<div class="pane">'+
+    '<p class="eyebrow">Exam simulator</p>'+
+    '<h1>CompTIA A+ Core 1 (220-1201) practice exam</h1>'+
+    '<p class="lede">Timed delivery with item marking, item review, and a scaled score report. Every question type used on the live exam is represented: multiple choice, multiple response, drag and drop, sequencing, fill in the blank, and performance-based configuration.</p>'+
+    '<div class="grid grid-2">'+
+      setCard("A",cA)+setCard("B",cB)+
+    '</div>'+
+  '</div>'+
+  '<div class="pane">'+
+    '<h2>Exam options</h2>'+
+    '<div class="grid grid-2">'+
+      '<label class="fld"><span>Item count</span><select id="optCount"><option value="0">All items in the set</option><option value="10">10 items</option><option value="20">20 items</option><option value="30">30 items</option></select></label>'+
+      '<label class="fld"><span>Time limit</span><select id="optTime"><option value="90">90 minutes (exam standard)</option><option value="45">45 minutes</option><option value="30">30 minutes</option><option value="0">Untimed</option></select></label>'+
+    '</div>'+
+    '<label class="fld" style="display:flex;gap:9px;align-items:center"><input type="checkbox" id="optRand" checked style="width:auto;accent-color:var(--accent)"><span style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;font-weight:400">Randomize item order and answer choices</span></label>'+
+    '<div class="btnrow">'+
+      '<button class="primary" onclick="launch(\'A\')">Start Set A</button>'+
+      '<button class="primary" onclick="launch(\'B\')">Start Set B</button>'+
+      '<button onclick="launch(\'ALL\')">Start combined exam</button>'+
+      '<span class="spacer"></span>'+
+      '<button onclick="S.view=\'editor\';render()">Question bank</button>'+
+    '</div>'+
+  '</div>'+
+  '<div class="pane">'+
+    '<h2>How this compares to the live exam</h2>'+
+    '<div style="overflow-x:auto"><table><thead><tr><th>&nbsp;</th><th>Live 220-1201</th><th>This simulator</th></tr></thead><tbody>'+
+      '<tr><td>Items</td><td>Maximum 90</td><td>'+allQ().length+' in the bank, covering objectives 1.1 through 2.4</td></tr>'+
+      '<tr><td>Time</td><td>90 minutes</td><td>90 minutes, or shorter, or untimed</td></tr>'+
+      '<tr><td>Passing score</td><td>675 on a 100–900 scale</td><td>Same</td></tr>'+
+      '<tr><td>Domains</td><td>Five: Mobile Devices, Networking, Hardware, Virtualization and Cloud, Troubleshooting</td><td>The first two, which is what you have studied so far</td></tr>'+
+      '<tr><td>Appearance</td><td>Light mode only, no candidate control</td><td>Light by default, with a night mode override</td></tr>'+
+      '<tr><td>Review and marking</td><td>Mark items, return before submitting</td><td>Same</td></tr>'+
+    '</tbody></table></div>'+
+    '<p style="margin:16px 0 0;color:var(--ink-2);max-width:80ch">Multiple response, drag and drop, sequencing, and performance-based items are scored all or nothing — every element must be correct, exactly as on the live exam.</p>'+
+  '</div>';
+}
+function setCard(id,n){
+  var s=SETS[id];
+  var byType={};allQ().filter(function(q){return q.set===id;}).forEach(function(q){byType[q.type]=(byType[q.type]||0)+1;});
+  var list=Object.keys(byType).map(function(t){return "<li>"+esc(TYPE_LABEL[t])+" — "+byType[t]+"</li>";}).join("");
+  return '<div class="card"><div class="n">'+esc(s.obj)+'</div><h3>'+esc(s.name)+'</h3>'+
+    '<div style="font-family:var(--mono);font-size:13px;color:var(--ink-2)">'+n+' items</div><ul>'+list+'</ul></div>';
+}
+function launch(setId){
+  var c=parseInt(document.getElementById("optCount").value,10);
+  var t=parseInt(document.getElementById("optTime").value,10);
+  var r=document.getElementById("optRand").checked;
+  startExam(setId,c,t,r);
+}
+
+function renderExam(){
+  var e=S.exam,q=e.items[e.cur];
+  chromeSet(e.setId==="ALL"?"CompTIA A+ Core 1 (220-1201) — Combined":SETS[e.setId].name,"Objective "+q.obj,true);
+  document.getElementById("mCur").textContent=e.cur+1;
+  document.getElementById("mTot").textContent=e.items.length;
+  paintTime();
+  view.innerHTML='<div class="pane">'+
+    '<div class="qhead"><span class="qnum">Item '+(e.cur+1)+' of '+e.items.length+' &nbsp;·&nbsp; Objective '+esc(q.obj)+'</span><span class="qtype">'+esc(TYPE_LABEL[q.type])+'</span></div>'+
+    (q.exhibit?'<div class="exhibit">'+esc(q.exhibit)+'</div>':'')+
+    '<p class="qtext">'+esc(q.text)+'</p>'+
+    instr(q)+body(q)+'</div>';
+  foot.hidden=false;
+  footIn.innerHTML=
+    '<label class="markbox'+(q.marked?" on":"")+'"><input type="checkbox" '+(q.marked?"checked":"")+' onchange="mark(this.checked)"> Mark for review</label>'+
+    '<span class="spacer"></span>'+
+    '<button onclick="nav(-1)" '+(e.cur===0?"disabled":"")+'>Previous</button>'+
+    '<button onclick="nav(1)" '+(e.cur===e.items.length-1?"disabled":"")+'>Next</button>'+
+    '<button onclick="S.view=\'review\';render()">Review</button>'+
+    '<button class="danger" onclick="confirmEnd()">End exam</button>';
+}
+function instr(q){
+  if(q.type==="mr") return '<p class="qinstr">Choose '+(q.pick===3?"THREE":q.pick===2?"TWO":q.pick)+'.</p>';
+  if(q.type==="match") return '<p class="qinstr">Select the correct description for each item.</p>';
+  if(q.type==="order") return '<p class="qinstr">Use the arrows to place the steps in order, first step at the top.</p>';
+  if(q.type==="fill") return '<p class="qinstr">Type your answer in the box.</p>';
+  if(q.type==="config") return '<p class="qinstr">Complete every row of the configuration.</p>';
+  return "";
+}
+function body(q){
+  var h="",i;
+  if(q.type==="mc"){
+    h+='<div class="opts">';
+    for(i=0;i<q.options.length;i++)
+      h+='<label class="opt'+(q.resp===i?" sel":"")+'"><input type="radio" name="o" '+(q.resp===i?"checked":"")+' onchange="setMC('+i+')"><span class="lt">'+letter(i)+'</span><span>'+esc(q.options[i])+'</span></label>';
+    h+='</div>';
+  }else if(q.type==="mr"){
+    h+='<div class="opts">';
+    for(i=0;i<q.options.length;i++){
+      var on=(q.resp||[]).indexOf(i)>=0;
+      h+='<label class="opt'+(on?" sel":"")+'"><input type="checkbox" '+(on?"checked":"")+' onchange="setMR('+i+',this.checked)"><span class="lt">'+letter(i)+'</span><span>'+esc(q.options[i])+'</span></label>';
+    }
+    h+='</div>';
+  }else if(q.type==="match"){
+    for(i=0;i<q.prompts.length;i++){
+      h+='<div class="mrow"><span>'+esc(q.prompts[i])+'</span><select onchange="setMatch('+i+',this.value)"><option value="-1">— select —</option>';
+      for(var j=0;j<q.choices.length;j++) h+='<option value="'+j+'" '+(q.resp[i]===j?"selected":"")+'>'+esc(q.choices[j])+'</option>';
+      h+='</select></div>';
+    }
+  }else if(q.type==="order"){
+    for(i=0;i<q.order.length;i++)
+      h+='<div class="orow"><span class="seq">'+(i+1)+'</span><span class="txt">'+esc(q.items[q.order[i]])+'</span>'+
+         '<button onclick="move('+i+',-1)" aria-label="Move up" '+(i===0?"disabled":"")+'>&#9650;</button>'+
+         '<button onclick="move('+i+',1)" aria-label="Move down" '+(i===q.order.length-1?"disabled":"")+'>&#9660;</button></div>';
+  }else if(q.type==="fill"){
+    h+='<input type="text" class="fill" value="'+esc(q.resp||"")+'" oninput="setFill(this.value)" autocomplete="off" spellcheck="false">';
+  }else if(q.type==="config"){
+    h+='<table><thead><tr><th>Requirement</th><th style="width:42%">Setting</th></tr></thead><tbody>';
+    for(i=0;i<q.rows.length;i++){
+      h+='<tr><td>'+esc(q.rows[i].label)+'</td><td><select onchange="setCfg('+i+',this.value)"><option value="-1">— select —</option>';
+      for(var k=0;k<q.rows[i].choices.length;k++) h+='<option value="'+k+'" '+(q.resp[i]===k?"selected":"")+'>'+esc(q.rows[i].choices[k])+'</option>';
+      h+='</select></td></tr>';
+    }
+    h+='</tbody></table>';
+  }
+  return h;
+}
+function cq(){return S.exam.items[S.exam.cur];}
+function setMC(i){cq().resp=i;renderExam();}
+function setMR(i,on){var q=cq();q.resp=q.resp||[];var p=q.resp.indexOf(i);if(on&&p<0)q.resp.push(i);if(!on&&p>=0)q.resp.splice(p,1);renderExam();}
+function setMatch(i,v){cq().resp[i]=parseInt(v,10);}
+function setCfg(i,v){cq().resp[i]=parseInt(v,10);}
+function setFill(v){cq().resp=v;}
+function move(i,d){var o=cq().order,j=i+d;if(j<0||j>=o.length)return;var t=o[i];o[i]=o[j];o[j]=t;renderExam();}
+function mark(on){cq().marked=on;renderExam();}
+function nav(d){var e=S.exam;e.cur=Math.max(0,Math.min(e.items.length-1,e.cur+d));render();}
+function goTo(i){S.exam.cur=i;S.view="exam";render();}
+
+function renderReview(){
+  var e=S.exam;
+  chromeSet("Item review","Return to any item before submitting",true);
+  document.getElementById("mCur").textContent=e.cur+1;
+  document.getElementById("mTot").textContent=e.items.length;
+  var un=e.items.filter(function(q){return !answered(q);}).length;
+  var mk=e.items.filter(function(q){return q.marked;}).length;
+  var rows=e.items.map(function(q,i){
+    var st=q.marked?'<span class="pill m">Marked</span>':(answered(q)?'<span class="pill a">Answered</span>':'<span class="pill u">Incomplete</span>');
+    return '<tr><td class="num">'+(i+1)+'</td><td>'+esc(q.obj)+'</td><td>'+esc(TYPE_LABEL[q.type])+'</td><td>'+st+'</td><td><button class="jump" onclick="goTo('+i+')">Go to item</button></td></tr>';
+  }).join("");
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Review screen</p><h1>Item review</h1>'+
+    '<p class="lede">'+e.items.length+' items · '+un+' incomplete · '+mk+' marked for review. Submitting ends the exam and scores every item.</p>'+
+    '<div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Objective</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  '</div>';
+  foot.hidden=false;
+  footIn.innerHTML='<button onclick="S.view=\'exam\';render()">Return to exam</button><span class="spacer"></span><button class="primary" onclick="confirmEnd()">Submit exam</button>';
+}
+function confirmEnd(){
+  var un=S.exam.items.filter(function(q){return !answered(q);}).length;
+  var msg=un?("You have "+un+" incomplete item(s). Incomplete items are scored as incorrect. End the exam now?"):"End the exam and view your score report?";
+  if(confirm(msg)) endExam();
+}
+function endExam(){
+  if(timer)clearInterval(timer);
+  S.exam.ended=true;S.view="result";render();
+}
+
+function renderResult(){
+  var e=S.exam,n=e.items.length;
+  var got=e.items.filter(correct).length;
+  var pct=Math.round(got/n*100);
+  var scaled=Math.round(100+(got/n)*800);
+  var pass=scaled>=675;
+  chromeSet("Score report","Exam complete",false);
+  var byObj={};
+  e.items.forEach(function(q){var o=byObj[q.obj]||(byObj[q.obj]={t:0,c:0});o.t++;if(correct(q))o.c++;});
+  var bars=Object.keys(byObj).sort().map(function(o){
+    var d=byObj[o],p=Math.round(d.c/d.t*100);
+    return '<div class="brow"><span>Objective '+esc(o)+'</span><span class="bar"><i class="'+(p>=75?"ok":p<50?"bad":"")+'" style="width:'+p+'%"></i></span><span class="sc">'+d.c+'/'+d.t+'</span></div>';
+  }).join("");
+  var items=e.items.map(function(q,i){
+    var ok=correct(q);
+    return '<div class="rev '+(ok?"right":"wrong")+'">'+
+      '<span class="qnum">Item '+(i+1)+' · Objective '+esc(q.obj)+' · '+esc(TYPE_LABEL[q.type])+'</span> '+
+      (ok?'<span class="pill ok">Correct</span>':'<span class="pill bad">Incorrect</span>')+
+      (q.exhibit?'<div class="exhibit" style="margin-top:8px">'+esc(q.exhibit)+'</div>':'')+
+      '<p class="rq">'+esc(q.text)+'</p>'+
+      '<p class="ans"><b>Your response:</b> '+esc(fmtResp(q))+'</p>'+
+      '<p class="ans"><b>Correct response:</b> '+esc(fmtKey(q))+'</p>'+
+      '<div class="exp">'+esc(q.explain)+'</div></div>';
+  }).join("");
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Score report</p><h1>'+(pass?"Pass":"Fail")+'</h1>'+
+    '<p class="lede">CompTIA reports Core 1 results on a scale of 100 to 900. The passing score is 675.</p>'+
+    '<div class="grid grid-4">'+
+      stat("Scaled score",scaled,pass?"ok":"bad")+
+      stat("Result",pass?"PASS":"FAIL",pass?"ok":"bad")+
+      stat("Correct",got+" / "+n,"")+
+      stat("Percentage",pct+"%","")+
+    '</div>'+
+  '</div>'+
+  '<div class="pane"><h2>Performance by objective</h2>'+bars+'</div>'+
+  '<div class="pane"><h2>Item analysis</h2>'+items+'</div>';
+  foot.hidden=false;
+  footIn.innerHTML='<button onclick="startExam(\''+e.setId+'\','+n+','+e.minutes+',true)">Retake this exam</button><span class="spacer"></span><button class="primary" onclick="S.exam=null;S.view=\'home\';render()">Return to exam list</button>';
+}
+function stat(k,v,cls){return '<div class="stat"><div class="k">'+esc(k)+'</div><div class="v '+cls+'">'+esc(v)+'</div></div>';}
+function fmtResp(q){
+  if(q.type==="mc") return q.resp===null||q.resp===undefined?"No response":letter(q.resp)+". "+q.options[q.resp];
+  if(q.type==="mr") return !q.resp||!q.resp.length?"No response":q.resp.slice().sort(function(a,b){return a-b;}).map(function(i){return letter(i);}).join(", ");
+  if(q.type==="fill") return q.resp&&String(q.resp).trim()?q.resp:"No response";
+  if(q.type==="match") return q.resp.map(function(r,i){return q.prompts[i]+" = "+(r<0?"none":q.choices[r]);}).join("; ");
+  if(q.type==="config") return q.resp.map(function(r,i){return q.rows[i].label+" = "+(r<0?"none":q.rows[i].choices[r]);}).join("; ");
+  if(q.type==="order") return q.order.map(function(o,i){return (i+1)+". "+q.items[o];}).join("  ");
+  return "";
+}
+function fmtKey(q){
+  if(q.type==="mc") return letter(q.answer)+". "+q.options[q.answer];
+  if(q.type==="mr") return q.answer.slice().sort(function(a,b){return a-b;}).map(function(i){return letter(i)+". "+q.options[i];}).join(" | ");
+  if(q.type==="fill") return q.display||q.accept[0];
+  if(q.type==="match") return q.answer.map(function(a,i){return q.prompts[i]+" = "+q.choices[a];}).join("; ");
+  if(q.type==="config") return q.rows.map(function(r){return r.label+" = "+r.choices[r.answer];}).join("; ");
+  if(q.type==="order") return q.items.map(function(t,i){return (i+1)+". "+t;}).join("  ");
+  return "";
+}
+
+/* ---------- question bank editor ---------- */
+function renderEditor(){
+  chromeSet("Question bank","Add, import, and export items",false);
+  foot.hidden=false;
+  footIn.innerHTML='<button onclick="S.view=\'home\';render()">Return to exam list</button><span class="spacer"></span><span style="font-size:13px;color:var(--ink-3)">'+allQ().length+' items total · '+custom.length+' added by you</span>';
+  var t=S.editType;
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Authoring</p><h1>Add a question</h1>'+
+    '<p class="lede">New items join the bank immediately and appear in the set you assign. They are stored in this browser; use Export to keep a permanent copy of your bank.</p>'+
+    '<div class="notice">Formatting: enter one option per line. For <b>multiple choice</b> put the answer number in the answer field (1 = first line). For <b>multiple response</b> use comma-separated numbers, for example <code>2,3</code>. For <b>sequencing</b> enter the steps in the correct order — the exam shuffles them. For <b>matching</b> and <b>performance-based</b>, use the row format shown under the field.</div>'+
+    '<div class="grid grid-2">'+
+      '<label class="fld"><span>Set</span><select id="eSet"><option value="A">Set A — Domain 1: Mobile Devices</option><option value="B">Set B — Domain 2: Networking</option></select></label>'+
+      '<label class="fld"><span>Objective</span><input type="text" id="eObj" placeholder="1.2" value=""></label>'+
+    '</div>'+
+    '<label class="fld"><span>Question type</span><select id="eType" onchange="S.editType=this.value;renderEditor()">'+
+      Object.keys(TYPE_LABEL).map(function(k){return '<option value="'+k+'" '+(t===k?"selected":"")+'>'+TYPE_LABEL[k]+'</option>';}).join("")+
+    '</select></label>'+
+    '<label class="fld"><span>Question text</span><textarea id="eText" rows="3" placeholder="A technician is asked to..."></textarea></label>'+
+    '<label class="fld"><span>Exhibit (optional)</span><textarea id="eExhibit" rows="2" placeholder="Command output or configuration shown to the candidate"></textarea></label>'+
+    editFields(t)+
+    '<label class="fld"><span>Explanation</span><textarea id="eExp" rows="3" placeholder="Why the correct answer is correct, and why the distractors are not"></textarea></label>'+
+    '<div class="btnrow"><button class="primary" onclick="addQ()">Add to bank</button><button onclick="renderEditor()">Clear form</button></div>'+
+  '</div>'+
+  '<div class="pane">'+
+    '<h2>Bank management</h2>'+
+    '<div class="btnrow"><button onclick="exportBank()">Export my questions (JSON)</button><button onclick="document.getElementById(\'impBox\').hidden=!document.getElementById(\'impBox\').hidden">Import questions</button>'+
+    (custom.length?'<button class="danger" onclick="clearCustom()">Delete all my questions</button>':'')+'</div>'+
+    '<div id="impBox" hidden style="margin-top:12px"><label class="fld"><span>Paste exported JSON</span><textarea id="impText" rows="5" placeholder="[{&quot;id&quot;:&quot;C01&quot;, ...}]"></textarea></label><button onclick="importBank()">Import</button></div>'+
+    (custom.length?'<div style="overflow-x:auto;margin-top:14px"><table><thead><tr><th>ID</th><th>Set</th><th>Obj</th><th>Type</th><th>Question</th><th></th></tr></thead><tbody>'+
+      custom.map(function(q,i){return '<tr><td class="num">'+esc(q.id)+'</td><td>'+esc(q.set)+'</td><td>'+esc(q.obj)+'</td><td>'+esc(TYPE_LABEL[q.type])+'</td><td>'+esc(q.text.slice(0,70))+(q.text.length>70?"…":"")+'</td><td><button class="jump" onclick="delQ('+i+')">Delete</button></td></tr>';}).join("")+
+      '</tbody></table></div>':'<p class="hint" style="margin-top:12px">You have not added any questions yet.</p>')+
+  '</div>';
+}
+function editFields(t){
+  if(t==="mc") return '<label class="fld"><span>Options — one per line</span><textarea id="eOpts" rows="4"></textarea></label>'+
+    '<label class="fld"><span>Correct option number</span><input type="number" id="eAns" min="1" value="1" style="max-width:120px"></label>';
+  if(t==="mr") return '<label class="fld"><span>Options — one per line</span><textarea id="eOpts" rows="5"></textarea></label>'+
+    '<div class="grid grid-2"><label class="fld"><span>Correct option numbers</span><input type="text" id="eAns" placeholder="2,3"></label>'+
+    '<label class="fld"><span>How many to choose</span><input type="number" id="ePick" min="2" value="2"></label></div>';
+  if(t==="fill") return '<label class="fld"><span>Accepted answers — one per line, case insensitive</span><textarea id="eOpts" rows="3" placeholder="22&#10;tcp/22"></textarea></label>'+
+    '<label class="fld"><span>Answer shown in the report</span><input type="text" id="eDisp" placeholder="22"></label>';
+  if(t==="order") return '<label class="fld"><span>Steps in the CORRECT order — one per line</span><textarea id="eOpts" rows="5"></textarea><div class="hint">The exam presents these shuffled.</div></label>';
+  if(t==="match") return '<label class="fld"><span>Pairs — one per line as <code>prompt | matching description</code></span><textarea id="eOpts" rows="4" placeholder="USB-C | 24-pin reversible connector&#10;Lightning | Apple 8-pin connector"></textarea></label>';
+  if(t==="config") return '<label class="fld"><span>Rows — one per line as <code>requirement | choice1 ; choice2 ; choice3 | correct choice number</code></span><textarea id="eOpts" rows="4" placeholder="DNS name resolution | udp/53 ; tcp/25 ; udp/123 | 1"></textarea></label>';
+  return "";
+}
+function val(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function lines(id){return val(id).split("\n").map(function(s){return s.trim();}).filter(Boolean);}
+function addQ(){
+  var t=S.editType,text=val("eText");
+  if(!text){alert("Question text is required.");return;}
+  var q={id:"C"+(custom.length+1)+"-"+Date.now().toString().slice(-4),set:val("eSet")||"A",obj:val("eObj")||"custom",type:t,text:text,explain:val("eExp")||"No explanation provided."};
+  var ex=val("eExhibit");if(ex)q.exhibit=ex;
+  var L=lines("eOpts");
+  try{
+    if(t==="mc"){if(L.length<2)throw 0;q.options=L;q.answer=parseInt(val("eAns"),10)-1;if(!(q.answer>=0&&q.answer<L.length))throw 0;}
+    else if(t==="mr"){if(L.length<3)throw 0;q.options=L;q.answer=val("eAns").split(",").map(function(s){return parseInt(s,10)-1;}).filter(function(n){return n>=0&&n<L.length;});if(q.answer.length<2)throw 0;q.pick=parseInt(val("ePick"),10)||q.answer.length;}
+    else if(t==="fill"){if(!L.length)throw 0;q.accept=L;q.display=val("eDisp")||L[0];}
+    else if(t==="order"){if(L.length<3)throw 0;q.items=L;}
+    else if(t==="match"){if(L.length<2)throw 0;q.prompts=[];q.choices=[];L.forEach(function(l){var p=l.split("|");if(p.length<2)throw 0;q.prompts.push(p[0].trim());q.choices.push(p[1].trim());});q.answer=q.prompts.map(function(_,i){return i;});}
+    else if(t==="config"){if(!L.length)throw 0;q.rows=L.map(function(l){var p=l.split("|");if(p.length<3)throw 0;return{label:p[0].trim(),choices:p[1].split(";").map(function(s){return s.trim();}),answer:parseInt(p[2],10)-1};});q.rows.forEach(function(r){if(!(r.answer>=0&&r.answer<r.choices.length))throw 0;});}
+  }catch(err){alert("Check the answer fields — the format does not match what this question type expects.");return;}
+  custom.push(q);saveCustom();renderEditor();
+  alert("Question added. It is now part of "+(q.set==="A"?"Set A":"Set B")+".");
+}
+function delQ(i){if(confirm("Delete this question?")){custom.splice(i,1);saveCustom();renderEditor();}}
+function clearCustom(){if(confirm("Delete all questions you added? This cannot be undone.")){custom=[];saveCustom();renderEditor();}}
+function exportBank(){
+  if(!custom.length){alert("You have not added any questions yet.");return;}
+  var blob=new Blob([JSON.stringify(custom,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="comptia-1201-my-questions.json";a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+}
+function importBank(){
+  try{
+    var arr=JSON.parse(val("impText"));
+    if(!Array.isArray(arr))throw 0;
+    custom=custom.concat(arr);saveCustom();renderEditor();
+    alert(arr.length+" question(s) imported.");
+  }catch(e){alert("That is not valid question JSON. Use a file produced by Export.");}
+}
+
+paintChromeButtons();
+render();
+</script>
+</body>
+</html>

@@ -2,7 +2,8 @@ export type Lang = "en" | "uz";
 
 export interface Job { role?: string; roleUz?: string; date?: string; company?: string; meta?: string; metaUz?: string; bullets?: string[]; bulletsUz?: string[]; pinned?: boolean; __id?: string; }
 export interface Skill { icon?: string; name?: string; nameUz?: string; tags?: string[]; pinned?: boolean; __id?: string; }
-export interface Cert { badge?: string; name?: string; nameUz?: string; meta?: string; metaUz?: string; file?: string; url?: string; pinned?: boolean; __id?: string; }
+export interface Cert { badge?: string; name?: string; nameUz?: string; meta?: string; metaUz?: string; img?: string; file?: string; url?: string; pinned?: boolean; __id?: string; }
+export interface Course { icon?: string; tag?: string; tagUz?: string; title?: string; titleUz?: string; desc?: string; descUz?: string; link?: string; meta?: string; metaUz?: string; pinned?: boolean; __id?: string; }
 export interface Project { icon?: string; cat?: string; period?: string; title?: string; titleUz?: string; sub?: string; subUz?: string; desc?: string; descUz?: string; tags?: string[]; linkUrl?: string; linkLabel?: string; linkLabelUz?: string; pinned?: boolean; __id?: string; }
 export interface Education { degree?: string; degreeUz?: string; date?: string; dateUz?: string; school?: string; schoolUz?: string; pinned?: boolean; __id?: string; }
 export interface Language { label?: string; labelUz?: string; pct?: number | string; pinned?: boolean; __id?: string; }
@@ -32,6 +33,7 @@ export interface SiteData {
   education: Education[];
   languages: Language[];
   challenges: Challenge[];
+  courses: Course[];
   pages: Page[];
   products: Product[];
   galleryCats: Record<string, Category>;

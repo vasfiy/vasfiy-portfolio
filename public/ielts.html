@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IELTS Academic practice platform — timed Reading and Listening tests with band scoring, Writing Task 1 & 2 with band descriptors, Speaking parts with timers, and academic vocabulary. By Kamoliddin Tilonboyev." />
+  <link rel="canonical" href="https://vasfiy.com/ielts.html" />
+  <title>IELTS Academic Practice Platform — Kamoliddin Tilonboyev</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E" />
+  <style>
+    .site-back { position: fixed; top: 10px; right: 12px; z-index: 50; font: 600 13px "Segoe UI", system-ui, sans-serif; }
+    .site-back a { color: #EAF0F7; opacity: .75; text-decoration: none; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); padding: 6px 12px; border-radius: 2px; }
+    .site-back a:hover { opacity: 1; }
+    /* Below this width the header wraps onto several rows and a fixed link would sit on top of the buttons. */
+    @media (max-width: 1100px) { .site-back { position: static; padding: 8px 12px 0; text-align: right; } }
+  </style>
+</head>
+<body>
+<div class="site-back"><a href="/learning">← Learning</a></div>
+<style>
+:root{
+  --chrome:#7A1F3D; --chrome-hi:#9C2B50; --chrome-ink:#FBEEF3;
+  --ground:#EDEFF2; --panel:#FFFFFF; --panel-2:#F6F8FA;
+  --ink:#16202B; --ink-2:#4E5C6B; --ink-3:#77848F;
+  --line:#C4CCD4; --line-2:#DFE4E9;
+  --accent:#A32B57; --accent-soft:#FAE8EF;
+  --mark:#8A5D0A; --mark-soft:#FBF0D8;
+  --ok:#186A45; --ok-soft:#E2F1E9;
+  --bad:#96292A; --bad-soft:#F8E7E7;
+  --ui:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --serif:Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --chrome:#3D1220; --chrome-hi:#5E1D33; --chrome-ink:#F3DDE5;
+    --ground:#0E1319; --panel:#161D25; --panel-2:#1C242E;
+    --ink:#DFE5EB; --ink-2:#9AA7B4; --ink-3:#77838F;
+    --line:#2E3944; --line-2:#232C36;
+    --accent:#E88CAC; --accent-soft:#2E1721;
+    --mark:#D6A445; --mark-soft:#2C2513;
+    --ok:#5CBE92; --ok-soft:#14261E;
+    --bad:#E58585; --bad-soft:#2A1717;
+  }
+}
+:root[data-theme="dark"]{
+  --chrome:#3D1220; --chrome-hi:#5E1D33; --chrome-ink:#F3DDE5;
+  --ground:#0E1319; --panel:#161D25; --panel-2:#1C242E;
+  --ink:#DFE5EB; --ink-2:#9AA7B4; --ink-3:#77838F;
+  --line:#2E3944; --line-2:#232C36;
+  --accent:#E88CAC; --accent-soft:#2E1721;
+  --mark:#D6A445; --mark-soft:#2C2513;
+  --ok:#5CBE92; --ok-soft:#14261E;
+  --bad:#E58585; --bad-soft:#2A1717;
+}
+:root[data-theme="light"]{
+  --chrome:#7A1F3D; --chrome-hi:#9C2B50; --chrome-ink:#FBEEF3;
+  --ground:#EDEFF2; --panel:#FFFFFF; --panel-2:#F6F8FA;
+  --ink:#16202B; --ink-2:#4E5C6B; --ink-3:#77848F;
+  --line:#C4CCD4; --line-2:#DFE4E9;
+  --accent:#A32B57; --accent-soft:#FAE8EF;
+  --mark:#8A5D0A; --mark-soft:#FBF0D8;
+  --ok:#186A45; --ok-soft:#E2F1E9;
+  --bad:#96292A; --bad-soft:#F8E7E7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55}
+.app{min-height:100dvh;display:flex;flex-direction:column}
+
+.chrome{background:var(--chrome);color:var(--chrome-ink);border-bottom:1px solid rgba(0,0,0,.35)}
+.chrome-in{width:100%;padding:12px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.chrome-title{font-size:16px;font-weight:600;letter-spacing:.2px;flex:1;min-width:220px}
+.chrome-title span{display:block;font-weight:400;font-size:13px;opacity:.72;letter-spacing:.3px}
+.meter{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px;background:rgba(255,255,255,.1);padding:6px 12px;border:1px solid rgba(255,255,255,.16)}
+.meter b{font-weight:600}
+.meter.low{background:rgba(214,120,80,.28);border-color:rgba(255,180,150,.45)}
+.chrome button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:var(--chrome-ink);font-size:13px;padding:6px 12px;cursor:pointer}
+.chrome button:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4)}
+
+main{flex:1;width:100%;padding:24px 28px 36px}
+.pane{background:var(--panel);border:1px solid var(--line);padding:26px 30px}
+.pane+.pane{margin-top:16px}
+
+h1{font-size:26px;font-weight:600;margin:0 0 4px;letter-spacing:-.3px;text-wrap:balance}
+h2{font-weight:600;margin:0 0 14px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2);font-size:13px}
+h3{font-size:19px;font-weight:600;margin:0 0 8px}
+p{margin:0 0 12px}
+.lede{color:var(--ink-2);margin:0 0 20px;max-width:78ch;font-size:17px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+
+.card{background:var(--panel);border:1px solid var(--line);padding:20px 24px;display:flex;flex-direction:column;gap:10px}
+.card .n{font-family:var(--mono);font-size:13px;color:var(--ink-3);letter-spacing:.5px}
+.card h3{margin:0}
+.card ul{margin:0;padding-left:20px;color:var(--ink-2);font-size:16px}
+.card li{margin-bottom:3px}
+.card.pick{cursor:pointer;transition:border-color .15s,transform .15s}
+.card.pick:hover{border-color:var(--accent);transform:translateY(-2px)}
+
+button{font:inherit;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);padding:10px 20px;cursor:pointer;border-radius:2px}
+button:hover{background:var(--accent-soft);border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.primary:hover{filter:brightness(1.1)}
+button.danger{color:var(--bad);border-color:var(--line)}
+button.danger:hover{background:var(--bad-soft);border-color:var(--bad)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);padding:7px 10px;border-radius:2px;width:100%}
+textarea{font-family:var(--ui);font-size:16px;line-height:1.6;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+label.fld{display:block;margin-bottom:12px}
+label.fld>span{display:block;font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.hint{font-size:12px;color:var(--ink-3);margin-top:4px}
+
+/* ---- Reading: split pane ---- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);background:var(--panel);min-height:60vh}
+.split>div{padding:22px 26px;overflow-y:auto;max-height:calc(100dvh - 230px)}
+.split .passage{border-right:1px solid var(--line-2)}
+.passage h3{font-family:var(--serif);font-size:22px;margin-bottom:4px}
+.passage .ptext{font-family:var(--serif);font-size:17.5px;line-height:1.72}
+.passage .ptext p{margin:0 0 14px}
+.passage .para-label{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);margin-right:8px}
+.qpanel .qgroup{border-bottom:1px solid var(--line-2);padding-bottom:20px;margin-bottom:20px}
+.qpanel .qgroup:last-child{border-bottom:0}
+.grp-head{font-weight:600;margin:0 0 6px}
+.grp-instr{color:var(--ink-2);font-size:15.5px;margin:0 0 14px}
+.qrow{margin-bottom:16px}
+.qrow .qn{font-family:var(--mono);font-size:13px;color:var(--ink-3);letter-spacing:.6px}
+.qrow .qt{margin:2px 0 8px;font-size:16.5px;line-height:1.5}
+
+.opts{display:flex;flex-direction:column;gap:3px;margin:0 0 4px}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:9px 12px;border:1px solid transparent;cursor:pointer;line-height:1.5;font-size:16.5px}
+.opt:hover{background:var(--panel-2)}
+.opt input{margin:4px 0 0;flex:none;accent-color:var(--accent);width:16px;height:16px}
+.opt .lt{font-family:var(--mono);font-size:15px;color:var(--ink-3);flex:none;min-width:18px}
+.opt.sel{background:var(--accent-soft);border-color:var(--accent)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.inline-opts{display:flex;gap:8px;flex-wrap:wrap}
+.inline-opts button{padding:6px 14px;font-size:15px;font-family:var(--mono)}
+.inline-opts button.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.gap{max-width:260px;font-family:var(--mono);font-size:16px;display:inline-block;width:auto;min-width:170px}
+.dropsel{max-width:340px}
+
+.exhibit{background:var(--panel-2);border:1px solid var(--line-2);border-left:3px solid var(--accent);padding:14px 16px;margin:0 0 16px;font-size:16px;line-height:1.6}
+.exhibit.mono{font-family:var(--mono);font-size:14.5px;white-space:pre;overflow-x:auto}
+.exhibit ul{margin:6px 0 0;padding-left:20px}
+.notice{font-size:15px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line-2);border-left:3px solid var(--accent);padding:12px 16px;margin:0 0 18px}
+
+.footbar{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);margin-top:16px}
+.footbar-in{width:100%;padding:14px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.markbox{display:flex;gap:9px;align-items:center;font-size:16px;cursor:pointer;padding:9px 14px;border:1px solid var(--line)}
+.markbox input{accent-color:var(--mark);width:16px;height:16px}
+.markbox.on{background:var(--mark-soft);border-color:var(--mark);color:var(--mark);font-weight:600}
+.palette{display:flex;gap:5px;flex-wrap:wrap}
+.palette button{width:34px;height:32px;padding:0;font-family:var(--mono);font-size:13px;border-radius:2px}
+.palette button.done{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.palette button.mark{background:var(--mark-soft);border-color:var(--mark);color:var(--mark)}
+.palette button.cur{outline:2px solid var(--ink);outline-offset:1px}
+
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+th{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+tbody tr:hover{background:var(--panel-2)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.pill{display:inline-block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border:1px solid var(--line)}
+.pill.a{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pill.u{color:var(--ink-3)}
+.pill.m{background:var(--mark-soft);border-color:var(--mark);color:var(--mark)}
+.pill.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+
+.stat{background:var(--panel-2);border:1px solid var(--line-2);padding:16px 20px}
+.stat .k{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin-bottom:5px}
+.stat .v{font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.stat .v.ok{color:var(--ok)} .stat .v.bad{color:var(--bad)}
+.band-big{font-size:56px;font-weight:700;letter-spacing:-2px;color:var(--accent);line-height:1}
+
+.bar{height:10px;background:var(--panel-2);border:1px solid var(--line-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.bar>i.ok{background:var(--ok)} .bar>i.bad{background:var(--bad)}
+.brow{display:grid;grid-template-columns:minmax(160px,260px) 1fr 78px;gap:14px;align-items:center;margin-bottom:11px;font-size:16px}
+.brow .sc{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;font-size:15px;color:var(--ink-2)}
+
+.rev{border:1px solid var(--line-2);padding:16px 20px;margin-bottom:12px}
+.rev.right{border-left:3px solid var(--ok)}
+.rev.wrong{border-left:3px solid var(--bad)}
+.rev .rq{font-size:16.5px;margin:8px 0 10px}
+.rev .ans{font-size:16px;margin:0 0 5px}
+.rev .ans b{font-weight:600}
+.exp{font-size:15.5px;color:var(--ink-2);background:var(--panel-2);border-top:1px solid var(--line-2);margin:12px -20px -16px;padding:13px 20px}
+
+/* ---- Writing ---- */
+.wr-wrap{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:16px;align-items:start}
+.wr-prompt{background:var(--panel);border:1px solid var(--line);padding:22px 26px;position:sticky;top:16px;max-height:calc(100dvh - 200px);overflow-y:auto}
+.wr-editor{background:var(--panel);border:1px solid var(--line);padding:22px 26px}
+.wr-editor textarea{min-height:52vh}
+.wc{font-family:var(--mono);font-size:14px;color:var(--ink-2);display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.wc b{font-variant-numeric:tabular-nums;font-size:17px;color:var(--ink)}
+.wc .short{color:var(--bad)}
+.wc .good{color:var(--ok)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:15.5px;cursor:pointer}
+.chk:last-child{border-bottom:0}
+.chk input{accent-color:var(--accent);width:16px;height:16px;margin-top:3px;flex:none}
+.model{font-family:var(--serif);font-size:17px;line-height:1.7;background:var(--panel-2);border:1px solid var(--line-2);padding:18px 22px}
+.model p{margin:0 0 13px}
+
+/* ---- Speaking ---- */
+.cue{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);padding:22px 26px;font-size:18px;line-height:1.6}
+.cue ul{margin:10px 0 0;padding-left:22px}
+.cue li{margin-bottom:4px}
+.big-timer{font-family:var(--mono);font-size:52px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-1px;text-align:center;margin:14px 0}
+.big-timer.warn{color:var(--bad)}
+.phase{text-align:center;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2);font-family:var(--mono)}
+audio{width:100%;margin-top:12px}
+
+/* ---- Vocabulary ---- */
+.flash{background:var(--panel);border:1px solid var(--line);padding:34px 30px;min-height:230px;display:flex;flex-direction:column;justify-content:center;text-align:center;cursor:pointer}
+.flash .word{font-size:34px;font-weight:600;letter-spacing:-.5px;margin-bottom:6px}
+.flash .pos{font-family:var(--mono);font-size:13px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.flash .def{font-size:18px;color:var(--ink-2);max-width:60ch;margin:0 auto 12px}
+.flash .ex{font-family:var(--serif);font-size:17px;color:var(--ink-2);font-style:italic;max-width:62ch;margin:0 auto}
+.flash .coll{font-family:var(--mono);font-size:14px;color:var(--accent);margin-top:14px}
+.flash .tap{font-size:13px;color:var(--ink-3);margin-top:18px;font-family:var(--mono);letter-spacing:.5px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:900px){
+  .split{grid-template-columns:1fr}
+  .split .passage{border-right:0;border-bottom:1px solid var(--line-2)}
+  .split>div{max-height:none}
+  .wr-wrap{grid-template-columns:1fr}
+  .wr-prompt{position:static;max-height:none}
+}
+@media (max-width:700px){
+  .chrome-in{gap:10px;padding:10px 14px}
+  main{padding:16px 14px 26px}
+  .pane{padding:18px 16px}
+  .footbar-in{padding:12px 14px}
+  .split>div{padding:16px 14px}
+  .band-big{font-size:44px}
+}
+</style>
+
+<div class="app">
+  <header class="chrome">
+    <div class="chrome-in">
+      <div class="chrome-title" id="chTitle">IELTS Academic — Practice Platform<span id="chSub">Reading · Listening · Writing · Speaking · Vocabulary</span></div>
+      <div class="meter" id="chCount" hidden>Question <b><span id="mCur">1</span></b> of <b><span id="mTot">1</span></b></div>
+      <div class="meter" id="chTime" hidden>Time remaining <b id="mTime">60:00</b></div>
+      <button onclick="toggleNight()" id="btnNight">Night mode</button>
+      <button onclick="toggleFull()" id="btnFull">Full screen</button>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <div class="footbar" id="foot" hidden><div class="footbar-in" id="footIn"></div></div>
+</div>
+
+<script>
+/* =====================================================================
+   IELTS Academic practice platform.
+   All passages, questions, model answers and vocabulary below are
+   original material written for this site in the style of the exam —
+   no Cambridge/IDP test content is reproduced.
+   ===================================================================== */
+
+/* ============ READING ============ */
+var READING = [
+{
+  id:"R1", title:"The Return of the Urban Tram", minutes:20,
+  intro:"You should spend about 20 minutes on Questions 1–13, which are based on the passage below.",
+  paras:[
+   ["A","For most of the twentieth century the tram was treated as an embarrassment. Cities from Sydney to Stockholm tore up their networks in the decades after 1945, convinced that steel rails belonged to a slower age. The private car promised freedom; the bus promised flexibility at a fraction of the capital cost. By 1970 fewer than a dozen British towns retained any tram service at all, and the vehicles that survived did so largely as museum pieces."],
+   ["B","The reversal, when it came, was driven less by nostalgia than by arithmetic. A modern tram can carry between 200 and 300 passengers, roughly the load of three articulated buses, while occupying a single driver's wage. Because the vehicle runs on a fixed and visible route, planners can predict demand along a corridor with a precision that bus networks rarely allow. Property developers noticed this first: land within 400 metres of a proposed tram stop in Manchester rose in value long before the first rail was laid."],
+   ["C","Cost, however, remains the central objection. A kilometre of new tramway in Western Europe typically costs between 15 and 30 million euros, and the figure climbs steeply where utilities must be diverted. Critics point out that a bus lane delivering comparable capacity can be painted onto an existing road in a matter of weeks. Advocates reply that the comparison is misleading: buses depreciate over roughly twelve years, whereas tram vehicles routinely serve for thirty and the track itself for considerably longer."],
+   ["D","There is also the question of who actually changes their behaviour. Surveys conducted in Nantes, Bordeaux and Freiburg consistently show that new tram lines attract a group of passengers that bus improvements do not reach — people who own a car and could drive but choose not to. Transport economists call this the rail factor, and although its size is disputed, its existence is not. The most cautious estimates suggest that a tram line attracts perhaps fifteen per cent more former drivers than an identical bus corridor; the most enthusiastic put the figure above forty."],
+   ["E","Explanations for the rail factor vary. Some researchers emphasise ride quality: a tram running on welded rail produces less lateral movement, allowing passengers to read or work. Others point to what might be called institutional confidence. Rails cannot be quietly rerouted after an election, so a household deciding where to live can treat the line as a fixed feature of the city. Dr Helena Vaarst, whose 2019 study compared eleven European corridors, argues that this permanence is worth more than any engineering advantage: passengers, she writes, are responding to a promise rather than to a vehicle."],
+   ["F","Not every project has succeeded. Edinburgh's line, opened in 2014 after years of dispute, ran roughly three times over its original budget and reached barely half of its planned length. The Sheffield Supertram carried far fewer passengers in its early years than forecast, in part because the city's steep gradients and dispersed employment sites suited it poorly. Such cases suggest that the tram is not a universal solution but a corridor tool, effective where a dense line of demand already exists and unconvincing where it does not."],
+   ["G","The most recent generation of schemes has therefore grown more modest in ambition and more careful in execution. Rather than building a network at once, cities such as Besançon and Aarhus opened a single line, priced conservatively, and expanded only after ridership was established. Besançon's route, delivered for under 17 million euros per kilometre, is now cited across the sector as evidence that the costs of the 1990s were a matter of specification rather than of the technology itself."]
+  ],
+  groups:[
+   {
+     head:"Questions 1–5", type:"tfng",
+     instr:"Do the following statements agree with the information given in the passage? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+     items:[
+       {n:1, q:"Most British towns had abandoned their tram services by 1970.", a:"TRUE",
+        why:"Paragraph A states that by 1970 'fewer than a dozen British towns retained any tram service at all', which agrees with the statement."},
+       {n:2, q:"A modern tram requires fewer drivers than buses carrying the same number of passengers.", a:"TRUE",
+        why:"Paragraph B says a tram carries the load of three articulated buses 'while occupying a single driver's wage' — one driver instead of three."},
+       {n:3, q:"Land values near planned tram stops in Manchester fell before construction began.", a:"FALSE",
+        why:"Paragraph B says land within 400 metres of a proposed stop 'rose in value long before the first rail was laid' — the opposite of falling."},
+       {n:4, q:"Diverting utility pipes and cables is the largest single cost in tramway construction.", a:"NOT GIVEN",
+        why:"Paragraph C says costs 'climb steeply where utilities must be diverted', but never ranks utility diversion against other costs. Beware of statements that add a superlative the text does not make."},
+       {n:5, q:"Tram vehicles have a longer working life than buses.", a:"TRUE",
+        why:"Paragraph C contrasts buses depreciating 'over roughly twelve years' with trams that 'routinely serve for thirty'."}
+     ]
+   },
+   {
+     head:"Questions 6–9", type:"para",
+     instr:"The passage has seven paragraphs, A–G. Which paragraph contains the following information? You may use any letter more than once.",
+     letters:["A","B","C","D","E","F","G"],
+     items:[
+       {n:6, q:"a reference to two projects that failed to meet expectations", a:"F",
+        why:"Paragraph F describes Edinburgh (over budget, half the planned length) and Sheffield (fewer passengers than forecast)."},
+       {n:7, q:"a range of figures showing disagreement about the scale of an effect", a:"D",
+        why:"Paragraph D gives the cautious estimate of fifteen per cent and the enthusiastic one above forty for the rail factor."},
+       {n:8, q:"an argument that a psychological quality matters more than a technical one", a:"E",
+        why:"In paragraph E, Dr Vaarst argues that permanence 'is worth more than any engineering advantage'."},
+       {n:9, q:"an example used to show that high costs were avoidable", a:"G",
+        why:"Paragraph G cites Besançon, delivered under 17 million euros per kilometre, as evidence that 1990s costs were 'a matter of specification rather than of the technology itself'."}
+     ]
+   },
+   {
+     head:"Questions 10–13", type:"gap",
+     instr:"Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+     items:[
+       {n:10, pre:"After 1945 many cities removed their networks because they believed rails suited a", post:"age.", a:["slower"],
+        why:"Paragraph A: cities were 'convinced that steel rails belonged to a slower age'."},
+       {n:11, pre:"Economists use the term the", post:"to describe the extra passengers a tram attracts from among car owners.", a:["rail factor"],
+        why:"Paragraph D: 'Transport economists call this the rail factor'."},
+       {n:12, pre:"Because welded rail reduces", post:", travellers are able to read while moving.", a:["lateral movement"],
+        why:"Paragraph E: a tram on welded rail 'produces less lateral movement, allowing passengers to read or work'."},
+       {n:13, pre:"The writer concludes that the tram should be understood as a", post:"rather than a universal answer.", a:["corridor tool"],
+        why:"Paragraph F: 'the tram is not a universal solution but a corridor tool'."}
+     ]
+   }
+  ]
+},
+{
+  id:"R2", title:"Sleep and the Adolescent Brain", minutes:20,
+  intro:"You should spend about 20 minutes on Questions 14–26, which are based on the passage below.",
+  paras:[
+   ["A","Parents have complained about the sleeping habits of teenagers for as long as there have been parents, but only in the last three decades has the complaint acquired a biological explanation. The adolescent body clock, it turns out, does not simply drift later through laziness. At around the age of thirteen the release of melatonin — the hormone that signals the approach of sleep — begins to occur roughly two hours later in the evening than it did in childhood, and it continues to shift until the early twenties."],
+   ["B","The consequence is a mismatch. School timetables in most industrialised countries were fixed in an era of agricultural and factory schedules, with secondary classes commonly beginning between 08:00 and 08:30. A sixteen-year-old whose brain will not release melatonin until 23:00 must nonetheless rise at 06:30, producing a sleep debt that accumulates across the week. Researchers describe the pattern as social jet lag: the student is, in effect, flying two time zones east every Monday morning and back again every Friday night."],
+   ["C","Establishing the consequences of that debt has proved harder than describing it. Adolescents who sleep less also tend to use screens more, work part-time more often and come from households under greater economic pressure, and each of these factors independently predicts weaker school performance. Untangling them requires either very large samples or, better, a natural experiment in which start times change while everything else stays constant."],
+   ["D","Such an experiment became available in 2016, when a district in Seattle moved secondary start times from 07:50 to 08:45. Researchers fitted students with wrist actigraphs — devices that infer sleep from movement — before and after the change. The students gained an average of 34 minutes of sleep per night, a figure that surprised the investigators, who had expected teenagers simply to go to bed later and absorb the extra hour. Median grades rose by 4.5 per cent, and attendance improved most sharply at the schools serving the poorest catchments."],
+   ["E","Not all findings have pointed the same way. A large study of English schools found no measurable examination benefit from a later start, though the delay involved was only twenty minutes — probably too small to move a body clock. In Singapore, a delay of forty-five minutes produced sleep gains that had shrunk noticeably when researchers returned nine months later, suggesting that students gradually adjusted their bedtimes to reclaim the evening. Both results are compatible with the melatonin argument; they simply indicate that the size of a delay, and the culture around evening study, determine whether it survives contact with real households."],
+   ["F","The practical objections are formidable and rarely biological. Bus fleets in many districts run secondary and primary routes in sequence, so moving one timetable forces the other; parents whose working day begins at 08:00 rely on school as childcare; and after-school sport, which in some countries functions as an informal welfare system, loses daylight at the end of the day. Districts that have made the change successfully tend to be those that treated it as a transport and employment problem rather than a health one."]
+  ],
+  groups:[
+   {
+     head:"Questions 14–18", type:"mc",
+     instr:"Choose the correct letter, A, B, C or D.",
+     items:[
+       {n:14, q:"What does the writer say about the adolescent sleep pattern in paragraph A?",
+        opts:["It is caused mainly by evening screen use.","It has only recently been given a physiological account.","It disappears once a teenager reaches sixteen.","It affects boys earlier than girls."], a:1,
+        why:"Paragraph A says the complaint is old but 'only in the last three decades has the complaint acquired a biological explanation'. Screens are not mentioned there, and the shift continues 'until the early twenties'."},
+       {n:15, q:"The term social jet lag is used to describe",
+        opts:["the tiredness caused by long-distance travel during holidays.","the difficulty teenagers have in waking at weekends.","the weekly cycle of sleep loss and recovery created by early classes.","the effect of changing time zones on hormone release."], a:2,
+        why:"Paragraph B describes the student 'flying two time zones east every Monday morning and back again every Friday night' — a weekly cycle produced by the timetable, not by real travel."},
+       {n:16, q:"Why does the writer say the consequences of sleep debt are hard to establish?",
+        opts:["Adolescents give unreliable reports of their own bedtimes.","Several disadvantages tend to occur together in the same students.","Schools are unwilling to release examination data.","The effects appear only many years later."], a:1,
+        why:"Paragraph C lists screens, part-time work and economic pressure as factors that cluster together and each independently predict weaker performance, making the effect of sleep alone difficult to isolate."},
+       {n:17, q:"What surprised the researchers in the Seattle study?",
+        opts:["that grades improved at all","that the poorest schools showed the greatest gain in attendance","that students did not stay up later to cancel out the change","that wrist actigraphs measured sleep accurately"], a:2,
+        why:"Paragraph D: the 34-minute gain surprised investigators 'who had expected teenagers simply to go to bed later and absorb the extra hour'."},
+       {n:18, q:"How does the writer interpret the English and Singaporean findings?",
+        opts:["They cast serious doubt on the melatonin explanation.","They show that later starts never work outside the United States.","They are consistent with the melatonin explanation once the details are considered.","They prove that cultural attitudes matter more than biology."], a:2,
+        why:"Paragraph E states plainly that 'Both results are compatible with the melatonin argument' and attributes them to the size of the delay and evening study culture."}
+     ]
+   },
+   {
+     head:"Questions 19–23", type:"summary",
+     instr:"Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+     title:"The Seattle study",
+     items:[
+       {n:19, pre:"Secondary schools in one Seattle district delayed the start of the school day by nearly one", post:".", a:["hour"],
+        why:"07:50 to 08:45 is 55 minutes — paragraph D also refers to 'the extra hour'."},
+       {n:20, pre:"Sleep was measured using wrist devices that infer rest from", post:".", a:["movement"],
+        why:"Paragraph D: actigraphs are 'devices that infer sleep from movement'."},
+       {n:21, pre:"On average each student gained 34 minutes of sleep every", post:".", a:["night"],
+        why:"Paragraph D: 'an average of 34 minutes of sleep per night'."},
+       {n:22, pre:"Median", post:"increased by 4.5 per cent.", a:["grades"],
+        why:"Paragraph D: 'Median grades rose by 4.5 per cent'."},
+       {n:23, pre:"The largest improvement in attendance occurred at the schools serving the", post:"catchments.", a:["poorest"],
+        why:"Paragraph D: attendance 'improved most sharply at the schools serving the poorest catchments'."}
+     ]
+   },
+   {
+     head:"Questions 24–26", type:"tfng", ynng:true,
+     instr:"Do the following statements agree with the claims of the writer? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, or NOT GIVEN if it is impossible to say what the writer thinks about this.",
+     items:[
+       {n:24, q:"A twenty-minute delay is likely to be too small to affect the body clock.", a:"YES",
+        why:"Paragraph E calls the twenty-minute delay 'probably too small to move a body clock' — the writer's own judgement."},
+       {n:25, q:"After-school sport should be protected even if it prevents a later start.", a:"NOT GIVEN",
+        why:"Paragraph F reports that sport loses daylight and functions as informal welfare, but the writer never says which should take priority."},
+       {n:26, q:"Districts succeed with later starts by treating the issue primarily as a health matter.", a:"NO",
+        why:"Paragraph F says successful districts treated it 'as a transport and employment problem rather than a health one' — the reverse of the statement."}
+     ]
+   }
+  ]
+}
+];
+
+/* ============ LISTENING ============ (spoken by the browser's speech engine) */
+var LISTENING = [
+{
+  id:"L1", title:"Section 1 — Riverside Community Centre: course enquiry", minutes:8,
+  blurb:"A conversation between two people set in an everyday social context. You will hear the recording once. Read the questions first — you are given time before the audio starts.",
+  script:"Section one. You will hear a telephone conversation between a woman and a receptionist at a community centre. First, you have some time to look at questions one to ten. ... Now listen carefully and answer questions one to ten. ... Receptionist: Good morning, Riverside Community Centre, Daniel speaking. ... Caller: Oh, hello. I saw a leaflet about your evening courses and I'd like to sign up for one. ... Receptionist: Certainly. Can I take your name? ... Caller: Yes, it's Marta Weiss. That's W, E, I, double S. ... Receptionist: Thank you. And a contact number? ... Caller: It's oh seven, seven, double four, one, nine, two, three, six, eight. ... Receptionist: Lovely. Which course were you interested in? ... Caller: The photography one, if there are places left. ... Receptionist: There are. Digital photography runs on Thursdays, seven until nine, in the Blake Room. It's an eight week course. ... Caller: Thursday's perfect. And how much is it? ... Receptionist: The full fee is ninety pounds, but if you live in the borough it's sixty five. ... Caller: I do, yes. I'm on Hillcrest Road. ... Receptionist: Then sixty five it is. One thing to mention: you'll need to bring your own camera. A phone camera is fine for the first two weeks, but after that the tutor asks for something with manual settings. ... Caller: That's fine, I've got an old one of my father's. Is there anything else I should bring? ... Receptionist: Just a notebook. And do arrive a few minutes early on the first evening, because the tutor gives out the reading list then. ... Caller: Right. Oh, one more thing. Is there parking? ... Receptionist: There's a car park behind the building, but it closes at eight, so most people use the street. Or the number twelve bus stops directly outside. ... Caller: I'll take the bus. Thank you very much. ... Receptionist: You're welcome. See you on the fourth of October. ... That is the end of section one.",
+  items:[
+    {n:1, type:"gap", pre:"Name:", post:"", a:["weiss"], why:"The caller spells her surname: W-E-I-double S — Weiss."},
+    {n:2, type:"gap", pre:"Contact number: 077", post:"", a:["44192368","4419 2368","44 19 23 68"], why:"'Oh seven, seven, double four, one, nine, two, three, six, eight' — after 077 the digits are 44192368."},
+    {n:3, type:"gap", pre:"Course chosen: Digital", post:"", a:["photography"], why:"The caller asks for 'the photography one' and the receptionist confirms 'Digital photography'."},
+    {n:4, type:"gap", pre:"Day:", post:"", a:["thursday","thursdays"], why:"'Digital photography runs on Thursdays, seven until nine.'"},
+    {n:5, type:"gap", pre:"Room: the", post:"Room", a:["blake"], why:"The receptionist says the course is held 'in the Blake Room'."},
+    {n:6, type:"gap", pre:"Length of course:", post:"weeks", a:["8","eight"], why:"'It's an eight week course.'"},
+    {n:7, type:"gap", pre:"Fee to be paid: £", post:"", a:["65","sixty five","sixty-five"], why:"The full fee is £90, but the borough rate of £65 applies because she lives on Hillcrest Road."},
+    {n:8, type:"mc", q:"From week three, students must bring a camera that has", opts:["a high resolution sensor","manual settings","a tripod mount"], a:1, why:"'After that the tutor asks for something with manual settings' — a phone is acceptable only for the first two weeks."},
+    {n:9, type:"mc", q:"Students should arrive early on the first evening in order to receive", opts:["the reading list","a car park permit","their student card"], a:0, why:"'Do arrive a few minutes early on the first evening, because the tutor gives out the reading list then.'"},
+    {n:10, type:"mc", q:"The caller decides to travel to the centre", opts:["by car, using the car park","by bus","on foot"], a:1, why:"After hearing the car park closes at eight, she says 'I'll take the bus.'"}
+  ]
+},
+{
+  id:"L2", title:"Section 4 — Lecture: the domestication of the horse", minutes:8,
+  blurb:"A monologue on an academic subject. You will hear the recording once. Section 4 is not divided into two parts — read all ten questions before the audio begins.",
+  script:"Section four. You will hear part of a lecture about the domestication of the horse. First, you have some time to look at questions one to ten. ... Now listen carefully and answer questions one to ten. ... Good afternoon. Today I want to look at how we know when horses were first domesticated, because the evidence is more indirect than you might expect. ... For a long time the standard method was simply to measure bones. The assumption was that domesticated animals become smaller than wild ones, and that a change in size in the archaeological record marks the moment of control. The trouble is that horse populations also vary in size according to climate and available grazing, so a smaller horse may just be a hungry horse. Bone measurement, on its own, tells us very little. ... A far better indicator turned out to be damage to the teeth. When a horse is ridden with a bit — the metal bar placed in the mouth — the second premolar develops a distinctive pattern of wear, because the animal repeatedly pushes the bit against that tooth. Wear of this kind has been identified on specimens from the Botai culture of northern Kazakhstan, dating to roughly three thousand five hundred BC. ... The Botai evidence is important for a second reason. Analysis of pottery fragments from the same sites detected residues of mare's milk. Milking, unlike riding, is very difficult to explain without domestication: you cannot milk a wild mare. So we have two independent lines of evidence pointing to the same conclusion. ... Now, genetics has complicated the picture in an interesting way. Recent work on ancient DNA suggests that the Botai horses are not, in fact, the ancestors of modern domestic horses. They appear instead to be related to Przewalski's horse, which we long assumed was the last truly wild horse but which may in fact be feral — descended from domestic animals that escaped. The ancestors of today's horses seem to come from a separate domestication in the region north of the Black Sea, around one thousand years later. ... The consequences of that second domestication were enormous. Horse traction made it possible to farm the heavy soils of northern Europe, and horse transport reduced the effective distance between settlements to the point where much larger political units became governable. It is not an exaggeration to say that the map of Eurasia was redrawn by an animal. ... That is the end of section four.",
+  items:[
+    {n:1, type:"gap", pre:"Older method: measuring the size of", post:"", a:["bones","bone"], why:"'For a long time the standard method was simply to measure bones.'"},
+    {n:2, type:"mc", q:"The lecturer says that bone size is unreliable because it is also affected by", opts:["climate and grazing","the age of the animal","the method of excavation"], a:0, why:"'Horse populations also vary in size according to climate and available grazing.'"},
+    {n:3, type:"gap", pre:"Better indicator: wear on the second", post:"", a:["premolar"], why:"'The second premolar develops a distinctive pattern of wear.'"},
+    {n:4, type:"gap", pre:"This wear is caused by the", post:"placed in the horse's mouth", a:["bit"], why:"The bit is 'the metal bar placed in the mouth'; the horse pushes it against the tooth."},
+    {n:5, type:"gap", pre:"Culture where such wear was found:", post:"", a:["botai"], why:"'Specimens from the Botai culture of northern Kazakhstan'."},
+    {n:6, type:"gap", pre:"Approximate date:", post:"BC", a:["3500","3,500"], why:"'Dating to roughly three thousand five hundred BC.'"},
+    {n:7, type:"mc", q:"Residues found in pottery at the same sites came from", opts:["horse blood","mare's milk","fermented grain"], a:1, why:"'Analysis of pottery fragments from the same sites detected residues of mare's milk.'"},
+    {n:8, type:"mc", q:"Ancient DNA suggests that Przewalski's horse may actually be", opts:["the direct ancestor of modern horses","a truly wild species","feral rather than wild"], a:2, why:"It 'may in fact be feral — descended from domestic animals that escaped'."},
+    {n:9, type:"mc", q:"The ancestors of modern domestic horses came from a region", opts:["north of the Black Sea","in northern Kazakhstan","in western Europe"], a:0, why:"'A separate domestication in the region north of the Black Sea, around one thousand years later.'"},
+    {n:10, type:"mc", q:"According to the lecturer, horse traction was especially important because it allowed farmers to work", opts:["heavy northern European soils","dry steppe grassland","terraced hillsides"], a:0, why:"'Horse traction made it possible to farm the heavy soils of northern Europe.'"}
+  ]
+}
+];
+
+/* ============ WRITING ============ */
+var WRITING = [
+{
+  id:"W1", task:1, minutes:20, minWords:150,
+  title:"Task 1 — Household energy use",
+  prompt:"The chart below shows the percentage of household energy used for four purposes in a European country in 1990 and 2020.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+  data:[
+    ["Purpose","1990","2020"],
+    ["Space heating","62%","48%"],
+    ["Water heating","18%","20%"],
+    ["Lighting and appliances","14%","26%"],
+    ["Cooking","6%","6%"]
+  ],
+  checks:[
+   "I wrote an introduction that paraphrases the question rather than copying it.",
+   "I included an overview paragraph stating the two or three biggest patterns, with no numbers in it.",
+   "Every body paragraph groups related data instead of listing every figure in order.",
+   "I quoted specific figures to support each comparison.",
+   "I used varied comparison language (rose to, fell by, remained unchanged, accounted for).",
+   "I did not explain causes or give opinions — Task 1 reports only what is shown.",
+   "I wrote at least 150 words."
+  ],
+  model:"The chart compares how households in one European country divided their energy consumption between four uses in 1990 and in 2020.\n\nOverall, space heating remained the dominant use in both years, but its share fell markedly, while the proportion consumed by lighting and appliances almost doubled. Water heating and cooking were comparatively stable.\n\nIn 1990, space heating accounted for 62 per cent of household energy, nearly two thirds of the total. By 2020 this had declined to 48 per cent, a fall of 14 percentage points, although it still consumed more than any other category. The reduction was mirrored by a sharp rise in lighting and appliances, which climbed from 14 per cent to 26 per cent and so moved from third place to second.\n\nThe remaining two categories changed little. Water heating rose modestly from 18 to 20 per cent, an increase of just two percentage points, while cooking was identical in both years at 6 per cent, making it consistently the smallest use of energy in the home.\n\n(178 words)",
+  tips:"Band 7 in Task 1 depends heavily on the overview. Examiners look for a separate sentence or short paragraph that names the main trends without listing figures — if it is missing, Task Achievement is capped at band 5. Note that 62% to 48% is a fall of 14 percentage points, not 14 per cent; precision of this kind lifts Lexical Resource."
+},
+{
+  id:"W2", task:2, minutes:40, minWords:250,
+  title:"Task 2 — Remote work and cities",
+  prompt:"In many countries, a large proportion of office employees now work from home for part of the week.\n\nDo the advantages of this development outweigh the disadvantages?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.",
+  checks:[
+   "My introduction paraphrases the topic and states my position clearly.",
+   "I answered the exact question asked — a 'do advantages outweigh' essay needs a verdict, not a neutral discussion.",
+   "Each body paragraph has one central idea, stated in a topic sentence.",
+   "I developed each idea with explanation and a specific example, not a list of points.",
+   "My position is the same in the introduction, the body and the conclusion.",
+   "I used cohesive devices without overusing them (no 'Firstly, Secondly, Thirdly, Lastly').",
+   "I used some less common vocabulary accurately rather than forcing memorised phrases.",
+   "I wrote at least 250 words."
+  ],
+  model:"The shift towards partial home working has changed the weekly routine of millions of office employees. Although it creates genuine difficulties for younger staff and for city centre economies, I believe its benefits are the greater, principally because it returns time and choice to individuals.\n\nThe clearest advantage is the elimination of commuting on at least some days. In large cities a daily journey of an hour in each direction is unremarkable, and removing it two or three times a week returns several hours to the employee. That time is not merely convenient: research on commuting consistently links long journeys to poorer health and lower reported life satisfaction. There is also a wider consequence, since fewer journeys mean lower transport emissions and less pressure on overcrowded networks at peak times.\n\nA second benefit is geographical. When attendance is required only twice a week, employees can live considerably further from the office, which opens up smaller towns where housing is affordable. In parts of my own country, this has begun to slow the drain of graduates towards the capital, because a well paid position no longer requires living beside it.\n\nThe disadvantages are real but, in my view, more manageable. Junior employees undoubtedly learn less when they cannot overhear experienced colleagues, and city centre cafés and shops have suffered from reduced weekday trade. However, the first problem can be addressed by concentrating in-person days around training and supervision, and the second reflects a redistribution of spending towards residential districts rather than its disappearance.\n\nOn balance, therefore, the advantages outweigh the drawbacks. The costs of home working fall on particular groups and can be reduced by deliberate policy, whereas the gains in time, health and regional balance are broad and durable.\n\n(287 words)",
+  tips:"The commonest reason a strong Task 2 essay stalls at band 6 is that it discusses both sides without ever answering the question. If the prompt says 'do the advantages outweigh', the essay must reach a verdict and defend it. Also note that the counter-argument paragraph here does not simply concede — it answers the objection, which is what Coherence and Cohesion rewards at band 7 and above."
+}
+];
+
+/* ============ SPEAKING ============ */
+var SPEAKING = [
+{
+  id:"S1", part:1, title:"Part 1 — Introduction and familiar topics", secs:{answer:30},
+  note:"The examiner asks about familiar subjects. Answers should be two or three sentences: a direct answer, then a reason or example. Do not rehearse a speech.",
+  sets:[
+    {topic:"Your home town", qs:["Where is your home town?","What do you like most about it?","Has it changed much in recent years?","Would you recommend it to a visitor? Why?"]},
+    {topic:"Study and work", qs:["Do you work or are you a student?","Why did you choose that subject or job?","What is the most difficult part of it?","What would you like to be doing in five years?"]},
+    {topic:"Technology", qs:["How often do you use a computer?","What do you mainly use your phone for?","Do you think you spend too much time online?","Has technology changed the way you keep in touch with friends?"]},
+    {topic:"Food", qs:["What kind of food do you enjoy?","Do you prefer eating at home or in restaurants?","Have your eating habits changed since childhood?","Is cooking a popular activity in your country?"]}
+  ]
+},
+{
+  id:"S2", part:2, title:"Part 2 — Individual long turn", secs:{prep:60, answer:120},
+  note:"You have one minute to prepare and may make notes. Then speak for one to two minutes. The examiner will not interrupt. Cover every bullet point — the final one usually carries the most marks because it invites evaluation.",
+  cards:[
+    {task:"Describe a skill you learned that was difficult at first.", bullets:["what the skill was","why you decided to learn it","how you practised it","and explain why it was difficult at the beginning"]},
+    {task:"Describe a place you visited that was quieter than you expected.", bullets:["where it was","when you went there","what you did there","and explain how the quietness affected your visit"]},
+    {task:"Describe a decision you made that other people disagreed with.", bullets:["what the decision was","who disagreed with it","why they disagreed","and explain whether you still think it was the right decision"]},
+    {task:"Describe a piece of technology you would find hard to live without.", bullets:["what it is","how long you have used it","what you use it for","and explain why giving it up would be difficult"]},
+    {task:"Describe a time when you had to be patient.", bullets:["what the situation was","who else was involved","how long you had to wait","and explain how you felt during that time"]}
+  ]
+},
+{
+  id:"S3", part:3, title:"Part 3 — Two-way discussion", secs:{answer:60},
+  note:"The examiner asks abstract questions linked to the Part 2 topic. Answers should be longer and more analytical: give a position, justify it, then consider an alternative view or an exception.",
+  sets:[
+    {topic:"Skills and learning", qs:["Do you think some skills are best learned young?","How has the way people learn practical skills changed?","Should schools spend more time on practical subjects?","Is it possible to teach creativity?"]},
+    {topic:"Cities and quiet", qs:["Why do some people prefer living in quiet places?","Should cities do more to reduce noise?","Do you think city life will become quieter in the future?","How does the environment where someone lives affect their behaviour?"]},
+    {topic:"Decisions and society", qs:["Are important decisions best made by individuals or groups?","Why do people sometimes regret decisions they were confident about?","Should young people be given more freedom to make their own choices?","How much should governments influence personal decisions?"]}
+  ]
+}
+];
+
+/* ============ VOCABULARY ============ */
+var VOCAB = [
+ {w:"albeit", pos:"conjunction", def:"although — used to introduce a qualification of what has just been said", ex:"The policy was successful, albeit at considerable cost.", coll:"albeit briefly · albeit slowly"},
+ {w:"mitigate", pos:"verb", def:"to make something bad less severe or harmful", ex:"Planting trees along the road mitigated the noise from traffic.", coll:"mitigate the effects / the impact / the risk"},
+ {w:"prevalent", pos:"adjective", def:"widespread or common in a particular place or at a particular time", ex:"This attitude is far more prevalent among younger workers.", coll:"increasingly prevalent · prevalent among"},
+ {w:"discrepancy", pos:"noun", def:"a difference between two things that should be the same", ex:"There is a striking discrepancy between the two sets of figures.", coll:"a marked / considerable discrepancy between"},
+ {w:"underpin", pos:"verb", def:"to form the basis or foundation of something", ex:"A stable legal system underpins economic growth.", coll:"underpin the argument / the theory / the economy"},
+ {w:"detrimental", pos:"adjective", def:"causing harm or damage", ex:"Long working hours are detrimental to family life.", coll:"detrimental to health / to the environment"},
+ {w:"substantial", pos:"adjective", def:"large in size, value or importance", ex:"The city received substantial funding for public transport.", coll:"a substantial increase / proportion / improvement"},
+ {w:"scrutiny", pos:"noun", def:"careful and critical examination", ex:"The proposal collapsed under closer scrutiny.", coll:"come under scrutiny · close / public scrutiny"},
+ {w:"viable", pos:"adjective", def:"capable of working successfully; feasible", ex:"Wind power is now a viable alternative in many regions.", coll:"a viable alternative / option / solution"},
+ {w:"disparity", pos:"noun", def:"a great difference, especially an unfair one", ex:"The disparity in income between the two regions has widened.", coll:"income / regional disparity · widening disparity"},
+ {w:"exacerbate", pos:"verb", def:"to make a problem worse", ex:"Cutting bus services exacerbated rural isolation.", coll:"exacerbate the problem / tensions / inequality"},
+ {w:"compelling", pos:"adjective", def:"convincing; commanding attention", ex:"There is compelling evidence that early intervention works.", coll:"compelling evidence / argument / reason"},
+ {w:"advocate", pos:"verb / noun", def:"to publicly recommend something; a person who does so", ex:"Several economists advocate raising the tax on fuel.", coll:"advocate a policy · a strong advocate of"},
+ {w:"inherent", pos:"adjective", def:"existing as a natural or permanent part of something", ex:"There are risks inherent in any large construction project.", coll:"inherent in · an inherent flaw / limitation"},
+ {w:"deteriorate", pos:"verb", def:"to become progressively worse", ex:"Air quality deteriorated sharply during the winter months.", coll:"deteriorate rapidly / steadily · conditions deteriorate"},
+ {w:"stringent", pos:"adjective", def:"strict and demanding, especially of rules", ex:"Stringent safety standards were introduced after the accident.", coll:"stringent regulations / controls / criteria"},
+ {w:"negligible", pos:"adjective", def:"so small as to be not worth considering", ex:"The difference between the two methods was negligible.", coll:"a negligible effect / amount / difference"},
+ {w:"attribute (to)", pos:"verb", def:"to regard something as being caused by someone or something", ex:"Researchers attribute the decline to changes in farming.", coll:"attribute X to Y · widely attributed to"},
+ {w:"proliferation", pos:"noun", def:"rapid increase in the number of something", ex:"The proliferation of delivery apps has changed city traffic.", coll:"the proliferation of · rapid proliferation"},
+ {w:"pragmatic", pos:"adjective", def:"dealing with matters in a practical rather than theoretical way", ex:"They took a pragmatic approach and fixed the worst problems first.", coll:"a pragmatic approach / solution"},
+ {w:"contentious", pos:"adjective", def:"causing or likely to cause disagreement", ex:"Road pricing remains a contentious issue in most cities.", coll:"a contentious issue / topic / claim"},
+ {w:"offset", pos:"verb", def:"to balance one effect against an opposing one", ex:"Higher fuel costs were offset by lower maintenance bills.", coll:"offset the cost / the loss / the increase"},
+ {w:"unprecedented", pos:"adjective", def:"never having happened before", ex:"The region experienced unprecedented levels of rainfall.", coll:"unprecedented growth / demand / scale"},
+ {w:"reluctant", pos:"adjective", def:"unwilling and hesitant", ex:"Many households are reluctant to give up their second car.", coll:"reluctant to do · increasingly reluctant"},
+ {w:"feasible", pos:"adjective", def:"possible to do easily or conveniently", ex:"It is not financially feasible to extend the line further.", coll:"technically / economically feasible"},
+ {w:"cumulative", pos:"adjective", def:"increasing by successive additions", ex:"The cumulative effect of small delays was significant.", coll:"cumulative effect / impact / total"},
+ {w:"comprehensive", pos:"adjective", def:"complete; including all or nearly all elements", ex:"The report offers a comprehensive review of the evidence.", coll:"a comprehensive review / survey / approach"},
+ {w:"anomaly", pos:"noun", def:"something that deviates from what is standard or expected", ex:"The 2019 figure is an anomaly and should be treated with caution.", coll:"a statistical anomaly · an apparent anomaly"},
+ {w:"consensus", pos:"noun", def:"general agreement among a group", ex:"There is now a broad consensus that the policy failed.", coll:"reach / build a consensus · broad consensus"},
+ {w:"paramount", pos:"adjective", def:"more important than anything else", ex:"Passenger safety is paramount in any transport decision.", coll:"of paramount importance · paramount concern"}
+];
+
+/* ===================== state & helpers ===================== */
+var view = document.getElementById("view"), foot = document.getElementById("foot"), footIn = document.getElementById("footIn");
+var chCount = document.getElementById("chCount"), chTime = document.getElementById("chTime");
+var mCur = document.getElementById("mCur"), mTot = document.getElementById("mTot"), mTime = document.getElementById("mTime");
+var chSub = document.getElementById("chSub");
+
+var S = { mode:null, test:null, qs:[], i:0, ans:{}, marks:{}, submitted:false, endAt:0, tick:null };
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function norm(s){ return String(s||"").trim().toLowerCase().replace(/[.,!?;:'"()]/g,"").replace(/\s+/g," "); }
+function fmt(sec){ sec=Math.max(0,sec|0); var m=(sec/60)|0, s=sec%60; return m+":"+(s<10?"0":"")+s; }
+function toggleNight(){ var d=document.documentElement, dark=d.getAttribute("data-theme")==="dark"; d.setAttribute("data-theme",dark?"light":"dark"); try{localStorage.setItem("ielts-theme",dark?"light":"dark");}catch(e){} }
+function toggleFull(){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); }
+try{ var st=localStorage.getItem("ielts-theme"); if(st) document.documentElement.setAttribute("data-theme",st); }catch(e){}
+
+function stopTimer(){ if(S.tick){ clearInterval(S.tick); S.tick=null; } chTime.hidden=true; chTime.classList.remove("low"); }
+function startTimer(mins, onEnd){
+  S.endAt = Date.now()+mins*60000; chTime.hidden=false;
+  var run=function(){
+    var left=Math.round((S.endAt-Date.now())/1000);
+    mTime.textContent=fmt(left);
+    chTime.classList.toggle("low", left<=300);
+    if(left<=0){ stopTimer(); onEnd&&onEnd(); }
+  };
+  run(); S.tick=setInterval(run,1000);
+}
+
+/* Band conversion — Academic Reading and Listening (standard public tables) */
+function bandFromRaw(raw, kind){
+  var T = kind==="listening"
+    ? [[39,9],[37,8.5],[35,8],[32,7.5],[30,7],[26,6.5],[23,6],[18,5.5],[16,5],[13,4.5],[10,4]]
+    : [[39,9],[37,8.5],[35,8],[33,7.5],[30,7],[27,6.5],[23,6],[19,5.5],[15,5],[13,4.5],[10,4]];
+  for(var i=0;i<T.length;i++) if(raw>=T[i][0]) return T[i][1];
+  return raw>=6?3.5:3;
+}
+/* Scale a short practice set onto the 40-question table so the band stays meaningful */
+function bandScaled(correct, total, kind){ return bandFromRaw(Math.round(correct/total*40), kind); }
+
+/* ===================== home ===================== */
+function home(){
+  stopTimer(); S.mode=null; foot.hidden=true; chCount.hidden=true;
+  chSub.textContent="Reading · Listening · Writing · Speaking · Vocabulary";
+  view.innerHTML =
+   '<div class="pane">'+
+    '<p class="eyebrow">IELTS Academic</p>'+
+    '<h1>Practice platform</h1>'+
+    '<p class="lede">Five practice modules built around the real test format: timed Reading and Listening with automatic band conversion, Writing with band descriptors and model answers, Speaking with the exam\'s own timings, and an academic vocabulary trainer. All material here is original and written for this site.</p>'+
+    '<div class="grid grid-3">'+
+      card("📖","Reading","Two full Academic passages, 26 questions across six task types. Split screen, 20 minutes each, band score on submission.","openReadingMenu()")+
+      card("🎧","Listening","Two sections spoken aloud by your browser. Play once, answer as you listen — exactly as in the test.","openListeningMenu()")+
+      card("✍️","Writing","Task 1 and Task 2 with countdown, live word count, a band descriptor checklist and a full model answer.","openWritingMenu()")+
+      card("🗣️","Speaking","Parts 1–3 with the real timings: one minute preparation, two minute long turn. Optional voice recording.","openSpeakingMenu()")+
+      card("🎯","Vocabulary","Thirty high-value academic words with definitions, collocations and example sentences, as flashcards.","openVocab()")+
+      card("📊","Band tables","How raw scores convert to band scores in Reading and Listening, and how the overall band is rounded.","openBands()")+
+    '</div>'+
+   '</div>';
+}
+function card(icon,title,desc,onclick){
+  return '<div class="card pick" onclick="'+onclick+'" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'){'+onclick+'}">'+
+    '<div class="n">'+icon+'</div><h3>'+esc(title)+'</h3><p style="color:var(--ink-2);font-size:16px;margin:0">'+esc(desc)+'</p></div>';
+}
+
+/* ===================== READING ===================== */
+function openReadingMenu(){
+  chSub.textContent="Academic Reading";
+  view.innerHTML='<div class="pane"><p class="eyebrow">Academic Reading</p><h1>Choose a passage</h1>'+
+   '<p class="lede">In the full test you answer 40 questions in 60 minutes across three passages, with no extra time to transfer answers. Each passage below is timed at 20 minutes, the pace you need to sustain.</p>'+
+   '<div class="grid grid-2">'+READING.map(function(r,i){
+     var n=r.groups.reduce(function(a,g){return a+g.items.length;},0);
+     return '<div class="card pick" onclick="startReading('+i+')" role="button" tabindex="0"><div class="n">PASSAGE '+(i+1)+'</div><h3>'+esc(r.title)+'</h3>'+
+      '<p style="color:var(--ink-2);font-size:16px;margin:0">'+n+' questions · '+r.minutes+' minutes</p>'+
+      '<p style="color:var(--ink-3);font-size:14px;margin:0">'+r.groups.map(function(g){return typeLabel(g);}).join(" · ")+'</p></div>';
+   }).join("")+'</div>'+
+   '<div class="btnrow" style="margin-top:18px"><button onclick="home()">← Back</button></div></div>';
+}
+function typeLabel(g){
+  if(g.type==="tfng") return g.ynng?"Yes/No/Not Given":"True/False/Not Given";
+  if(g.type==="para") return "Matching information";
+  if(g.type==="gap") return "Sentence completion";
+  if(g.type==="mc") return "Multiple choice";
+  if(g.type==="summary") return "Summary completion";
+  return g.type;
+}
+function startReading(idx){
+  S.mode="reading"; S.test=READING[idx]; S.ans={}; S.submitted=false;
+  S.qs=[]; S.test.groups.forEach(function(g){ g.items.forEach(function(it){ S.qs.push({g:g,it:it}); }); });
+  chSub.textContent="Academic Reading — "+S.test.title;
+  startTimer(S.test.minutes, function(){ submitReading(); });
+  renderReading();
+}
+function renderReading(){
+  var t=S.test;
+  var passage='<div class="passage"><h3>'+esc(t.title)+'</h3><p class="hint" style="margin-bottom:14px">'+esc(t.intro)+'</p><div class="ptext">'+
+    t.paras.map(function(p){ return '<p><span class="para-label">'+p[0]+'</span>'+esc(p[1])+'</p>'; }).join("")+'</div></div>';
+  var qhtml=t.groups.map(function(g){
+    return '<div class="qgroup"><p class="grp-head">'+esc(g.head)+'</p><p class="grp-instr">'+esc(g.instr)+'</p>'+
+      (g.title?'<p style="font-weight:600;margin:0 0 10px">'+esc(g.title)+'</p>':'')+
+      g.items.map(function(it){ return renderQ(g,it); }).join("")+'</div>';
+  }).join("");
+  view.innerHTML='<div class="split">'+passage+'<div class="qpanel">'+qhtml+'</div></div>';
+  foot.hidden=false;
+  footIn.innerHTML='<div class="palette">'+S.qs.map(function(q){
+      var done=S.ans[q.it.n]!=null&&S.ans[q.it.n]!=="";
+      return '<button class="'+(done?"done":"")+'" onclick="jumpQ('+q.it.n+')">'+q.it.n+'</button>';
+    }).join("")+'</div><span class="spacer"></span>'+
+    '<button class="primary" onclick="submitReading()">Submit answers</button>'+
+    '<button class="danger" onclick="if(confirm(\'Leave this passage? Your answers will be lost.\'))home()">Quit</button>';
+  chCount.hidden=false; mTot.textContent=S.qs.length; mCur.textContent=Object.keys(S.ans).filter(function(k){return S.ans[k]!==""&&S.ans[k]!=null;}).length;
+}
+function renderQ(g,it){
+  var n=it.n, v=S.ans[n];
+  var head='<div class="qrow" id="q'+n+'"><div class="qn">QUESTION '+n+'</div>';
+  if(g.type==="tfng"){
+    var opts=g.ynng?["YES","NO","NOT GIVEN"]:["TRUE","FALSE","NOT GIVEN"];
+    return head+'<div class="qt">'+esc(it.q)+'</div><div class="inline-opts">'+
+      opts.map(function(o){ return '<button class="'+(v===o?"sel":"")+'" onclick="setAns('+n+',\''+o+'\')">'+o+'</button>'; }).join("")+'</div></div>';
+  }
+  if(g.type==="para"){
+    return head+'<div class="qt">'+esc(it.q)+'</div><div class="inline-opts">'+
+      g.letters.map(function(L){ return '<button class="'+(v===L?"sel":"")+'" onclick="setAns('+n+',\''+L+'\')">'+L+'</button>'; }).join("")+'</div></div>';
+  }
+  if(g.type==="mc"){
+    return head+'<div class="qt">'+esc(it.q)+'</div><div class="opts">'+
+      it.opts.map(function(o,i){
+        return '<label class="opt'+(v===i?" sel":"")+'"><input type="radio" name="q'+n+'" '+(v===i?"checked":"")+' onchange="setAns('+n+','+i+')"><span class="lt">'+"ABCD"[i]+'</span><span>'+esc(o)+'</span></label>';
+      }).join("")+'</div></div>';
+  }
+  /* gap / summary */
+  return head+'<div class="qt">'+esc(it.pre||"")+' <input class="gap" type="text" value="'+esc(v||"")+'" oninput="setAns('+n+',this.value)" autocomplete="off" spellcheck="false"> '+esc(it.post||"")+'</div></div>';
+}
+function setAns(n,v){ S.ans[n]=v; if(S.mode==="reading") refreshPalette(); else if(S.mode==="listening") refreshPalette(); syncSelections(); }
+function syncSelections(){
+  /* re-render only the inline button states, keeping typed text intact */
+  S.qs.forEach(function(q){
+    var el=document.getElementById("q"+q.it.n); if(!el) return;
+    var btns=el.querySelectorAll(".inline-opts button");
+    btns.forEach(function(b){ b.classList.toggle("sel", b.textContent===String(S.ans[q.it.n])); });
+    var labels=el.querySelectorAll(".opt");
+    labels.forEach(function(l,i){ l.classList.toggle("sel", S.ans[q.it.n]===i); });
+  });
+}
+function refreshPalette(){
+  var btns=footIn.querySelectorAll(".palette button");
+  S.qs.forEach(function(q,i){ if(btns[i]) btns[i].classList.toggle("done", S.ans[q.it.n]!=null&&S.ans[q.it.n]!==""); });
+  mCur.textContent=Object.keys(S.ans).filter(function(k){return S.ans[k]!==""&&S.ans[k]!=null;}).length;
+}
+function jumpQ(n){ var el=document.getElementById("q"+n); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); }
+
+function gradeItem(g,it){
+  var v=S.ans[it.n];
+  if(g.type==="mc") return v===it.a;
+  if(g.type==="tfng"||g.type==="para") return String(v||"")===it.a;
+  return (it.a||[]).some(function(x){ return norm(x)===norm(v); });
+}
+function submitReading(){
+  if(S.submitted) return;
+  if(!S.submitted && Object.keys(S.ans).length<S.qs.length && !confirm("You have not answered every question. Submit anyway?")) return;
+  S.submitted=true; stopTimer(); foot.hidden=true; chCount.hidden=true;
+  var correct=0, rows=[];
+  S.test.groups.forEach(function(g){ g.items.forEach(function(it){
+    var ok=gradeItem(g,it); if(ok) correct++;
+    rows.push({g:g,it:it,ok:ok,given:S.ans[it.n]});
+  }); });
+  var total=S.qs.length, band=bandScaled(correct,total,"reading");
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Result — '+esc(S.test.title)+'</p><h1>'+correct+' of '+total+' correct</h1>'+
+    '<div class="grid grid-4" style="margin:18px 0 6px">'+
+      '<div class="stat"><div class="k">Raw score</div><div class="v">'+correct+'/'+total+'</div></div>'+
+      '<div class="stat"><div class="k">Equivalent band</div><div class="v band-big" style="font-size:32px">'+band.toFixed(1)+'</div></div>'+
+      '<div class="stat"><div class="k">Accuracy</div><div class="v '+(correct/total>=.7?"ok":"bad")+'">'+Math.round(correct/total*100)+'%</div></div>'+
+      '<div class="stat"><div class="k">Scaled from</div><div class="v" style="font-size:20px">'+total+' → 40 questions</div></div>'+
+    '</div>'+
+    '<p class="hint">The band shown scales this practice set onto the official 40-question Academic Reading table. A full test uses your real raw score out of 40.</p>'+
+   '</div>'+
+   '<div class="pane"><h2>Answer review</h2>'+rows.map(function(r){
+      var given=r.given==null||r.given===""?"(no answer)":(r.g.type==="mc"?"ABCD"[r.given]+". "+r.it.opts[r.given]:r.given);
+      var right=r.g.type==="mc"?"ABCD"[r.it.a]+". "+r.it.opts[r.it.a]:(Array.isArray(r.it.a)?r.it.a[0]:r.it.a);
+      var qtext=r.it.q||((r.it.pre||"")+" ______ "+(r.it.post||""));
+      return '<div class="rev '+(r.ok?"right":"wrong")+'">'+
+        '<span class="pill '+(r.ok?"ok":"bad")+'">Q'+r.it.n+' '+(r.ok?"correct":"incorrect")+'</span>'+
+        '<p class="rq">'+esc(qtext)+'</p>'+
+        '<p class="ans"><b>Your answer:</b> '+esc(given)+'</p>'+
+        (r.ok?"":'<p class="ans"><b>Correct answer:</b> '+esc(right)+'</p>')+
+        '<div class="exp">'+esc(r.it.why)+'</div></div>';
+    }).join("")+'</div>'+
+   '<div class="pane"><div class="btnrow"><button class="primary" onclick="openReadingMenu()">Another passage</button><button onclick="home()">Home</button></div></div>';
+  window.scrollTo(0,0);
+}
+
+/* ===================== LISTENING ===================== */
+function openListeningMenu(){
+  chSub.textContent="Listening";
+  var ok = "speechSynthesis" in window;
+  view.innerHTML='<div class="pane"><p class="eyebrow">Listening</p><h1>Choose a section</h1>'+
+   '<p class="lede">Each recording is spoken aloud by your browser\'s speech engine. As in the real test the audio plays once and you answer while you listen. Read the questions during the pause before the recording starts.</p>'+
+   (ok?"":'<div class="notice">Your browser does not expose a speech engine, so the audio cannot play. The transcript is shown instead so you can still practise the question types.</div>')+
+   '<div class="grid grid-2">'+LISTENING.map(function(l,i){
+     return '<div class="card pick" onclick="startListening('+i+')" role="button" tabindex="0"><div class="n">'+esc(l.id)+'</div><h3>'+esc(l.title)+'</h3>'+
+      '<p style="color:var(--ink-2);font-size:16px;margin:0">'+l.items.length+' questions</p>'+
+      '<p style="color:var(--ink-3);font-size:14px;margin:0">'+esc(l.blurb)+'</p></div>';
+   }).join("")+'</div>'+
+   '<div class="btnrow" style="margin-top:18px"><button onclick="home()">← Back</button></div></div>';
+}
+var LS = { utter:null, playing:false, done:false };
+function startListening(idx){
+  S.mode="listening"; S.test=LISTENING[idx]; S.ans={}; S.submitted=false;
+  S.qs=S.test.items.map(function(it){ return {g:{type:it.type},it:it}; });
+  LS.playing=false; LS.done=false;
+  chSub.textContent="Listening — "+S.test.title;
+  renderListening();
+}
+function renderListening(){
+  var t=S.test;
+  var qhtml=t.items.map(function(it){ return renderQ({type:it.type, letters:null}, it); }).join("");
+  view.innerHTML='<div class="pane">'+
+      '<p class="eyebrow">'+esc(t.id)+'</p><h1>'+esc(t.title)+'</h1>'+
+      '<div class="notice">'+esc(t.blurb)+'</div>'+
+      '<div class="btnrow" id="lsControls">'+
+        '<button class="primary" id="btnPlay" onclick="playAudio()">▶ Play recording (once)</button>'+
+        '<button onclick="stopAudio()">■ Stop</button>'+
+        '<span class="hint" id="lsState">Not started</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="pane"><h2>Questions 1–'+t.items.length+'</h2>'+qhtml+'</div>';
+  foot.hidden=false;
+  footIn.innerHTML='<div class="palette">'+S.qs.map(function(q){
+      return '<button onclick="jumpQ('+q.it.n+')">'+q.it.n+'</button>';
+    }).join("")+'</div><span class="spacer"></span>'+
+    '<button class="primary" onclick="submitListening()">Submit answers</button>'+
+    '<button onclick="showTranscript()">Show transcript</button>'+
+    '<button class="danger" onclick="if(confirm(\'Leave this section?\'))(stopAudio(),home())">Quit</button>';
+  chCount.hidden=false; mTot.textContent=S.qs.length; mCur.textContent=0;
+}
+function playAudio(){
+  if(!("speechSynthesis" in window)){ showTranscript(); return; }
+  if(LS.done){ alert("In the real test the recording plays only once. Submit your answers, then use Show transcript to check."); return; }
+  if(LS.playing) return;
+  var u=new SpeechSynthesisUtterance(S.test.script);
+  u.rate=0.92; u.pitch=1; u.lang="en-GB";
+  var vs=speechSynthesis.getVoices(), pick=vs.find(function(v){return /en-GB/i.test(v.lang);})||vs.find(function(v){return /^en/i.test(v.lang);});
+  if(pick) u.voice=pick;
+  u.onend=function(){ LS.playing=false; LS.done=true; setState("Recording finished"); document.getElementById("btnPlay").disabled=true; };
+  u.onerror=function(){ LS.playing=false; setState("Playback failed — use Show transcript"); };
+  LS.utter=u; LS.playing=true; setState("Playing…");
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function setState(s){ var el=document.getElementById("lsState"); if(el) el.textContent=s; }
+function stopAudio(){ if("speechSynthesis" in window) speechSynthesis.cancel(); LS.playing=false; setState(LS.done?"Recording finished":"Stopped"); }
+function showTranscript(){
+  var w=document.getElementById("lsTranscript");
+  if(w){ w.scrollIntoView({behavior:"smooth"}); return; }
+  var d=document.createElement("div"); d.className="pane"; d.id="lsTranscript";
+  d.innerHTML='<h2>Transcript</h2><div class="exhibit">'+esc(S.test.script).replace(/\.\.\./g,"<br><br>")+'</div>';
+  view.appendChild(d); d.scrollIntoView({behavior:"smooth"});
+}
+function submitListening(){
+  if(S.submitted) return;
+  S.submitted=true; stopAudio(); foot.hidden=true; chCount.hidden=true;
+  var correct=0, rows=[];
+  S.test.items.forEach(function(it){
+    var g={type:it.type};
+    var ok=gradeItem(g,it); if(ok) correct++;
+    rows.push({g:g,it:it,ok:ok,given:S.ans[it.n]});
+  });
+  var total=S.qs.length, band=bandScaled(correct,total,"listening");
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Result — '+esc(S.test.title)+'</p><h1>'+correct+' of '+total+' correct</h1>'+
+    '<div class="grid grid-3" style="margin:18px 0 6px">'+
+      '<div class="stat"><div class="k">Raw score</div><div class="v">'+correct+'/'+total+'</div></div>'+
+      '<div class="stat"><div class="k">Equivalent band</div><div class="v" style="font-size:32px;color:var(--accent)">'+band.toFixed(1)+'</div></div>'+
+      '<div class="stat"><div class="k">Accuracy</div><div class="v '+(correct/total>=.7?"ok":"bad")+'">'+Math.round(correct/total*100)+'%</div></div>'+
+    '</div>'+
+    '<p class="hint">Spelling counts in Listening: a correct word spelled wrongly scores zero. Check plurals too.</p>'+
+   '</div>'+
+   '<div class="pane"><h2>Answer review</h2>'+rows.map(function(r){
+      var given=r.given==null||r.given===""?"(no answer)":(r.g.type==="mc"?"ABC"[r.given]+". "+r.it.opts[r.given]:r.given);
+      var right=r.g.type==="mc"?"ABC"[r.it.a]+". "+r.it.opts[r.it.a]:(Array.isArray(r.it.a)?r.it.a[0]:r.it.a);
+      var qtext=r.it.q||((r.it.pre||"")+" ______ "+(r.it.post||""));
+      return '<div class="rev '+(r.ok?"right":"wrong")+'">'+
+        '<span class="pill '+(r.ok?"ok":"bad")+'">Q'+r.it.n+' '+(r.ok?"correct":"incorrect")+'</span>'+
+        '<p class="rq">'+esc(qtext)+'</p>'+
+        '<p class="ans"><b>Your answer:</b> '+esc(given)+'</p>'+
+        (r.ok?"":'<p class="ans"><b>Correct answer:</b> '+esc(right)+'</p>')+
+        '<div class="exp">'+esc(r.it.why)+'</div></div>';
+    }).join("")+'</div>'+
+   '<div class="pane"><h2>Transcript</h2><div class="exhibit">'+esc(S.test.script).replace(/\.\.\./g,"<br><br>")+'</div></div>'+
+   '<div class="pane"><div class="btnrow"><button class="primary" onclick="openListeningMenu()">Another section</button><button onclick="home()">Home</button></div></div>';
+  window.scrollTo(0,0);
+}
+
+/* ===================== WRITING ===================== */
+function openWritingMenu(){
+  chSub.textContent="Writing";
+  view.innerHTML='<div class="pane"><p class="eyebrow">Writing</p><h1>Choose a task</h1>'+
+   '<p class="lede">In the real test both tasks are done in 60 minutes: 20 for Task 1 and 40 for Task 2, which carries twice the marks. Write to the timer here — running out of time is the most common reason for an unfinished, low-scoring Task 2.</p>'+
+   '<div class="grid grid-2">'+WRITING.map(function(w,i){
+     return '<div class="card pick" onclick="startWriting('+i+')" role="button" tabindex="0"><div class="n">TASK '+w.task+'</div><h3>'+esc(w.title)+'</h3>'+
+      '<p style="color:var(--ink-2);font-size:16px;margin:0">'+w.minutes+' minutes · minimum '+w.minWords+' words</p></div>';
+   }).join("")+'</div>'+
+   '<div class="btnrow" style="margin-top:18px"><button onclick="home()">← Back</button></div></div>';
+}
+function startWriting(idx){
+  S.mode="writing"; S.test=WRITING[idx]; S.submitted=false;
+  chSub.textContent="Writing — "+S.test.title;
+  var w=S.test;
+  var dataTable = w.data ? '<table style="margin:6px 0 16px"><thead><tr>'+w.data[0].map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+'</tr></thead><tbody>'+
+      w.data.slice(1).map(function(r){ return "<tr>"+r.map(function(c,i){ return i===0?"<td>"+esc(c)+"</td>":'<td class="num">'+esc(c)+"</td>"; }).join("")+"</tr>"; }).join("")+'</tbody></table>' : "";
+  view.innerHTML='<div class="wr-wrap">'+
+    '<div class="wr-prompt">'+
+      '<p class="eyebrow">Task '+w.task+' · '+w.minutes+' minutes</p>'+
+      '<h3>'+esc(w.title)+'</h3>'+
+      '<p style="white-space:pre-line;font-size:16.5px">'+esc(w.prompt)+'</p>'+
+      dataTable+
+      '<h2 style="margin-top:20px">Before you submit</h2>'+
+      w.checks.map(function(c,i){ return '<label class="chk"><input type="checkbox" id="chk'+i+'"><span>'+esc(c)+'</span></label>'; }).join("")+
+    '</div>'+
+    '<div class="wr-editor">'+
+      '<textarea id="wrText" placeholder="Write your answer here…" oninput="countWords()"></textarea>'+
+      '<div class="wc"><span>Words: <b id="wcN">0</b></span><span id="wcMsg" class="short">minimum '+w.minWords+'</span><span>Paragraphs: <b id="wcP">0</b></span></div>'+
+      '<div class="btnrow" style="margin-top:14px">'+
+        '<button class="primary" onclick="finishWriting()">Finish &amp; see model answer</button>'+
+        '<button onclick="if(confirm(\'Leave this task? Your text will be lost.\'))home()">Quit</button>'+
+      '</div>'+
+    '</div>'+
+   '</div>';
+  foot.hidden=true;
+  startTimer(w.minutes, function(){ alert("Time is up. In the real test you would have to stop writing now."); });
+  countWords();
+}
+function countWords(){
+  var t=document.getElementById("wrText"); if(!t) return;
+  var words=t.value.trim()?t.value.trim().split(/\s+/).length:0;
+  var paras=t.value.trim()?t.value.trim().split(/\n\s*\n/).filter(function(p){return p.trim();}).length:0;
+  document.getElementById("wcN").textContent=words;
+  document.getElementById("wcP").textContent=paras;
+  var msg=document.getElementById("wcMsg"), min=S.test.minWords;
+  if(words>=min){ msg.textContent="minimum met"; msg.className="good"; }
+  else { msg.textContent=(min-words)+" more to reach "+min; msg.className="short"; }
+}
+function finishWriting(){
+  var t=document.getElementById("wrText"), text=t?t.value:"";
+  var words=text.trim()?text.trim().split(/\s+/).length:0;
+  stopTimer();
+  var w=S.test;
+  var penalty=words<w.minWords;
+  view.innerHTML='<div class="pane">'+
+     '<p class="eyebrow">'+esc(w.title)+'</p><h1>Your answer</h1>'+
+     '<div class="grid grid-3" style="margin:14px 0">'+
+       '<div class="stat"><div class="k">Words written</div><div class="v '+(penalty?"bad":"ok")+'">'+words+'</div></div>'+
+       '<div class="stat"><div class="k">Minimum</div><div class="v" style="font-size:22px">'+w.minWords+'</div></div>'+
+       '<div class="stat"><div class="k">Under-length penalty</div><div class="v" style="font-size:22px">'+(penalty?"Yes":"No")+'</div></div>'+
+     '</div>'+
+     (penalty?'<div class="notice">Answers below the word minimum are penalised under Task Achievement regardless of quality. Aim for roughly 20 words above the minimum, not far above — length alone earns nothing.</div>':"")+
+     '<div class="model" style="white-space:pre-wrap;font-family:var(--ui)">'+esc(text||"(nothing written)")+'</div>'+
+   '</div>'+
+   '<div class="pane"><h2>Model answer</h2><div class="model" style="white-space:pre-line">'+esc(w.model)+'</div></div>'+
+   '<div class="pane"><h2>What the examiner is looking for</h2><p style="color:var(--ink-2)">'+esc(w.tips)+'</p>'+
+     '<h2 style="margin-top:18px">Band descriptors — the four criteria</h2>'+
+     bandDescriptors(w.task)+
+   '</div>'+
+   '<div class="pane"><div class="btnrow"><button class="primary" onclick="openWritingMenu()">Another task</button><button onclick="home()">Home</button></div></div>';
+  window.scrollTo(0,0);
+}
+function bandDescriptors(task){
+  var rows=[
+   ["Task "+(task===1?"Achievement":"Response"), task===1
+     ? "Covers the requirements; presents a clear overview of main trends; highlights key features with accurate data."
+     : "Addresses all parts of the question; presents a clear position throughout; extends and supports main ideas."],
+   ["Coherence and Cohesion","Logical progression throughout; paragraphs used appropriately; cohesive devices used flexibly rather than mechanically."],
+   ["Lexical Resource","Sufficient range for some flexibility and precision; some less common items; occasional errors in word choice or collocation."],
+   ["Grammatical Range and Accuracy","A variety of complex structures; frequent error-free sentences; good control of grammar and punctuation."]
+  ];
+  return '<table><thead><tr><th>Criterion (25% each)</th><th>What band 7 looks like</th></tr></thead><tbody>'+
+    rows.map(function(r){ return "<tr><td><b>"+esc(r[0])+"</b></td><td style='color:var(--ink-2)'>"+esc(r[1])+"</td></tr>"; }).join("")+'</tbody></table>';
+}
+
+/* ===================== SPEAKING ===================== */
+function openSpeakingMenu(){
+  chSub.textContent="Speaking";
+  view.innerHTML='<div class="pane"><p class="eyebrow">Speaking</p><h1>Choose a part</h1>'+
+   '<p class="lede">The speaking test lasts 11–14 minutes in three parts. Practise with the real timings — candidates most often lose marks in Part 2 by stopping after forty seconds.</p>'+
+   '<div class="grid grid-3">'+SPEAKING.map(function(s,i){
+     return '<div class="card pick" onclick="startSpeaking('+i+')" role="button" tabindex="0"><div class="n">PART '+s.part+'</div><h3>'+esc(s.title.replace(/^Part \d+ — /,""))+'</h3>'+
+      '<p style="color:var(--ink-2);font-size:15.5px;margin:0">'+esc(s.note.slice(0,110))+'…</p></div>';
+   }).join("")+'</div>'+
+   '<div class="btnrow" style="margin-top:18px"><button onclick="home()">← Back</button></div></div>';
+}
+var SP={ t:null, left:0, rec:null, chunks:[], stream:null };
+function startSpeaking(idx){
+  S.mode="speaking"; S.test=SPEAKING[idx];
+  chSub.textContent="Speaking — "+S.test.title;
+  spStop();
+  var s=S.test;
+  if(s.part===2){
+    var c=s.cards[Math.floor(Math.random()*s.cards.length)];
+    view.innerHTML='<div class="pane"><p class="eyebrow">Part 2 · long turn</p><h1>Candidate task card</h1>'+
+      '<div class="notice">'+esc(s.note)+'</div>'+
+      '<div class="cue"><b>'+esc(c.task)+'</b><p style="margin:10px 0 0">You should say:</p><ul>'+c.bullets.map(function(b){return "<li>"+esc(b)+"</li>";}).join("")+'</ul></div>'+
+      '<div class="big-timer" id="spTime">1:00</div><div class="phase" id="spPhase">Preparation — make notes</div>'+
+      '<div class="btnrow" style="margin-top:14px;justify-content:center">'+
+        '<button class="primary" onclick="spRun(\'prep\')">Start 1 min preparation</button>'+
+        '<button onclick="spRun(\'answer\')">Skip to 2 min talk</button>'+
+        '<button onclick="spNewCard()">New card</button>'+
+        '<button onclick="spRecordToggle()" id="spRecBtn">● Record</button>'+
+      '</div>'+
+      '<div id="spAudio"></div>'+
+      '<label class="fld" style="margin-top:18px"><span>Your notes</span><textarea rows="5" placeholder="Jot key words only — full sentences waste your minute."></textarea></label>'+
+     '</div>'+
+     '<div class="pane"><div class="btnrow"><button onclick="openSpeakingMenu()">← Back</button><button onclick="home()">Home</button></div></div>';
+    return;
+  }
+  var set=s.sets[Math.floor(Math.random()*s.sets.length)];
+  view.innerHTML='<div class="pane"><p class="eyebrow">Part '+s.part+'</p><h1>'+esc(set.topic)+'</h1>'+
+    '<div class="notice">'+esc(s.note)+'</div>'+
+    set.qs.map(function(q,i){ return '<div class="qrow"><div class="qn">QUESTION '+(i+1)+'</div><div class="qt">'+esc(q)+'</div></div>'; }).join("")+
+    '<div class="big-timer" id="spTime">'+fmt(s.secs.answer)+'</div><div class="phase" id="spPhase">Answer time per question</div>'+
+    '<div class="btnrow" style="margin-top:14px;justify-content:center">'+
+      '<button class="primary" onclick="spRun(\'answer\')">Start timer</button>'+
+      '<button onclick="startSpeaking('+idx+')">New topic</button>'+
+      '<button onclick="spRecordToggle()" id="spRecBtn">● Record</button>'+
+    '</div><div id="spAudio"></div>'+
+   '</div>'+
+   '<div class="pane"><div class="btnrow"><button onclick="openSpeakingMenu()">← Back</button><button onclick="home()">Home</button></div></div>';
+}
+function spNewCard(){ startSpeaking(SPEAKING.indexOf(S.test)); }
+function spRun(phase){
+  spStopTimer();
+  var s=S.test, secs = phase==="prep" ? (s.secs.prep||60) : (s.secs.answer||120);
+  var label = phase==="prep" ? "Preparation — make notes" : (s.part===2?"Speak now — aim for the full two minutes":"Answer time per question");
+  document.getElementById("spPhase").textContent=label;
+  SP.left=secs;
+  var el=document.getElementById("spTime");
+  var draw=function(){
+    el.textContent=fmt(SP.left);
+    el.classList.toggle("warn", SP.left<=10);
+    if(SP.left<=0){
+      spStopTimer();
+      if(phase==="prep" && s.part===2){ spRun("answer"); return; }
+      document.getElementById("spPhase").textContent="Time up";
+    }
+    SP.left--;
+  };
+  draw(); SP.t=setInterval(draw,1000);
+}
+function spStopTimer(){ if(SP.t){ clearInterval(SP.t); SP.t=null; } }
+function spStop(){ spStopTimer(); if(SP.rec&&SP.rec.state==="recording") SP.rec.stop(); if(SP.stream) SP.stream.getTracks().forEach(function(t){t.stop();}); SP.stream=null; SP.rec=null; }
+function spRecordToggle(){
+  var btn=document.getElementById("spRecBtn");
+  if(SP.rec&&SP.rec.state==="recording"){ SP.rec.stop(); return; }
+  if(!navigator.mediaDevices||!window.MediaRecorder){ alert("Recording is not supported in this browser."); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    SP.stream=stream; SP.chunks=[];
+    var r=new MediaRecorder(stream); SP.rec=r;
+    r.ondataavailable=function(e){ if(e.data.size) SP.chunks.push(e.data); };
+    r.onstop=function(){
+      var blob=new Blob(SP.chunks,{type:r.mimeType||"audio/webm"});
+      var url=URL.createObjectURL(blob);
+      document.getElementById("spAudio").innerHTML='<audio controls src="'+url+'"></audio><p class="hint">Listen back for hesitation, repeated fillers and whether you answered every bullet point.</p>';
+      btn.textContent="● Record"; btn.classList.remove("primary");
+      if(SP.stream) SP.stream.getTracks().forEach(function(t){t.stop();});
+      SP.stream=null;
+    };
+    r.start(); btn.textContent="■ Stop recording"; btn.classList.add("primary");
+  }).catch(function(){ alert("Microphone access was refused."); });
+}
+
+/* ===================== VOCABULARY ===================== */
+var VS={ i:0, flipped:false, order:[] };
+function openVocab(){
+  chSub.textContent="Academic vocabulary";
+  VS.order=VOCAB.map(function(_,i){return i;}).sort(function(){return Math.random()-.5;});
+  VS.i=0; VS.flipped=false; renderCard();
+}
+function renderCard(){
+  var v=VOCAB[VS.order[VS.i]];
+  view.innerHTML='<div class="pane">'+
+    '<p class="eyebrow">Academic vocabulary · card '+(VS.i+1)+' of '+VOCAB.length+'</p>'+
+    '<div class="flash" onclick="flipCard()" role="button" tabindex="0" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();flipCard()}">'+
+      (VS.flipped
+        ? '<div class="word">'+esc(v.w)+'</div><div class="pos">'+esc(v.pos)+'</div>'+
+          '<div class="def">'+esc(v.def)+'</div><div class="ex">"'+esc(v.ex)+'"</div>'+
+          '<div class="coll">'+esc(v.coll)+'</div>'
+        : '<div class="word">'+esc(v.w)+'</div><div class="pos">'+esc(v.pos)+'</div><div class="tap">click or press space to reveal</div>')+
+    '</div>'+
+    '<div class="btnrow" style="margin-top:16px;justify-content:center">'+
+      '<button onclick="cardStep(-1)">← Previous</button>'+
+      '<button class="primary" onclick="flipCard()">'+(VS.flipped?"Hide":"Reveal")+'</button>'+
+      '<button onclick="cardStep(1)">Next →</button>'+
+      '<button onclick="openVocab()">Shuffle</button>'+
+      '<button onclick="vocabList()">View all as a list</button>'+
+    '</div>'+
+   '</div>'+
+   '<div class="pane"><div class="btnrow"><button onclick="home()">← Home</button></div></div>';
+}
+function flipCard(){ VS.flipped=!VS.flipped; renderCard(); }
+function cardStep(d){ VS.i=(VS.i+d+VOCAB.length)%VOCAB.length; VS.flipped=false; renderCard(); }
+function vocabList(){
+  view.innerHTML='<div class="pane"><p class="eyebrow">Academic vocabulary</p><h1>All '+VOCAB.length+' words</h1>'+
+   '<table><thead><tr><th>Word</th><th>Part of speech</th><th>Meaning</th><th>Collocations</th></tr></thead><tbody>'+
+   VOCAB.map(function(v){ return "<tr><td><b>"+esc(v.w)+"</b></td><td class='num'>"+esc(v.pos)+"</td><td style='color:var(--ink-2)'>"+esc(v.def)+"</td><td style='color:var(--accent);font-family:var(--mono);font-size:13.5px'>"+esc(v.coll)+"</td></tr>"; }).join("")+
+   '</tbody></table>'+
+   '<div class="btnrow" style="margin-top:18px"><button class="primary" onclick="openVocab()">Back to flashcards</button><button onclick="home()">Home</button></div></div>';
+}
+
+/* ===================== BAND TABLES ===================== */
+function openBands(){
+  chSub.textContent="Band score tables";
+  var read=[[39,9],[37,8.5],[35,8],[33,7.5],[30,7],[27,6.5],[23,6],[19,5.5],[15,5],[13,4.5],[10,4]];
+  var list=[[39,9],[37,8.5],[35,8],[32,7.5],[30,7],[26,6.5],[23,6],[18,5.5],[16,5],[13,4.5],[10,4]];
+  var mk=function(T){ return '<table><thead><tr><th>Raw score out of 40</th><th>Band</th></tr></thead><tbody>'+
+     T.map(function(r,i){ var hi=i===0?40:T[i-1][0]-1; return "<tr><td class='num'>"+r[0]+(hi>r[0]?"–"+hi:"")+"</td><td><b>"+r[1].toFixed(1)+"</b></td></tr>"; }).join("")+'</tbody></table>'; };
+  view.innerHTML='<div class="pane"><p class="eyebrow">Scoring</p><h1>How raw scores become bands</h1>'+
+    '<p class="lede">Reading and Listening are marked out of 40 and converted to a band. Writing and Speaking are marked directly on the nine-band scale against four criteria worth 25 per cent each.</p>'+
+    '<div class="grid grid-2">'+
+      '<div><h2>Academic Reading</h2>'+mk(read)+'</div>'+
+      '<div><h2>Listening</h2>'+mk(list)+'</div>'+
+    '</div></div>'+
+   '<div class="pane"><h2>Overall band</h2>'+
+    '<p style="color:var(--ink-2)">The overall band is the mean of the four skill bands, rounded to the nearest half band. A mean ending in .25 rounds up to the next half band; a mean ending in .75 rounds up to the next whole band.</p>'+
+    '<table><thead><tr><th>Listening</th><th>Reading</th><th>Writing</th><th>Speaking</th><th>Mean</th><th>Overall</th></tr></thead><tbody>'+
+      '<tr><td class="num">6.5</td><td class="num">6.5</td><td class="num">5.0</td><td class="num">7.0</td><td class="num">6.25</td><td><b>6.5</b></td></tr>'+
+      '<tr><td class="num">4.0</td><td class="num">3.5</td><td class="num">4.0</td><td class="num">4.0</td><td class="num">3.875</td><td><b>4.0</b></td></tr>'+
+      '<tr><td class="num">6.5</td><td class="num">6.5</td><td class="num">5.5</td><td class="num">6.0</td><td class="num">6.125</td><td><b>6.0</b></td></tr>'+
+    '</tbody></table>'+
+    '<div class="notice" style="margin-top:16px">Most European universities ask for an overall 6.5 with no band below 6.0. Because a single weak skill can block an application even when the overall is met, the band you should practise hardest is your lowest one — not your favourite.</div>'+
+    '<div class="btnrow"><button onclick="home()">← Home</button></div></div>';
+}
+
+/* boot */
+if("speechSynthesis" in window) speechSynthesis.getVoices();
+home();
+</script>
+</body>
+</html>

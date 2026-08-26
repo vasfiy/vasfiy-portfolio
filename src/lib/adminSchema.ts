@@ -98,11 +98,28 @@ export const COLLECTIONS: Collection[] = [
   {
     kind: "cert", id: "certs", label: "Certs", icon: "📜",
     fields: [
+      { k: "img", label: "Certificate image — shown in the carousel", t: "image" },
       { k: "badge", label: "Badge (THM / 🏅 / +)", t: "text" }, { k: "name", label: "Name (EN)", t: "text" },
       { k: "nameUz", label: "Name (UZ)", t: "text" }, { k: "meta", label: "Meta (EN)", t: "text" }, { k: "metaUz", label: "Meta (UZ)", t: "text" },
       { k: "file", label: "Certificate PDF / image", t: "file", accept: ".pdf,image/*" }, { k: "url", label: "Verify URL (optional)", t: "text", ph: "https://…" },
     ],
     title: (i) => i.name || i.nameUz || "(certificate)",
+  },
+  {
+    kind: "course", id: "courses", label: "Learning", icon: "📖",
+    fields: [
+      { k: "icon", label: "Icon (emoji)", t: "text", ph: "📝" },
+      { k: "tag", label: "Tag (EN)", t: "text", ph: "Exam prep" },
+      { k: "tagUz", label: "Tag (UZ)", t: "text" },
+      { k: "title", label: "Title (EN)", t: "text" },
+      { k: "titleUz", label: "Title (UZ)", t: "text" },
+      { k: "desc", label: "Description (EN)", t: "textarea" },
+      { k: "descUz", label: "Description (UZ)", t: "textarea" },
+      { k: "link", label: "Link", t: "text", ph: "aplus.html or /linux or https://…" },
+      { k: "meta", label: "Meta (EN)", t: "text", ph: "90-minute timed exam" },
+      { k: "metaUz", label: "Meta (UZ)", t: "text" },
+    ],
+    title: (i) => (i.icon ? i.icon + " " : "") + (i.title || i.titleUz || "(course)"),
   },
   {
     kind: "book", id: "books", label: "Library", icon: "📚", cats: true,
