@@ -1,6 +1,7 @@
 import ProductView from "@/components/market/ProductView";
 import { getSiteData } from "@/lib/data";
 import { notFound } from "next/navigation";
+import { MARKET_URL } from "@/lib/site";
 import type { Metadata } from "next";
 
 export const revalidate = 30;
@@ -16,10 +17,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!p) return { title: "Product — Vasfiy Market" };
   const title = p.title || p.titleUz || p.titleRu || "Product";
   const img = (p.images || [])[0]?.url;
+  const url = `${MARKET_URL}/${id}`;
   return {
     title: `${title} — Vasfiy Market`,
     description: (p.desc || p.descUz || p.descRu || "").slice(0, 160),
-    openGraph: { title, images: img ? [img] : undefined },
+    alternates: { canonical: url },
+    openGraph: { title, url, images: img ? [img] : undefined },
   };
 }
 

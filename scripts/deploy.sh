@@ -7,6 +7,19 @@ set -euo pipefail
 SITE_ID="${NETLIFY_SITE_ID:-f2052064-3c94-456e-8354-4d42249c31db}"
 cd "$(dirname "$0")/.."
 
+# Next.js needs Node >= 20.9; the shell default may still be 18, which fails the
+# build with a bare version error. Prefer an installed nvm Node 20+ when needed.
+NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0)
+if [ "$NODE_MAJOR" -lt 20 ]; then
+  NEWEST=$(ls -1 "$HOME/.nvm/versions/node" 2>/dev/null | sed 's/^v//' | awk -F. '$1>=20' | sort -t. -k1,1n -k2,2n | tail -1)
+  if [ -n "$NEWEST" ]; then
+    export PATH="$HOME/.nvm/versions/node/v$NEWEST/bin:$PATH"
+    echo "ℹ Using Node v$NEWEST (shell default was v$(node -v 2>/dev/null | tr -d v || echo '?'))"
+  else
+    echo "✗ Node >= 20.9 required (found major $NODE_MAJOR) and no nvm build available."; exit 1
+  fi
+fi
+
 echo "▶ Deploying to Netlify site $SITE_ID"
 DID=""
 for attempt in 1 2 3 4 5; do
