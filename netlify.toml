@@ -19,3 +19,35 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Content-Type = "text/plain; charset=utf-8"
+
+# ---- Caching ----------------------------------------------------------------
+# Content-addressed build output never changes under a given URL.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Static media in /public: served from the CDN edge, revalidated in the
+# background so a burst of traffic never reaches the origin for the same file.
+[[headers]]
+  for = "/certs/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/market-seed/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# Security headers — cheap, and they keep the admin/market hosts honest.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

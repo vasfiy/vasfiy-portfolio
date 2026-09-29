@@ -213,15 +213,21 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     setSeeding(false);
   };
 
-  // One-click publisher for a post prepared in the repo (public/journal-prepared.json).
+  /* One-click publisher for an entry prepared in the repo. Anything dropped at
+     public/prepared/<kind>.json shows up here as a card until an item with the
+     same title exists, then disappears on its own. */
   const [prepared, setPrepared] = useState<any | null>(null);
   useEffect(() => {
-    if (c.kind !== "blog") return;
-    fetch("/journal-prepared.json").then((r) => (r.ok ? r.json() : null)).then(setPrepared).catch(() => {});
+    setPrepared(null);
+    fetch(`/prepared/${c.kind}.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setPrepared(d && typeof d === "object" ? d : null))
+      .catch(() => {});
   }, [c.kind]);
+  const preparedTitle = prepared ? (prepared.titleUz || prepared.title || prepared.name || "") : "";
   const publishPrepared = async () => {
     if (!prepared) return;
-    try { await A.addItem("blog", prepared); setPrepared(null); await load(); flash("✓ Post published — live now"); }
+    try { await A.addItem(c.kind, prepared); setPrepared(null); await load(); flash("✓ Added — live now"); }
     catch (e: any) { flash("Error: " + (e?.message || e)); }
   };
 
@@ -229,11 +235,11 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     <div className="ad-section">
       <div className="ad-head"><h2>{c.icon} {c.label}</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
 
-      {c.kind === "blog" && prepared && !items.some((it) => it.title === prepared.title) && (
+      {prepared && !items.some((it) => (it.title || it.name) === (prepared.title || prepared.name)) && (
         <div className="ad-card">
-          <h3>📥 Tayyor post</h3>
-          <p className="ad-hint"><b>{prepared.titleUz || prepared.title}</b> — {prepared.date} · matn EN/UZ tayyor. Bir bosishda joylanadi; keyin Edit orqali rasm qo'shishingiz mumkin.</p>
-          <button className="btn btn-primary" onClick={publishPrepared}>Postni joylash</button>
+          <h3>Tayyor yozuv</h3>
+          <p className="ad-hint"><b>{preparedTitle}</b>{prepared.date ? ` — ${prepared.date}` : ""} · bir bosishda qo'shiladi, keyin odatdagidek tahrirlaysiz.</p>
+          <button className="btn btn-primary" onClick={publishPrepared}>Qo'shish</button>
         </div>
       )}
 

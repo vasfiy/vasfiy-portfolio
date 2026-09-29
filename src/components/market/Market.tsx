@@ -22,7 +22,7 @@ export default function Market({ products, cats }: { products: Product[]; cats: 
     <section className="section page-hero mkt-catalog">
       <div className="container">
         <div className="section-head">
-          <span className="section-kicker"><span className="kicker-num">🛒</span> <span>{t.tag}</span></span>
+          <span className="section-kicker"><span>{t.tag}</span></span>
           <h1 className="section-title">Vasfiy Market</h1>
           <p className="hero-desc" style={{ marginTop: 10 }}>{t.sub}</p>
         </div>

@@ -22,7 +22,7 @@ export default function MarketFrame({ children }: { children: React.ReactNode })
     <Ctx.Provider value={{ lang, setLang }}>
       <header className="mkt-header">
         <div className="container mkt-header-in">
-          <Link href="/market" className="mkt-logo">🛒 <b>VASFIY</b> MARKET</Link>
+          <Link href="/market" className="mkt-logo"><b>VASFIY</b> MARKET</Link>
           <div className="mkt-header-right">
             <div className="mkt-langs" role="group" aria-label="Language">
               {M_LANGS.map((l) => (

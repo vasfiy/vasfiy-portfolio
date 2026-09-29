@@ -9,6 +9,7 @@ import { pick } from "@/lib/i18n";
 import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
 import { supabase } from "@/lib/data";
 import VoiceRecorder from "./VoiceRecorder";
+import Icon from "./Icon";
 import type { SiteData, Lang } from "@/lib/types";
 
 const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
@@ -439,7 +440,7 @@ function MarketPreview({ data }: { data: SiteData }) {
     <section className="section" id="market">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">🛒</span> <span>{t("market.title")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("market.title")}</span></span>
           <h2 className="section-title">{t("market.sub")}</h2>
         </Reveal>
         <div className="mkt-grid mkt-preview-grid">
@@ -474,11 +475,11 @@ function Explore({ data }: { data: SiteData }) {
   const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
   void albums; void posts;
   const cards = [
-    { id: "market", href: "https://market.vasfiy.com", icon: "🛒", title: t("market.title"), desc: t("explore.marketDesc"), meta: "EN · UZ · RU · DE", cover: httpOnly(ec.market) || httpOnly((data.products.find((p) => (p.images || [])[0]?.url)?.images || [])[0]?.url), raw: true },
-    { id: "library", href: "/library", icon: "📚", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
-    { id: "learning", href: "/learning", icon: "📖", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? "course" : "courses"}`, cover: httpOnly(ec.learning) },
-    { id: "linux", href: "/linux", icon: "🐧", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
-    { id: "tools", href: "/tools", icon: "🧰", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
+    { id: "market", href: "https://market.vasfiy.com", icon: "market", title: t("market.title"), desc: t("explore.marketDesc"), meta: "EN · UZ · RU · DE", cover: httpOnly(ec.market) || httpOnly((data.products.find((p) => (p.images || [])[0]?.url)?.images || [])[0]?.url), raw: true },
+    { id: "library", href: "/library", icon: "library", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
+    { id: "learning", href: "/learning", icon: "learning", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? "course" : "courses"}`, cover: httpOnly(ec.learning) },
+    { id: "linux", href: "/linux", icon: "lab", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
+    { id: "tools", href: "/tools", icon: "tools", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
   ];
   return (
     <section className="section" id="explore">
@@ -491,9 +492,9 @@ function Explore({ data }: { data: SiteData }) {
           {cards.map((c, i) => {
             const inner = (
               <>
-                {c.cover ? <img className="digest-cover" src={c.cover} alt="" loading="lazy" /> : <div className="digest-cover ph">{c.icon}</div>}
+                {c.cover ? <img className="digest-cover" src={c.cover} alt="" loading="lazy" /> : <div className="digest-cover ph"><Icon name={c.icon} size={34} /></div>}
                 <div className="digest-body">
-                  <div className="digest-icon">{c.icon}</div>
+                  <div className="digest-icon"><Icon name={c.icon} /></div>
                   <h3>{c.title}</h3>
                   <p>{c.desc}</p>
                   <span className="digest-meta">{c.meta}</span>
