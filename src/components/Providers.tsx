@@ -17,7 +17,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const d = document.documentElement;
     d.lang = saved;
     // Apply saved theme/mode as early as possible (no-flash for default; ~1 frame for custom)
-    d.setAttribute("data-theme", localStorage.getItem("theme") || "ocean");
+    d.setAttribute("data-theme", localStorage.getItem("theme") || "cosmos");
     d.setAttribute("data-mode", localStorage.getItem("mode") || "dark");
   }, []);
 

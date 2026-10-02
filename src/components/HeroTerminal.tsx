@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Astronaut from "./Astronaut";
 
 /* A SOC console that "tail -f"s a threat feed in the hero. Pure theatre, but it
    says "this is what I do" faster than any paragraph — and it doubles as a
@@ -34,6 +35,7 @@ export default function HeroTerminal() {
 
   return (
     <aside className="hero-console" aria-hidden="true">
+      <Astronaut className="astronaut" />
       <div className="term-window glass">
         <div className="term-bar">
           <span className="term-dot d-red" /><span className="term-dot d-yellow" /><span className="term-dot d-green" />

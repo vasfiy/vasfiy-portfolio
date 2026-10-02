@@ -2,16 +2,16 @@
 import { useEffect, useState } from "react";
 import { useLang } from "./Providers";
 
-const THEMES = ["ocean", "sunset", "cyber", "matrix"] as const;
+const THEMES = ["cosmos", "ocean", "sunset", "cyber", "matrix"] as const;
 
 export default function ThemeFab() {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState("ocean");
+  const [theme, setTheme] = useState("cosmos");
   const [mode, setMode] = useState("dark");
 
   useEffect(() => {
-    setTheme(localStorage.getItem("theme") || "ocean");
+    setTheme(localStorage.getItem("theme") || "cosmos");
     setMode(localStorage.getItem("mode") || "dark");
   }, []);
   useEffect(() => {

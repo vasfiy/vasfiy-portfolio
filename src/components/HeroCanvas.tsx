@@ -15,9 +15,12 @@ export default function HeroCanvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const hex = getComputedStyle(document.documentElement).getPropertyValue("--cyan").trim() || "#2dd4ea";
-    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    const [r, g, b] = m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [45, 212, 234];
+    const readColor = (): [number, number, number] => {
+      const hex = getComputedStyle(document.documentElement).getPropertyValue("--cyan").trim() || "#2dd4ea";
+      const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [45, 212, 234];
+    };
+    let [r, g, b] = readColor();
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     let w = 0, h = 0, raf = 0, visible = true;
@@ -31,7 +34,8 @@ export default function HeroCanvas() {
       h = Math.max(1, rect?.height || window.innerHeight);
       canvas.width = w * dpr; canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.min(110, Math.floor((w * h) / 17000));
+      const cosmic = document.documentElement.getAttribute("data-theme") === "cosmos";
+      const n = Math.min(cosmic ? 150 : 110, Math.floor((w * h) / (cosmic ? 9500 : 17000)));
       pts = Array.from({ length: n }, () => ({
         x: Math.random() * w, y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22,
@@ -65,11 +69,14 @@ export default function HeroCanvas() {
     };
 
     const onVis = () => { visible = document.visibilityState === "visible"; };
+    // Live retint + density change when the visitor switches color theme
+    const themeMo = new MutationObserver(() => { [r, g, b] = readColor(); resize(); });
+    themeMo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     resize();
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVis);
     tick();
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); document.removeEventListener("visibilitychange", onVis); };
+    return () => { cancelAnimationFrame(raf); themeMo.disconnect(); window.removeEventListener("resize", resize); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
   return <canvas ref={ref} aria-hidden="true" />;
