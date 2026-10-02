@@ -6,6 +6,7 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import { pinSort } from "@/lib/data";
 import { pick } from "@/lib/i18n";
+import { onVideoError } from "@/lib/media";
 import type { Lang, Category } from "@/lib/types";
 
 declare global { interface Window { WebTerm?: { init: (el: HTMLElement) => void; run: (cmd: string) => void }; } }
@@ -106,7 +107,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
                         {(l.attachments as any[]).map((a, i) => {
                           const ty = a.type || "";
                           if (/^image/.test(ty)) return <a className="lesson-att-img" key={i} href={a.url} target="_blank" rel="noopener"><img src={a.url} alt={a.name || ""} loading="lazy" decoding="async" /></a>;
-                          if (/video/.test(ty)) return <video className="lesson-att-vid" key={i} src={a.url} controls preload="metadata" />;
+                          if (/video/.test(ty)) return <video className="lesson-att-vid" key={i} src={a.url} controls preload="metadata" data-original={a.url} onError={onVideoError} />;
                           const icon = /pdf/.test(ty) ? "📄" : /html/.test(ty) ? "🌐" : "📎";
                           return <a className="lesson-att" key={i} href={a.url} target="_blank" rel="noopener">{icon} {a.name || "file"} ↗</a>;
                         })}

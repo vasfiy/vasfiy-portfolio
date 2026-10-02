@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLang } from "./Providers";
 import { isVideo } from "@/lib/data";
-import { mediaUrl, onMediaError } from "@/lib/media";
+import { mediaUrl, onMediaError, onVideoError } from "@/lib/media";
 import { pick } from "@/lib/i18n";
 import type { Photo, Lang } from "@/lib/types";
 
@@ -106,13 +106,14 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
   const cur = photos[index];
   const cap = pick(cur, "caption", lang);
   const vid = cur.video || isVideo(cur.src);
+  const [vidFail, setVidFail] = useState(false);
   const [z, setZ] = useState({ s: 1, x: 0, y: 0 });
   const drag = useRef<any>(null);
   const pinchRef = useRef<{ d: number; s: number } | null>(null);
   const lastTap = useRef(0);
   const moved = useRef(false);
 
-  useEffect(() => { setZ({ s: 1, x: 0, y: 0 }); }, [index]);
+  useEffect(() => { setZ({ s: 1, x: 0, y: 0 }); setVidFail(false); }, [index]);
 
   // Preload neighbours so swiping is instant.
   useEffect(() => {
@@ -172,12 +173,31 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       <button className="lightbox-close" aria-label="Close" onClick={onClose}>×</button>
       <div className="ip-lb-stage" onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}>
         {vid
-          ? <video src={cur.src} controls playsInline autoPlay />
+          ? vidFail || !cur.src
+            ? <VideoFallback src={cur.src} lang={lang} />
+            : <video key={index} src={cur.src} controls playsInline autoPlay muted preload="metadata" onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setVidFail(true); }} />
           : <img src={mediaUrl(cur.src, 1400)} data-original={cur.src} onError={onMediaError} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current ? "none" : "transform .25s" }} />}
       </div>
       <button className="ip-lb-nav ip-lb-prev" aria-label="Previous" onClick={(e) => { e.stopPropagation(); onStep(-1); }}>‹</button>
       <button className="ip-lb-nav ip-lb-next" aria-label="Next" onClick={(e) => { e.stopPropagation(); onStep(1); }}>›</button>
       <div className="lightbox-cap">{cap} <span className="lb-count">{index + 1} / {photos.length}</span></div>
+    </div>
+  );
+}
+
+/* Graceful stand-in for a video that failed to load in the lightbox:
+   icon + filename + "unavailable" note (+ direct link as an escape hatch),
+   so the user never stares at a broken player. */
+function VideoFallback({ src, lang }: { src?: string; lang: Lang }) {
+  const raw = (src || "").split("?")[0].split("/").pop() || "";
+  let name = raw || "video";
+  try { name = decodeURIComponent(name); } catch { /* keep raw name */ }
+  return (
+    <div className="video-fallback" role="status">
+      <span className="vf-icon" aria-hidden>🎬</span>
+      <span className="vf-name">{name}</span>
+      <span className="vf-note">{lang === "uz" ? "Video hozircha mavjud emas" : "Video is currently unavailable"}</span>
+      {src && /^https?:\/\//.test(src) && <a className="vf-link" href={src} target="_blank" rel="noreferrer">{lang === "uz" ? "Yangi oynada ochish" : "Open in new tab"}</a>}
     </div>
   );
 }

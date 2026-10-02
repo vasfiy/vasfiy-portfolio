@@ -37,3 +37,17 @@ export function onMediaError(e: SyntheticEvent<HTMLImageElement>) {
   delete el.dataset.original;
   if (el.src !== orig) el.src = orig;
 }
+
+/** onError fallback for <video>, mirroring onMediaError: revert once to the
+    raw original kept in data-original (videos are normally served raw, so the
+    revert is a no-op there), and when no original is left to try mark the
+    element data-failed so the caller can swap in a placeholder card instead
+    of a broken player. */
+export function onVideoError(e: SyntheticEvent<HTMLVideoElement>) {
+  const el = e.currentTarget;
+  const orig = el.dataset.original;
+  if (!orig) { el.dataset.failed = "1"; return; } // raw src only, or already reverted
+  delete el.dataset.original;
+  if (el.src !== orig) { el.src = orig; return; }
+  el.dataset.failed = "1"; // original is the same src that just failed
+}

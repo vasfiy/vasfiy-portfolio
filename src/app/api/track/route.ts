@@ -29,8 +29,37 @@ function detectGeo(req: Request) {
   return { country: country.toUpperCase().slice(0, 60), city: decodeURIComponent(city).slice(0, 80) };
 }
 
+
+/* Same-origin guard: the site's own forms/JS always send Origin or Referer. */
+function sameOrigin(req: Request) {
+  const norm = (h: string) => h.replace(/^www\./, "").toLowerCase();
+  const target = norm(req.headers.get("x-forwarded-host") || req.headers.get("host") || "vasfiy.com");
+  const hostOf = (u: string) => { try { return norm(new URL(u).host); } catch { return ""; } };
+  const ok = (h: string) => h === target || h.endsWith(".vasfiy.com");
+  const origin = req.headers.get("origin");
+  if (origin) return ok(hostOf(origin));
+  const referer = req.headers.get("referer");
+  if (referer) return ok(hostOf(referer));
+  return false;
+}
+
+/* Best-effort in-memory rate limiter (per serverless instance — raises the
+   bar against casual abuse; real flood control stays at the edge). */
+const hits = new Map<string, number[]>();
+function limited(req: Request, max: number, windowMs: number) {
+  const ip = req.headers.get("x-nf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0] || "?";
+  const now = Date.now();
+  const arr = (hits.get(ip) || []).filter((t) => now - t < windowMs);
+  if (arr.length >= max) { hits.set(ip, arr); return true; }
+  arr.push(now); hits.set(ip, arr);
+  if (hits.size > 5000) hits.clear();
+  return false;
+}
+
 export async function POST(req: Request) {
   try {
+    if (!sameOrigin(req)) return Response.json({ ok: false }, { status: 403 });
+    if (limited(req, 30, 60_000)) return Response.json({ ok: false }, { status: 429 });
     const body = await req.json().catch(() => ({} as any));
     const ua = req.headers.get("user-agent") || "";
     if (/bot|crawl|spider|preview|lighthouse|headless/i.test(ua)) return Response.json({ ok: true, skipped: "bot" });
@@ -51,7 +80,8 @@ export async function POST(req: Request) {
       country: country.slice(0, 60),
       city: city.slice(0, 80),
     });
-    return Response.json({ ok: !error, error: error?.message });
+    if (error) return Response.json({ ok: false }); // never leak Supabase error text
+    return Response.json({ ok: true });
   } catch {
     return Response.json({ ok: false }, { status: 200 });
   }

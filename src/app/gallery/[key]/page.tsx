@@ -1,6 +1,7 @@
 import AlbumView from "@/components/AlbumView";
 import { getSiteData, pinSort } from "@/lib/data";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import type { Photo } from "@/lib/types";
 
 export const revalidate = 30;
@@ -21,12 +22,14 @@ async function findAlbum(rawKey: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ key: string }> }): Promise<Metadata> {
   const { key } = await params;
-  const { name } = await findAlbum(key);
+  const { name, photos } = await findAlbum(key);
+  if (!photos.length) return { title: "Not found — Kamoliddin Tilonboyev" };
   return { title: `${name} — Kamoliddin Tilonboyev`, description: `Photo album: ${name}.`, openGraph: { title: name, images: ["/og-image.jpg"] } };
 }
 
 export default async function AlbumPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
   const { name, photos } = await findAlbum(key);
+  if (!photos.length) notFound();
   return <AlbumView name={name} photos={photos} />;
 }

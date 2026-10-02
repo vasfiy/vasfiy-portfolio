@@ -2,9 +2,12 @@
    an offline fallback (no stale content). Same-origin GET requests only.
 
    Bumping CACHE drops everything the previous version stored. */
-const CACHE = "kt-v2";
+const CACHE = "kt-v3";
 
-self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("install", (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/offline-fallback.html"])));
+  self.skipWaiting();
+});
 
 self.addEventListener("activate", (e) => {
   e.waitUntil((async () => {
@@ -32,7 +35,7 @@ self.addEventListener("fetch", (e) => {
 
   if (isDocument || isFreshData) {
     e.respondWith(
-      fetch(req).catch(() => (isDocument ? caches.match("/offline-fallback") || caches.match("/") : Response.error())),
+      fetch(req).catch(() => (isDocument ? caches.match("/offline-fallback.html") || caches.match("/") : Response.error())),
     );
     return;
   }
