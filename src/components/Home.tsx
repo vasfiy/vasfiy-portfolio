@@ -10,7 +10,7 @@ import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, up
 import { supabase } from "@/lib/data";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
-import HeroTerminal from "./HeroTerminal";
+import Astronaut from "./Astronaut";
 import type { SiteData, Lang } from "@/lib/types";
 
 const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
@@ -95,7 +95,11 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
               {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
             </div>
           </div>
-          <HeroTerminal />
+          <div className="hero-orbit" aria-hidden="true">
+            <span className="orbit-ring r1" /><span className="orbit-ring r2" /><span className="orbit-ring r3" />
+            <span className="orbit-core" />
+            <Astronaut className="astronaut" />
+          </div>
         </div>
       </div>
     </section>
