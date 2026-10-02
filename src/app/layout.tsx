@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
 };
 
-export const viewport: Viewport = { themeColor: "#0a0e1a" };
+export const viewport: Viewport = { themeColor: "#04060d" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const navPages = await getNavPages();
@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" data-theme="ocean" data-mode="dark" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body>
         <div className="bg-wrap" aria-hidden="true">
-          <div className="bg-grid" /><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" />
+          <div className="bg-grid" /><div className="bg-noise" /><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" />
         </div>
         <Providers>
           <SiteFrame navPages={navPages}>{children}</SiteFrame>

@@ -160,7 +160,7 @@ export const COLLECTIONS: Collection[] = [
     title: (i) => (i.title || i.titleUz || "(challenge)") + (i.points ? ` · ${i.points} pts` : ""),
   },
   {
-    kind: "product", id: "market", label: "Market", icon: "🛒", cats: true, addTop: true,
+    kind: "product", id: "market", label: "Market (archived)", icon: "🛒", cats: true, addTop: true,
     fields: [
       { k: "images", label: "Photos (first = main)", t: "files" },
       { k: "cat", label: "Category", t: "cat" },

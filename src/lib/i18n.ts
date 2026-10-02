@@ -21,7 +21,7 @@ export const DICT = {
     "blog.title": "Journal", "blog.sub": "Notes, posts & moments from the road.", "blog.empty": "No posts yet.", "blog.read": "Read post →", "blog.viewall": "View all posts →", "blog.all": "All", "blog.min": "min read", "blog.back": "← All posts", "blog.share": "Share this post", "blog.copy": "Copy link", "blog.copied": "Link copied!", "blog.more": "More posts", "blog.notfound": "Post not found.",
     "gallery.title": "Gallery", "gallery.sub": "Albums, moments & snapshots.", "gallery.empty": "No photos yet.", "gallery.viewall": "View all albums →", "gallery.all": "All", "gallery.photos": "photos", "gallery.photo": "photo", "gallery.back": "← All albums",
     "library.title": "Library", "library.sub": "Books & resources worth your time.", "library.empty": "No books yet.", "library.read": "Read", "library.download": "Download", "library.by": "by", "library.viewall": "Open library →",
-    "theme.title": "Color theme", "theme.mode": "Appearance", "footer.built": "Built with Next.js, Three.js & Supabase",
+    "theme.title": "Color theme", "theme.mode": "Appearance", "footer.built": "Built with Next.js & Supabase",
     "search.label": "Search (⌘K)", "search.placeholder": "Search posts, albums, projects…", "search.none": "No results found.",
   },
   uz: {
@@ -44,7 +44,7 @@ export const DICT = {
     "blog.title": "Jurnal", "blog.sub": "Yo'ldan eslatmalar, postlar va lahzalar.", "blog.empty": "Hali post yo'q.", "blog.read": "O'qish →", "blog.viewall": "Barcha postlarni ko'rish →", "blog.all": "Hammasi", "blog.min": "daq o'qish", "blog.back": "← Barcha postlar", "blog.share": "Ushbu postni ulashing", "blog.copy": "Havoladan nusxa olish", "blog.copied": "Havola nusxalandi!", "blog.more": "Boshqa postlar", "blog.notfound": "Post topilmadi.",
     "gallery.title": "Galereya", "gallery.sub": "Albomlar, lahzalar va suratlar.", "gallery.empty": "Hali rasm yo'q.", "gallery.viewall": "Barcha albomlarni ko'rish →", "gallery.all": "Hammasi", "gallery.photos": "ta rasm", "gallery.photo": "rasm", "gallery.back": "← Barcha albomlar",
     "library.title": "Kutubxona", "library.sub": "Vaqtingizga arziydigan kitob va resurslar.", "library.empty": "Hali kitob yo'q.", "library.read": "O'qish", "library.download": "Yuklab olish", "library.by": "muallif", "library.viewall": "Kutubxonani ochish →",
-    "theme.title": "Rang temasi", "theme.mode": "Ko'rinish", "footer.built": "Next.js, Three.js va Supabase bilan qurilgan",
+    "theme.title": "Rang temasi", "theme.mode": "Ko'rinish", "footer.built": "Next.js va Supabase bilan qurilgan",
     "search.label": "Qidiruv (⌘K)", "search.placeholder": "Postlar, albomlar, loyihalar…", "search.none": "Hech narsa topilmadi.",
   },
 } as const;

@@ -10,13 +10,14 @@ import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, up
 import { supabase } from "@/lib/data";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
+import HeroTerminal from "./HeroTerminal";
 import type { SiteData, Lang } from "@/lib/types";
 
-const Hero3D = dynamic(() => import("./Hero3D"), { ssr: false });
+const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
 
-/* Load the ~0.8 MB Three.js hero only when it's worth it: skip on mobile and for
-   reduced-motion users, and defer to browser idle so it never blocks first paint. */
-function Hero3DLazy() {
+/* The hero visual is a few KB of 2D canvas now (was ~0.8 MB of Three.js):
+   skipped on mobile and for reduced-motion users, deferred to browser idle. */
+function HeroCanvasLazy() {
   const [show, setShow] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -26,7 +27,7 @@ function Hero3DLazy() {
     const id = w.requestIdleCallback ? w.requestIdleCallback(() => setShow(true), { timeout: 2500 }) : window.setTimeout(() => setShow(true), 1400);
     return () => { if (w.cancelIdleCallback) w.cancelIdleCallback(id); else clearTimeout(id); };
   }, []);
-  return show ? <Hero3D /> : null;
+  return show ? <HeroCanvas /> : null;
 }
 
 export default function Home({ data }: { data: SiteData }) {
@@ -41,7 +42,6 @@ export default function Home({ data }: { data: SiteData }) {
       <JournalPreview data={data} />
       <GalleryPreview data={data} />
       <Education data={data} />
-      <MarketPreview data={data} />
       <Explore data={data} />
       <Contact st={st} />
     </>
@@ -73,24 +73,29 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   return (
     <section className="hero" id="hero">
-      <div className="hero-canvas"><Hero3DLazy /></div>
+      <div className="hero-canvas"><HeroCanvasLazy /></div>
       <div className="container hero-inner">
-        <div className="hero-badge"><span className="dot" /> <span data-edit="heroBadge">{badge}</span></div>
-        <h1 className="hero-title">
-          <span className="hero-hi">Hi, I&apos;m</span>
-          <span className="gradient-text">Kamoliddin Tilonboyev</span>
-        </h1>
-        <p className="hero-role-line"><span className="hero-role-prefix">I&apos;m a</span> <span className="hero-role gradient-text">{typed}</span><span className="caret">|</span></p>
-        <p className="hero-desc" data-edit="heroDesc">{desc}</p>
-        <div className="hero-cta">
-          <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
-          <Link href="/cv" className="btn btn-ghost">📄 {t("hero.cv")}</Link>
-          <a href="#projects" className="btn btn-ghost">{t("hero.work")}</a>
-        </div>
-        <div className="hero-socials">
-          {soc.socialLinkedin && <a href={soc.socialLinkedin} target="_blank" rel="noopener" aria-label="LinkedIn" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z" /></svg></a>}
-          {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label="Website" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
-          {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
+        <div className="hero-grid">
+          <div className="hero-main">
+            <div className="hero-badge"><span className="status-dot" /> <span data-edit="heroBadge">{badge}</span></div>
+            <h1 className="hero-title">
+              <span className="hero-hi">Hi, I&apos;m</span>
+              <span className="hero-name">Kamoliddin Tilonboyev</span>
+            </h1>
+            <p className="hero-role-line"><span className="hero-role-prefix">I&apos;m a</span> <span className="hero-role gradient-text">{typed}</span><span className="caret">|</span></p>
+            <p className="hero-desc" data-edit="heroDesc">{desc}</p>
+            <div className="hero-cta">
+              <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
+              <Link href="/cv" className="btn btn-ghost">📄 {t("hero.cv")}</Link>
+              <a href="#projects" className="btn btn-ghost">{t("hero.work")}</a>
+            </div>
+            <div className="hero-socials">
+              {soc.socialLinkedin && <a href={soc.socialLinkedin} target="_blank" rel="noopener" aria-label="LinkedIn" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z" /></svg></a>}
+              {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label="Website" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
+              {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
+            </div>
+          </div>
+          <HeroTerminal />
         </div>
       </div>
     </section>
@@ -374,7 +379,7 @@ function JournalPreview({ data }: { data: SiteData }) {
     <section className="section" id="journal">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("nav.journal")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">06</span> <span>{t("nav.journal")}</span></span>
           <h2 className="section-title">{t("explore.journalDesc")}</h2>
         </Reveal>
         <Reveal className="bl-grid">
@@ -410,7 +415,7 @@ function GalleryPreview({ data }: { data: SiteData }) {
     <section className="section" id="gallery-preview">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">08</span> <span>{t("nav.gallery")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("nav.gallery")}</span></span>
           <h2 className="section-title">{t("explore.galleryDesc")}</h2>
         </Reveal>
         <Reveal className="gprev-grid">
@@ -430,42 +435,6 @@ function GalleryPreview({ data }: { data: SiteData }) {
 }
 
 /* ---------------- Explore (digests) ---------------- */
-/* ---------------- Market preview (latest products; hidden until any exist) ---------------- */
-function MarketPreview({ data }: { data: SiteData }) {
-  const { lang, t } = useLang();
-  const items = pinSort(data.products).slice(0, 4);
-  if (!items.length) return null;
-  const fmtP = (p = "", cur = "") => { const n = Number(String(p).replace(/[^\d.]/g, "")); return n ? `${n.toLocaleString("en-US").replace(/,/g, " ")} ${cur}`.trim() : (p ? `${p} ${cur}` : ""); };
-  return (
-    <section className="section" id="market">
-      <div className="container">
-        <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("market.title")}</span></span>
-          <h2 className="section-title">{t("market.sub")}</h2>
-        </Reveal>
-        <div className="mkt-grid mkt-preview-grid">
-          {items.map((p, i) => {
-            const img = (p.images || [])[0]?.url;
-            return (
-              <Reveal key={p.__id || i} className="digest-wrap">
-                <a className="mkt-card glass" href={`https://market.vasfiy.com/${p.__id}`}>
-                  <div className="mkt-card-img">{img ? <img src={img} alt={pick(p, "title", lang)} loading="lazy" /> : <span className="mkt-ph">📦</span>}
-                    {p.origin && <span className="mkt-origin">{p.origin}</span>}
-                  </div>
-                  <div className="mkt-card-body">
-                    <h3>{pick(p, "title", lang)}</h3>
-                    <div className="mkt-card-meta"><span className="mkt-price">{fmtP(p.price, p.currency)}</span></div>
-                  </div>
-                </a>
-              </Reveal>
-            );
-          })}
-        </div>
-        <div className="mkt-preview-more"><a className="btn btn-ghost" href="https://market.vasfiy.com">{t("market.viewall")}</a></div>
-      </div>
-    </section>
-  );
-}
 
 function Explore({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
@@ -475,7 +444,6 @@ function Explore({ data }: { data: SiteData }) {
   const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
   void albums; void posts;
   const cards = [
-    { id: "market", href: "https://market.vasfiy.com", icon: "market", title: t("market.title"), desc: t("explore.marketDesc"), meta: "EN · UZ · RU · DE", cover: httpOnly(ec.market) || httpOnly((data.products.find((p) => (p.images || [])[0]?.url)?.images || [])[0]?.url), raw: true },
     { id: "library", href: "/library", icon: "library", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
     { id: "learning", href: "/learning", icon: "learning", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? "course" : "courses"}`, cover: httpOnly(ec.learning) },
     { id: "linux", href: "/linux", icon: "lab", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
@@ -485,7 +453,7 @@ function Explore({ data }: { data: SiteData }) {
     <section className="section" id="explore">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">06</span> <span>{t("explore.kicker")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">08</span> <span>{t("explore.kicker")}</span></span>
           <h2 className="section-title">{t("explore.title")}</h2>
         </Reveal>
         <div className="digest-grid">
@@ -544,7 +512,7 @@ function Contact({ st }: { st: any }) {
     <section className="section" id="contact">
       <div className="container">
         <Reveal className="contact-box glass">
-          <span className="section-kicker center"><span className="kicker-num">07</span> <span>{t("contact.kicker")}</span></span>
+          <span className="section-kicker center"><span className="kicker-num">09</span> <span>{t("contact.kicker")}</span></span>
           <h2 className="section-title center">{pick(st, "contactTitle", lang) || t("contact.title")}</h2>
           <p className="contact-desc">{pick(st, "contactDesc", lang)}</p>
           <form className="contact-form" onSubmit={onSubmit}>
