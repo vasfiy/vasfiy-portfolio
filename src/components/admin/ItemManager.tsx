@@ -5,7 +5,9 @@ import * as A from "@/lib/admin";
 import AlbumManager from "./AlbumManager";
 import RichText from "./RichText";
 import BlockEditor from "./BlockEditor";
+import { createPortal } from "react-dom";
 import CropModal from "./CropModal";
+import { sanitizeItem } from "@/lib/adminSchema";
 import { uiConfirm } from "./Dialog";
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
@@ -65,7 +67,10 @@ function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: a
         {value && (isImage ? <img className="ad-thumb" src={value} alt="" /> : <a href={value} target="_blank" rel="noopener" className="ad-filelink">📄 file ↗</a>)}
         <input type="text" value={value || ""} placeholder="…or paste a URL" onChange={(e) => onChange(e.target.value)} />
         {upErr && <p className="ad-up-err">⚠ {upErr}</p>}
-        {cropFile && <CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); doUpload(f2); }} />}
+        {/* Portal: FieldInput renders inside <label className="ad-field"> — a modal inside the
+            label would let any click (crop stage, drag release) activate the label's hidden file
+            input and reopen the picker mid-crop. Outside the label in the DOM, it can't. */}
+        {cropFile && createPortal(<CropModal file={cropFile} onCancel={() => setCropFile(null)} onDone={(f2) => { setCropFile(null); doUpload(f2); }} />, document.body)}
       </div>
     );
   }
@@ -99,16 +104,19 @@ export default function ItemManager({ collection, initialEditId }: { collection:
   useEffect(() => { load(); setForm(freshForm()); setEditId(null); }, [load, freshForm]);
 
   const flash = (m: string) => { setMsg(m); if (!/^(Error|⚠)/.test(m)) setTimeout(() => setMsg(""), 2500); };
-  const upload = async (file: File, isImage: boolean) => { const f = isImage ? await A.compressImage(file) : file; return A.uploadFile(f); };
+  const upload = async (file: File, isImage: boolean) => {
+    const f: A.CompressedFile = isImage ? await A.compressImage(file) : file;
+    const url = await A.uploadFile(f);
+    if (f.uncompressedNote) flash("⚠ " + f.uncompressedNote);
+    return url;
+  };
 
   const save = async () => {
-    const obj: any = { ...form };
-    c.fields.forEach((f) => { if (f.t === "list" && typeof obj[f.k] === "string") obj[f.k] = obj[f.k].split("\n").map((s: string) => s.trim()).filter(Boolean); });
-    if (c.kind === "blog" && obj.media && (obj.type === "image" || obj.type === "video") && !/^https?:|^data:/.test(obj.media)) { /* keep */ }
     try {
+      const obj = sanitizeItem(c, form, items, editId);
       if (editId) await A.updateItem(editId, obj); else await A.addItem(c.kind, obj);
       setForm(freshForm()); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
-    } catch (e: any) { flash("Error: " + (e.message || e)); }
+    } catch (e: any) { flash("Error: " + (e.message || e)); await load(); }
   };
   const edit = (it: any) => {
     const form: any = { ...it };
@@ -122,7 +130,11 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     }
     setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const remove = async (it: any) => { if (!(await uiConfirm("Delete this item?"))) return; await A.deleteItem(it.__id); await load(); flash("Deleted"); };
+  const remove = async (it: any) => {
+    if (!(await uiConfirm("Delete this item?"))) return;
+    try { await A.deleteItem(it.__id); await load(); flash("Deleted"); }
+    catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
+  };
 
   // Deep-linked "✎ Edit" from the public site: open that item's editor once items arrive.
   const deepLinkDone = useRef(false);
@@ -132,8 +144,8 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     if (it) { deepLinkDone.current = true; edit(it); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, initialEditId]);
-  const togglePin = async (it: any) => { await A.setPinned(it.__id, !it.pinned); await load(); };
-  const toggleArchive = async (it: any) => { await A.setArchived(it.__id, it, !it.archived); await load(); };
+  const togglePin = async (it: any) => { try { await A.setPinned(it.__id, !it.pinned); await load(); } catch (e: any) { flash("Error: " + (e?.message || e)); await load(); } };
+  const toggleArchive = async (it: any) => { try { await A.setArchived(it.__id, it, !it.archived); await load(); } catch (e: any) { flash("Error: " + (e?.message || e)); await load(); } };
   // Open the category picker for an item (nothing saves until "Save" is pressed).
   const openCatPick = (it: any) => { setCatPick(it); setPickSel(it.cat || ""); setNewEn(""); setNewUz(""); };
   const closeCatPick = () => { setCatPick(null); setNewEn(""); setNewUz(""); };
@@ -148,7 +160,7 @@ export default function ItemManager({ collection, initialEditId }: { collection:
       closeCatPick();
       await load();
       flash(cat ? "✓ Saved — category set" : "✓ Saved — category cleared");
-    } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
+    } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); await load(); }
   };
   // Every category the user can pick/manage: managed ones + any value already in use on items.
   const allCats: Record<string, any> = { ...cats };
@@ -162,23 +174,24 @@ export default function ItemManager({ collection, initialEditId }: { collection:
       flash("✓ Category deleted");
     } catch (e: any) { flash("Error: " + (e?.message || e?.error_description || JSON.stringify(e))); }
   };
-  const move = async (it: any, dir: "up" | "down") => { await A.moveItem(c.kind, it.__id, dir); await load(); };
+  const move = async (it: any, dir: "up" | "down") => { try { await A.moveItem(c.kind, it.__id, dir); await load(); } catch (e: any) { flash("Error: " + (e?.message || e)); await load(); } };
   const dropTo = async (toIdx: number) => {
     if (dragIdx === null || dragIdx === toIdx) { setDragIdx(null); return; }
     const arr = items.slice();
     const [moved] = arr.splice(dragIdx, 1);
     arr.splice(toIdx, 0, moved);
     setItems(arr); setDragIdx(null);
-    try { await A.reorder(arr.map((x) => x.__id)); await load(); } catch {}
+    try { await A.reorder(arr.map((x) => x.__id)); await load(); } catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
   };
 
   // Gallery album multi-upload
   const addAlbumFiles = async (files: FileList) => {
-    setAlbumBusy(true); let fail = 0; let lastErr = "";
+    setAlbumBusy(true); let fail = 0; let lastErr = ""; let uncompr = 0;
     for (const f of Array.from(files)) {
-      try { const isVid = f.type.startsWith("video"); const file = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch (e: any) { fail++; lastErr = e?.message || String(e); }
+      try { const isVid = f.type.startsWith("video"); const file: A.CompressedFile = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); if (file.uncompressedNote) uncompr++; setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch (e: any) { fail++; lastErr = e?.message || String(e); }
     }
     if (fail) flash(`⚠ ${fail} upload(s) failed — ${lastErr}`);
+    else if (uncompr) flash(`⚠ ${uncompr} photo(s) uploaded uncompressed — original file kept`);
     setAlbumBusy(false);
   };
   const postAlbum = async () => {

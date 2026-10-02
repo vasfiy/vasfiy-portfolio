@@ -31,20 +31,34 @@ export default function Learning({ courses }: { courses: Course[] }) {
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("learn.sub")}</span></span>
           <h1 className="section-title">{t("learn.title")}</h1>
         </Reveal>
-        <Reveal className="course-grid">
-          {list.map((c, i) => (
-            <a className="course-card glass" key={c.__id || i} href={href(c.link)}>
-              <span className="course-icon">{c.icon || "📘"}</span>
-              <div className="course-body">
-                {(pick(c, "tag", lang) || c.tag) && <span className="course-tag">{pick(c, "tag", lang) || c.tag}</span>}
-                <h3>{pick(c, "title", lang)}</h3>
-                <p>{pick(c, "desc", lang)}</p>
-                {pick(c, "meta", lang) && <span className="course-meta">{pick(c, "meta", lang)}</span>}
-              </div>
-              <span className="course-go">{t("learn.open")}</span>
-            </a>
-          ))}
-        </Reveal>
+        {list.length === 0 ? <p className="empty-note">{t("learn.empty")}</p> : (
+          <Reveal className="course-grid">
+            {list.map((c, i) => {
+              const link = href(c.link);
+              const tag = pick(c, "tag", lang);
+              const meta = pick(c, "meta", lang);
+              const body = (
+                <>
+                  <span className="course-icon" aria-hidden="true">{c.icon || "📘"}</span>
+                  <div className="course-body">
+                    {tag && <span className="course-tag">{tag}</span>}
+                    <h3>{pick(c, "title", lang)}</h3>
+                    <p>{pick(c, "desc", lang)}</p>
+                    {meta && <span className="course-meta">{meta}</span>}
+                  </div>
+                </>
+              );
+              return link === "#" ? (
+                <div className="course-card glass" key={c.__id || i}>{body}</div>
+              ) : (
+                <a className="course-card glass" key={c.__id || i} href={link} {...(/^https?:\/\//.test(link) ? { target: "_blank", rel: "noopener" } : {})}>
+                  {body}
+                  <span className="course-go">{t("learn.open")}</span>
+                </a>
+              );
+            })}
+          </Reveal>
+        )}
       </div>
     </section>
   );

@@ -9,7 +9,7 @@ import { getNavPages } from "@/lib/data";
 // Self-hosted, optimized fonts (no render-blocking Google Fonts request, no FOUT).
 const display = Space_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--f-display", display: "swap" });
 const body = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--f-body", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--f-mono", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--f-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vasfiy.com"),
@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
 };
 
-export const viewport: Viewport = { themeColor: "#030310" };
+export const viewport: Viewport = {
+  viewportFit: "cover", themeColor: "#030310" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const navPages = await getNavPages();

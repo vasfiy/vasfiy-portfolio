@@ -3,31 +3,41 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
-import { fmtDate, ytId, readingTime } from "@/lib/data";
+import { fmtDate, ytId, readingTime } from "@/lib/format";
 import { mediaUrl, onMediaError, onVideoError } from "@/lib/media";
+import { sanitizeHtml } from "@/lib/sanitize";
+import { SITE_URL } from "@/lib/site";
 import AdminEditLink from "./AdminEditLink";
 import type { Post } from "@/lib/types";
 
 export default function PostView({ post, related }: { post: Post | null; related: Post[] }) {
   const { lang, t } = useLang();
-  const [url, setUrl] = useState("");
+  const [failedVids, setFailedVids] = useState<Set<number>>(new Set());
+  const [legacyVidFail, setLegacyVidFail] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [toc, setToc] = useState<{ id: string; text: string; sub: boolean }[]>([]);
   const richRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { setUrl(window.location.href.split("#")[0]); }, []);
+  const barRef = useRef<HTMLElement>(null);
+  useEffect(() => { setFailedVids(new Set()); setLegacyVidFail(false); }, [post]);
 
-  // Reading progress bar tied to how far through the article you've scrolled
+  // Reading progress bar tied to how far through the article you've scrolled —
+  // written straight to the DOM via ref and rAF-throttled so scrolling never
+  // re-renders the article tree (same direct-DOM pattern as the Navbar bar).
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
       const el = document.querySelector(".post-page") as HTMLElement | null;
-      if (!el) return;
+      const bar = barRef.current;
+      if (!el || !bar) return;
       const total = el.offsetHeight - window.innerHeight;
-      setProgress(total > 40 ? Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / total)) : 0);
+      const p = total > 40 ? Math.min(1, Math.max(0, (window.scrollY - el.offsetTop) / total)) : 0;
+      bar.style.transform = `scaleX(${p})`;
     };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, [post]);
 
   // Build a table of contents from the article's headings
@@ -51,6 +61,7 @@ export default function PostView({ post, related }: { post: Post | null; related
   );
 
   const title = pick(post, "title", lang);
+  const url = `${SITE_URL}/blog/${post.__id}`;
   // Unwrap a <pre> that was misused as a text container (it wraps <p> blocks) so the
   // article renders as normal prose instead of a framed monospace code box.
   const full = (pick(post, "full", lang) || pick(post, "body", lang))
@@ -65,20 +76,28 @@ export default function PostView({ post, related }: { post: Post | null; related
   const bodyBlocks = blocks ? blocks.filter((_, i) => i !== coverIdx) : null;
   const readSrc = blocks ? blocks.filter((b) => b.type === "text").map((b) => pick(b, "text", lang)).join(" ") : full;
 
+  const vidBox = (key: number, name: string, src: string) => (
+    <figure className="post-block-img" key={key} style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 10, padding: "18px 20px", border: "1px dashed var(--border-strong, currentColor)", borderRadius: "var(--radius, 12px)", color: "var(--text-dim, inherit)", fontSize: "0.9em" }}>
+      <span aria-hidden="true">🎬</span>
+      <span>{lang === "uz" ? "Video mavjud emas" : "Video unavailable"}{name ? ` — ${name}` : ""}</span>
+      <a href={src} target="_blank" rel="noopener">{t("explore.open")}</a>
+    </figure>
+  );
+
   const renderBlock = (b: any, i: number) => {
     if (b.type === "text") { const t2 = pick(b, "text", lang); return t2.trim() ? <div className="post-block-text" key={i}>{t2.split(/\n{2,}/).filter((p: string) => p.trim()).map((p: string, j: number) => <p key={j}>{p.split("\n").map((ln: string, k: number) => <span key={k}>{k ? <br /> : null}{ln}</span>)}</p>)}</div> : null; }
     if (b.type === "image" && b.url) return <figure className="post-block-img" key={i}><img src={mediaUrl(b.url, 800)} data-original={b.url} onError={onMediaError} alt={pick(b, "caption", lang) || ""} loading="lazy" decoding="async" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
-    if (b.type === "video" && b.url) return <figure className="post-block-img" key={i}><video src={b.url} controls preload="metadata" data-original={b.url} onError={onVideoError} />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
-    if (b.type === "youtube" && b.url) return <div className="post-media post-media-video post-block-yt" key={i}><iframe src={`https://www.youtube.com/embed/${ytId(b.url)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
-    if (b.type === "file" && b.url) return <a className="post-block-file" href={b.url} target="_blank" rel="noopener" key={i}>📎 {b.name || "Download"}</a>;
+    if (b.type === "video" && b.url) return failedVids.has(i) ? vidBox(i, b.name || "", b.url) : <figure className="post-block-img" key={i}><video src={b.url} controls playsInline preload="metadata" data-original={b.url} onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setFailedVids((s) => new Set(s).add(i)); }} />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
+    if (b.type === "youtube" && b.url) return <div className="post-media post-media-video post-block-yt" key={i}><iframe loading="lazy" src={`https://www.youtube.com/embed/${ytId(b.url)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
+    if (b.type === "file" && b.url) return <a className="post-block-file" href={b.url} target="_blank" rel="noopener" key={i}>📎 {b.name || t("library.download")}</a>;
     return null;
   };
 
   const media = () => {
     if (cover) return <div className="post-media"><img src={mediaUrl(cover.url, 800)} data-original={cover.url} onError={onMediaError} alt={title} decoding="async" /></div>;
     if (post.type === "image" && post.media) return <div className="post-media"><img src={mediaUrl(post.media, 800)} data-original={post.media} onError={onMediaError} alt={title} decoding="async" /></div>;
-    if (post.type === "video" && post.media) return <div className="post-media"><video src={post.media} controls preload="metadata" data-original={post.media} onError={onVideoError} /></div>;
-    if (post.type === "youtube" && post.media) return <div className="post-media post-media-video"><iframe src={`https://www.youtube.com/embed/${ytId(post.media)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
+    if (post.type === "video" && post.media) return legacyVidFail ? vidBox(-1, title, post.media) : <div className="post-media"><video src={post.media} controls playsInline preload="metadata" data-original={post.media} onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setLegacyVidFail(true); }} /></div>;
+    if (post.type === "youtube" && post.media) return <div className="post-media post-media-video"><iframe loading="lazy" src={`https://www.youtube.com/embed/${ytId(post.media)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
     return null;
   };
 
@@ -93,20 +112,20 @@ export default function PostView({ post, related }: { post: Post | null; related
 
   return (
     <article className="post-page container">
-      <div className="read-progress" aria-hidden><i style={{ transform: `scaleX(${progress})` }} /></div>
+      <div className="read-progress" aria-hidden><i ref={barRef} /></div>
       <Link className="post-back" href="/blog">{t("blog.back")}</Link>
       {post.__id && <AdminEditLink hash={`blog?edit=${post.__id}`} label={lang === "uz" ? "Postni tahrirlash" : "Edit post"} />}
       {media()}
       <div className="post-text">
-        <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc">📍 {post.location}</span>}<span className="read-time">⏱ {readingTime(readSrc)} {t("blog.min")}</span></div>
+        <div className="blog-meta"><span>{fmtDate(post.date, lang)}</span>{post.location && <span className="b-loc"><span aria-hidden="true">📍</span> {post.location}</span>}<span className="read-time"><span aria-hidden="true">⏱</span> {readingTime(readSrc)} {t("blog.min")}</span></div>
         <h1 className="post-title">{title}</h1>
         {toc.length > 0 && (
           <details className="post-toc" open>
-            <summary>{lang === "uz" ? "📑 Mundarija" : "📑 Contents"}</summary>
+            <summary><span aria-hidden="true">📑</span> {lang === "uz" ? "Mundarija" : "Contents"}</summary>
             <ul>
               {toc.map((it) => (
                 <li key={it.id} className={it.sub ? "toc-sub" : ""}>
-                  <a href={"#" + it.id} onClick={(e) => { e.preventDefault(); document.getElementById(it.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{it.text}</a>
+                  <a href={"#" + it.id} onClick={(e) => { e.preventDefault(); document.getElementById(it.id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }}>{it.text}</a>
                 </li>
               ))}
             </ul>
@@ -115,7 +134,7 @@ export default function PostView({ post, related }: { post: Post | null; related
         {bodyBlocks
           ? <div className="post-rich" ref={richRef}>{bodyBlocks.map(renderBlock)}</div>
           : isRich
-            ? <div className="post-rich" ref={richRef} dangerouslySetInnerHTML={{ __html: full }} />
+            ? <div className="post-rich" ref={richRef} dangerouslySetInnerHTML={{ __html: sanitizeHtml(full) }} />
             : paras.map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />)}
       </div>
       <div className="post-share">
@@ -127,6 +146,7 @@ export default function PostView({ post, related }: { post: Post | null; related
           <button className={"share-btn share-copy" + (copied ? " ok" : "")} aria-label={t("blog.copy")} title={copied ? t("blog.copied") : t("blog.copy")} onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch {} }}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
           </button>
+          <span className="sr-only" role="status">{copied ? t("blog.copied") : ""}</span>
         </div>
       </div>
       {related.length > 0 && (
@@ -134,7 +154,7 @@ export default function PostView({ post, related }: { post: Post | null; related
           <h3>{t("blog.more")}</h3>
           <div className="related-grid">
             {related.map((p, i) => (
-              <Link className="related-card glass" key={p.__id || i} href={`/blog/${p.__id ?? i}`}>
+              <Link className="related-card glass" key={p.__id || i} href={`/blog/${p.__id!}`}>
                 <span className="related-date">{fmtDate(p.date, lang)}</span>
                 <h4>{pick(p, "title", lang)}</h4>
               </Link>

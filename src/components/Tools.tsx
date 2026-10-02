@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toCanvas } from "qrcode";
 import { useLang } from "./Providers";
 
 const T = {
@@ -21,7 +22,7 @@ export default function Tools() {
           <p className="hero-desc" style={{ marginTop: 10 }}>{t.sub}</p>
         </div>
         <div className="filter-bar" style={{ marginBottom: 22 }}>
-          {tabs.map(([id, ic, label]) => <button key={id} className={"filter-chip" + (tab === id ? " active" : "")} onClick={() => setTab(id)}>{ic} {label}</button>)}
+          {tabs.map(([id, ic, label]) => <button key={id} className={"filter-chip" + (tab === id ? " active" : "")} aria-pressed={tab === id} onClick={() => setTab(id)}>{ic} {label}</button>)}
         </div>
         <div className="tool-card glass">
           {tab === "qr" && <QrTool t={t} />}
@@ -36,17 +37,25 @@ export default function Tools() {
 
 function CopyBtn({ value, label }: { value: string; label: string }) {
   const [ok, setOk] = useState(false);
-  return <button className="btn btn-ghost btn-sm" disabled={!value} onClick={async () => { try { await navigator.clipboard.writeText(value); setOk(true); setTimeout(() => setOk(false), 1400); } catch {} }}>{ok ? "✓" : "⧉"} {label}</button>;
+  return <button className="btn btn-ghost btn-sm" role="status" disabled={!value} onClick={async () => { try { await navigator.clipboard.writeText(value); setOk(true); setTimeout(() => setOk(false), 1400); } catch {} }}>{ok ? "✓" : "⧉"} {label}</button>;
 }
 
 function QrTool({ t }: { t: any }) {
   const [text, setText] = useState("");
-  const url = text.trim() ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(text)}` : "";
-  const download = async () => { try { const r = await fetch(url); const b = await r.blob(); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "qr.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); } catch {} };
+  const [ok, setOk] = useState(false);
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current, v = text.trim();
+    if (!c || !v) { setOk(false); return; }
+    let dead = false;
+    toCanvas(c, v, { width: 320, margin: 2 }).then(() => { if (!dead) setOk(true); }).catch(() => { if (!dead) setOk(false); });
+    return () => { dead = true; };
+  }, [text]);
+  const download = () => { const c = ref.current; if (!c || !ok) return; c.toBlob((b) => { if (!b) return; const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "qr.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1500); }, "image/png"); };
   return (
     <div className="tool-pane">
-      <input className="tool-in" placeholder={t.qrPh} value={text} onChange={(e) => setText(e.target.value)} />
-      {url ? <div className="qr-out"><img src={url} alt="QR" width={240} height={240} decoding="async" /><button className="btn btn-primary btn-sm" onClick={download}>↓ {t.download}</button></div> : <p className="tool-hint">{t.qrPh}</p>}
+      <input className="tool-in" aria-label={t.qr} placeholder={t.qrPh} value={text} onChange={(e) => setText(e.target.value)} />
+      {text.trim() ? <div className="qr-out"><canvas ref={ref} width={320} height={320} /><button className="btn btn-primary btn-sm" disabled={!ok} onClick={download}>↓ {t.download}</button></div> : <p className="tool-hint">{t.qrPh}</p>}
     </div>
   );
 }
@@ -84,11 +93,11 @@ function CountTool({ t }: { t: any }) {
   const [text, setText] = useState("");
   const s = useMemo(() => {
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    return { words, chars: text.length, noSpace: text.replace(/\s/g, "").length, sentences: (text.match(/[.!?]+/g) || []).length, lines: text ? text.split(/\n/).length : 0, read: Math.max(1, Math.round(words / 200)) };
+    return { words, chars: text.length, noSpace: text.replace(/\s/g, "").length, sentences: (text.match(/[.!?]+/g) || []).length, lines: text ? text.split(/\n/).length : 0, read: words ? Math.max(1, Math.round(words / 200)) : 0 };
   }, [text]);
   return (
     <div className="tool-pane">
-      <textarea className="tool-area" placeholder={t.countPh} value={text} onChange={(e) => setText(e.target.value)} rows={6} />
+      <textarea className="tool-area" aria-label={t.count} placeholder={t.countPh} value={text} onChange={(e) => setText(e.target.value)} rows={6} />
       <div className="tool-stats">
         {[[t.words, s.words], [t.chars, s.chars], [t.noSpace, s.noSpace], [t.sentences, s.sentences], [t.lines, s.lines], [t.readTime, `${s.read} ${t.min}`]].map(([l, v], i) => (
           <div className="tool-stat" key={i}><b>{v}</b><span>{l}</span></div>
@@ -99,24 +108,21 @@ function CountTool({ t }: { t: any }) {
 }
 
 function B64Tool({ t }: { t: any }) {
+  const { t: gt } = useLang();
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"enc" | "dec">("enc");
-  const ref = useRef<string>("");
-  let out = "";
+  let out = "", bad = false;
   try {
-    if (!text) out = "";
-    else if (mode === "enc") out = btoa(unescape(encodeURIComponent(text)));
-    else out = decodeURIComponent(escape(atob(text.trim())));
-  } catch { out = "⚠ Invalid input"; }
-  ref.current = out;
+    if (text) out = mode === "enc" ? btoa(unescape(encodeURIComponent(text))) : decodeURIComponent(escape(atob(text.trim())));
+  } catch { out = gt("tools.invalid"); bad = true; }
   return (
     <div className="tool-pane">
       <div className="filter-bar">
-        <button className={"filter-chip" + (mode === "enc" ? " active" : "")} onClick={() => setMode("enc")}>{t.encode}</button>
-        <button className={"filter-chip" + (mode === "dec" ? " active" : "")} onClick={() => setMode("dec")}>{t.decode}</button>
+        <button className={"filter-chip" + (mode === "enc" ? " active" : "")} aria-pressed={mode === "enc"} onClick={() => setMode("enc")}>{t.encode}</button>
+        <button className={"filter-chip" + (mode === "dec" ? " active" : "")} aria-pressed={mode === "dec"} onClick={() => setMode("dec")}>{t.decode}</button>
       </div>
-      <textarea className="tool-area" placeholder={t.b64Ph} value={text} onChange={(e) => setText(e.target.value)} rows={4} />
-      <div className="tool-out"><code className="tool-result wrap">{out || "—"}</code><CopyBtn value={out} label={t.copy} /></div>
+      <textarea className="tool-area" aria-label={t.b64} placeholder={t.b64Ph} value={text} onChange={(e) => setText(e.target.value)} rows={4} />
+      <div className="tool-out"><code className="tool-result wrap">{out || "—"}</code><CopyBtn value={bad ? "" : out} label={t.copy} /></div>
     </div>
   );
 }

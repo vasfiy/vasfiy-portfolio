@@ -18,6 +18,10 @@ export default function EditMode() {
 
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2600); };
 
+  // Session ended elsewhere (logout/expiry): switch the FAB off — the [on] effect
+  // cleanup then strips contentEditable from every [data-edit] element.
+  useEffect(() => { if (!isAdmin) setOn(false); }, [isAdmin]);
+
   useEffect(() => {
     if (!on) return;
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-edit]"));

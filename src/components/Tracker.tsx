@@ -10,7 +10,7 @@ export default function Tracker() {
   useEffect(() => {
     if (!p || p === last.current) return;
     if (p.startsWith("/admin")) return;
-    if (typeof window !== "undefined" && window.location.hostname.startsWith("admin.")) return;
+    if (typeof window !== "undefined" && (window.location.hostname.startsWith("admin.") || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) return;
     last.current = p;
     const payload = {
       path: p,

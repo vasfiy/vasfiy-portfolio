@@ -21,7 +21,6 @@ export default function HeroCanvas() {
       return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [45, 212, 234];
     };
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
     const FRAME = 1000 / 30; // the field drifts slowly — display refresh (60-120Hz) is wasted work
     const BUCKETS = 5;       // link alphas quantized into buckets: ~5 stroke calls instead of hundreds
     const LINK = 130;
@@ -41,6 +40,7 @@ export default function HeroCanvas() {
     };
 
     const applyResize = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1); // re-read per resize: zoom / monitor changes must not leave a soft canvas
       const rect = canvas.parentElement?.getBoundingClientRect();
       w = Math.max(1, rect?.width || window.innerWidth);
       h = Math.max(1, rect?.height || window.innerHeight);

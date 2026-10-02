@@ -7,7 +7,9 @@ export default function AdminEditLink({ hash, label = "Edit" }: { hash: string; 
   const isAdmin = useAdminSession();
   if (!isAdmin) return null;
   // Production admin lives on its own subdomain; previews/localhost use the /admin path.
-  const onProd = typeof location !== "undefined" && location.hostname.endsWith("vasfiy.com");
+  // Exact host match — endsWith("vasfiy.com") would also match e.g. "notvasfiy.com".
+  const h = typeof location !== "undefined" ? location.hostname : "";
+  const onProd = h === "vasfiy.com" || h.endsWith(".vasfiy.com");
   const base = onProd ? "https://admin.vasfiy.com/#" : "/admin#";
   return <a className="admin-edit-link" href={base + hash}>✎ {label}</a>;
 }

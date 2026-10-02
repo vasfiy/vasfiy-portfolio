@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLang } from "./Providers";
-import { isVideo } from "@/lib/data";
+import { isVideo } from "@/lib/format";
 import { mediaUrl, onMediaError, onVideoError } from "@/lib/media";
 import { pick } from "@/lib/i18n";
 import type { Photo, Lang } from "@/lib/types";
 
-const MIN_COLS = 2, MAX_COLS = 7, CHUNK = 36;
+const MIN_COLS = 2, MAX_COLS = 8, CHUNK = 36;
+/** Upper bound on columns for the current viewport, so phones never get 33px tiles. */
+const colCap = () => Math.min(MAX_COLS, Math.max(MIN_COLS, Math.floor(window.innerWidth / 48)));
 
 /** iPhone-Photos-style grid: dense square tiles, pinch-to-change-density,
     progressive (infinite) loading, and a swipe/zoom fullscreen lightbox.
@@ -22,14 +24,15 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
 
   // Initial density: remembered choice, else based on screen width.
   useEffect(() => {
-    const saved = Number(localStorage.getItem("galCols"));
-    if (saved >= MIN_COLS && saved <= MAX_COLS) { setCols(saved); return; }
-    const w = window.innerWidth;
+    let saved = 0;
+    try { saved = Number(localStorage.getItem("galCols")); } catch { /* private mode */ }
+    if (saved >= MIN_COLS) { setCols(Math.min(colCap(), saved)); return; }
+    const w = gridRef.current?.clientWidth || window.innerWidth;
     setCols(w >= 1100 ? 6 : w >= 700 ? 4 : 3);
   }, []);
 
   const changeCols = useCallback((n: number) => {
-    const c = Math.max(MIN_COLS, Math.min(MAX_COLS, n));
+    const c = Math.min(colCap(), Math.max(MIN_COLS, n));
     setCols(c);
     try { localStorage.setItem("galCols", String(c)); } catch {}
   }, []);
@@ -76,21 +79,26 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
   return (
     <>
       <div className="ip-toolbar">
-        <span className="ip-count">{photos.length}</span>
-        <div className="ip-zoom" role="group" aria-label="Photo size">
-          <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} aria-label={lang === "uz" ? "Kichikroq" : "Smaller"}>▦</button>
-          <button type="button" onClick={() => changeCols(cols - 1)} disabled={cols <= MIN_COLS} aria-label={lang === "uz" ? "Kattaroq" : "Larger"}>▢</button>
+        <span className="ip-count" aria-label={`${photos.length} ${lang === "uz" ? "ta rasm" : "photos"}`}>{photos.length} <span aria-hidden="true">📷</span></span>
+        <div className="ip-zoom" role="group" aria-label={lang === "uz" ? "Rasm oʼlchami" : "Photo size"}>
+          <button type="button" onClick={() => changeCols(cols - 1)} disabled={cols <= MIN_COLS} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"}>&#xff0b;</button>
+          <span className="ip-zoom-level" aria-live="polite" title={lang === "uz" ? "Ustunlar" : "Columns"}>{cols}</span>
+          <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"}>&#2212;</button>
         </div>
       </div>
 
       <div className="ip-grid" ref={gridRef} style={{ ["--cols" as any]: cols }}>
         {visible.map((g, i) => {
           const vid = g.video || isVideo(g.src);
+          const cap = pick(g, "caption", lang);
           return (
-            <figure className="ip-tile" key={i} onClick={() => setLb(i)}>
+            <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
               {vid
-                ? <div className="video-ph"><span className="vid-badge">▶</span></div>
-                : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={pick(g, "caption", lang)} loading="lazy" decoding="async" />}
+                ? <div className="video-ph">
+                    <video src={`${g.src}#t=0.1`} muted preload="metadata" playsInline aria-hidden="true" tabIndex={-1} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    <span className="vid-badge">▶</span>
+                  </div>
+                : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={cap} loading="lazy" decoding="async" />}
             </figure>
           );
         })}
@@ -112,8 +120,57 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
   const pinchRef = useRef<{ d: number; s: number } | null>(null);
   const lastTap = useRef(0);
   const moved = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const mouse = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const prevFocus = useRef<HTMLElement | null>(null);
+  const lastTouchEnd = useRef(0);
+
+  // Keep the image from being dragged fully off-screen.
+  const clampZ = useCallback((p: { s: number; x: number; y: number }) => {
+    if (p.s <= 1) return { s: p.s, x: 0, y: 0 };
+    const img = imgRef.current, stage = stageRef.current;
+    if (!img || !stage) return p;
+    const mx = Math.max(0, (img.clientWidth * p.s - stage.clientWidth) / 2);
+    const my = Math.max(0, (img.clientHeight * p.s - stage.clientHeight) / 2);
+    return { s: p.s, x: Math.max(-mx, Math.min(mx, p.x)), y: Math.max(-my, Math.min(my, p.y)) };
+  }, []);
+
+  const zoomBy = useCallback((f: number) => setZ((p) => {
+    const s = Math.max(1, Math.min(4, p.s * f));
+    return s <= 1.001 ? { s: 1, x: 0, y: 0 } : clampZ({ ...p, s });
+  }), [clampZ]);
+
+  // Wheel zoom on the stage (desktop) — non-passive so the page never scrolls.
+  useEffect(() => {
+    if (vid) return;
+    const el = stageRef.current; if (!el) return;
+    const onWheel = (e: WheelEvent) => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.15 : 1 / 1.15); };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoomBy, vid]);
 
   useEffect(() => { setZ({ s: 1, x: 0, y: 0 }); setVidFail(false); }, [index]);
+
+  // Focus the close button on open; restore focus to the opener on close.
+  useEffect(() => {
+    prevFocus.current = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => { prevFocus.current?.focus(); };
+  }, []);
+
+  // Keyboard zoom (+ / - / 0), photos only.
+  useEffect(() => {
+    if (vid) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "+" || e.key === "=") zoomBy(1.3);
+      else if (e.key === "-") zoomBy(1 / 1.3);
+      else if (e.key === "0") setZ({ s: 1, x: 0, y: 0 });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [vid, zoomBy]);
 
   // Preload neighbours so swiping is instant.
   useEffect(() => {
@@ -129,18 +186,22 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
     moved.current = false;
     if (e.touches.length === 2) { pinchRef.current = { d: dist(e.touches as any), s: z.s }; drag.current = null; return; }
     const now = Date.now();
-    if (now - lastTap.current < 280) {
-      setZ((p) => (p.s > 1 ? { s: 1, x: 0, y: 0 } : { s: 2.5, x: 0, y: 0 }));
-      lastTap.current = 0;
-    } else lastTap.current = now;
-    drag.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ox: z.x, oy: z.y, dx: 0, dy: 0 };
+    if (!(e.target as HTMLElement).closest?.("button")) {
+      if (now - lastTap.current < 280) {
+        setZ((p) => (p.s > 1 ? { s: 1, x: 0, y: 0 } : { s: 2.5, x: 0, y: 0 }));
+        lastTap.current = 0;
+      } else lastTap.current = now;
+    }
+    const t0 = e.touches[0];
+    // Touches in the screen-edge strips / top notch band belong to the OS (back gesture) — no swipe bookkeeping.
+    if (!(t0.clientX < 24 || t0.clientX > window.innerWidth - 24 || t0.clientY < 12))
+      drag.current = { x: t0.clientX, y: t0.clientY, ox: z.x, oy: z.y, dx: 0, dy: 0 };
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2 && pinchRef.current) {
-      e.preventDefault();
       const s = Math.max(1, Math.min(4, pinchRef.current.s * (dist(e.touches as any) / pinchRef.current.d)));
-      setZ((p) => ({ ...p, s }));
+      setZ((p) => clampZ({ ...p, s }));
       return;
     }
     if (e.touches.length === 1 && drag.current) {
@@ -148,11 +209,12 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       const dy = e.touches[0].clientY - drag.current.y;
       drag.current.dx = dx; drag.current.dy = dy;
       if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moved.current = true;
-      if (z.s > 1) { e.preventDefault(); setZ((p) => ({ ...p, x: drag.current.ox + dx, y: drag.current.oy + dy })); }
+      if (z.s > 1) setZ((p) => clampZ({ ...p, x: drag.current.ox + dx, y: drag.current.oy + dy }));
     }
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
+    lastTouchEnd.current = Date.now();
     if (pinchRef.current && e.touches.length < 2) { pinchRef.current = null; setZ((p) => (p.s < 1.1 ? { s: 1, x: 0, y: 0 } : p)); }
     if (drag.current && z.s <= 1) {
       const { dx = 0, dy = 0 } = drag.current;
@@ -165,18 +227,35 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
   return (
     <div
       className="lightbox open ip-lb"
+      role="dialog"
+      aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <button className="lightbox-close" aria-label="Close" onClick={onClose}>×</button>
-      <div className="ip-lb-stage" onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}>
+      <button ref={closeRef} className="lightbox-close" aria-label="Close" onClick={onClose}>×</button>
+      {!vid && (
+        <div className="ip-lb-zoom">
+          <button type="button" aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} onClick={(e) => { e.stopPropagation(); zoomBy(1.3); }}>&#xff0b;</button>
+          <button type="button" aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.3); }}>&#2212;</button>
+        </div>
+      )}
+      <div
+        className="ip-lb-stage"
+        ref={stageRef}
+        onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}
+        onDoubleClick={() => { if (vid || Date.now() - lastTouchEnd.current < 500) return; setZ((p) => (p.s > 1 ? { s: 1, x: 0, y: 0 } : { s: 2.5, x: 0, y: 0 })); }}
+        onMouseDown={(e) => { if (vid || z.s <= 1) return; moved.current = false; mouse.current = { x: e.clientX, y: e.clientY, ox: z.x, oy: z.y }; }}
+        onMouseMove={(e) => { if (!mouse.current) return; const m = mouse.current; if (Math.hypot(e.clientX - m.x, e.clientY - m.y) > 4) moved.current = true; setZ((p) => clampZ({ ...p, x: m.ox + e.clientX - m.x, y: m.oy + e.clientY - m.y })); }}
+        onMouseUp={() => { mouse.current = null; }}
+        onMouseLeave={() => { mouse.current = null; }}
+      >
         {vid
           ? vidFail || !cur.src
             ? <VideoFallback src={cur.src} lang={lang} />
             : <video key={index} src={cur.src} controls playsInline autoPlay muted preload="metadata" onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setVidFail(true); }} />
-          : <img src={mediaUrl(cur.src, 1400)} data-original={cur.src} onError={onMediaError} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current ? "none" : "transform .25s" }} />}
+          : <img ref={imgRef} src={mediaUrl(cur.src, 1400)} data-original={cur.src} onError={onMediaError} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current || mouse.current ? "none" : "transform .25s" }} />}
       </div>
       <button className="ip-lb-nav ip-lb-prev" aria-label="Previous" onClick={(e) => { e.stopPropagation(); onStep(-1); }}>‹</button>
       <button className="ip-lb-nav ip-lb-next" aria-label="Next" onClick={(e) => { e.stopPropagation(); onStep(1); }}>›</button>

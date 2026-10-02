@@ -82,7 +82,14 @@ function Uploader({ label, value, accept, image, onDone }: { label: string; valu
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cropFile, setCropFile] = useState<File | null>(null);
-  const up = async (f: File) => { setBusy(true); setErr(""); try { const file = image ? await A.compressImage(f, 1600, 0.88) : f; onDone(await A.uploadFile(file)); } catch (e: any) { setErr(`Upload failed — ${e?.message || e}`); } finally { setBusy(false); } };
+  const up = async (f: File) => {
+    setBusy(true); setErr("");
+    try {
+      const file: A.CompressedFile = image ? await A.compressImage(f, 1600, 0.88) : f;
+      onDone(await A.uploadFile(file));
+      if (file.uncompressedNote) setErr(file.uncompressedNote);
+    } catch (e: any) { setErr(`Upload failed — ${e?.message || e}`); } finally { setBusy(false); }
+  };
   return (
     <div className="ad-field">
       <span>{label}</span>
@@ -136,11 +143,23 @@ function Breakdown({ title, rows, fmt }: { title: string; rows: [string, number]
 
 export function Analytics() {
   const [views, setViews] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total: 0, week: 0, today: 0 });
   const [loaded, setLoaded] = useState(false);
-  useEffect(() => { A.listViews().then((v) => { setViews(v); setLoaded(true); }); }, []);
-  const total = views.length;
-  const week = views.filter((v) => Date.now() - new Date(v.created_at).getTime() < 7 * 864e5).length;
-  const today = views.filter((v) => new Date(v.created_at).toDateString() === new Date().toDateString()).length;
+  // Tiles use exact head counts — listViews() caps at 5000 rows, which silently
+  // froze "Total views" at 5000 once the table outgrew the cap.
+  useEffect(() => {
+    (async () => {
+      const [total, week, today, v] = await Promise.all([
+        A.countViews(),
+        A.countViews(new Date(Date.now() - 7 * 864e5).toISOString()),
+        A.countViews(new Date(new Date().toDateString()).toISOString()), // local midnight
+        A.listViews(),
+      ]);
+      setStats({ total, week, today }); setViews(v); setLoaded(true);
+    })();
+  }, []);
+  // Breakdowns still run on the newest-5000 sample, so "Countries" can
+  // undercount once the table passes 5000 rows.
   const countries = new Set(views.map((v) => v.country).filter(Boolean)).size;
 
   const group = (key: string, label?: (v: any) => string) => {
@@ -151,7 +170,8 @@ export function Analytics() {
   const top = group("path", (v) => v.path || "/");
   const hasMeta = views.some((v) => v.country || v.device || v.browser);
 
-  // last 14-day trend
+  // last 14-day trend — from the newest-5000 sample; per-day counts stay honest
+  // until the whole pageviews table outgrows that cap
   const days: { d: string; n: number }[] = [];
   for (let i = 13; i >= 0; i--) { const d = new Date(Date.now() - i * 864e5); const ds = d.toDateString(); days.push({ d: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }), n: views.filter((v) => new Date(v.created_at).toDateString() === ds).length }); }
   const dmax = Math.max(1, ...days.map((x) => x.n));
@@ -160,9 +180,9 @@ export function Analytics() {
     <div className="ad-section">
       <div className="ad-head"><h2>📊 Analytics</h2></div>
       <div className="ad-stats">
-        <div className="ad-stat"><b>{total}</b><span>Total views</span></div>
-        <div className="ad-stat"><b>{week}</b><span>Last 7 days</span></div>
-        <div className="ad-stat"><b>{today}</b><span>Today</span></div>
+        <div className="ad-stat"><b>{stats.total}</b><span>Total views</span></div>
+        <div className="ad-stat"><b>{stats.week}</b><span>Last 7 days</span></div>
+        <div className="ad-stat"><b>{stats.today}</b><span>Today</span></div>
         <div className="ad-stat"><b>{countries || "—"}</b><span>Countries</span></div>
       </div>
 
@@ -186,10 +206,10 @@ export function Analytics() {
           <Breakdown title="🔗 Referrers" rows={group("referrer")} />
           <Breakdown title="🖥 Screen sizes" rows={group("screen")} />
         </div>
-      ) : loaded && total > 0 ? (
+      ) : loaded && stats.total > 0 ? (
         <p className="ad-hint">Detailed breakdowns (country, device, browser…) will appear here once the analytics columns are added in Supabase and new visits come in.</p>
       ) : null}
-      {loaded && !total && <p className="ad-hint">No views recorded yet.</p>}
+      {loaded && !stats.total && <p className="ad-hint">No views recorded yet.</p>}
     </div>
   );
 }
@@ -198,17 +218,34 @@ export function Analytics() {
 export function MediaLib() {
   const [files, setFiles] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const ref = useRef<HTMLInputElement>(null);
   const load = () => A.listStorage().then(setFiles);
   useEffect(() => { load(); }, []);
+  // Upload everything, then flash a summary — failures used to vanish into `catch {}`.
+  const uploadAll = async (list: File[]) => {
+    setBusy(true); setErr("");
+    let failed = 0, lastErr = "", uncompressed = 0;
+    for (const f of list) {
+      try {
+        const file: A.CompressedFile = /^image\//.test(f.type) ? await A.compressImage(f) : f;
+        await A.uploadFile(file);
+        if (file.uncompressedNote) uncompressed++;
+      } catch (e: any) { failed++; lastErr = e?.message || String(e); }
+    }
+    setBusy(false); load();
+    if (failed) setErr(`${failed} file${failed === 1 ? "" : "s"} failed to upload — ${lastErr}`);
+    else if (uncompressed) setErr(`${uncompressed} file${uncompressed === 1 ? " was" : "s were"} uploaded uncompressed (original kept)`);
+  };
   return (
     <div className="ad-section">
       <div className="ad-head"><h2>📁 Media library</h2></div>
       <div className="ad-card">
-        <div className="ad-dropzone" onClick={() => ref.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={async (e) => { e.preventDefault(); setBusy(true); for (const f of Array.from(e.dataTransfer.files)) { try { await A.uploadFile(/^image\//.test(f.type) ? await A.compressImage(f) : f); } catch {} } setBusy(false); load(); }}>
-          <input ref={ref} type="file" multiple hidden onChange={async (e) => { if (!e.target.files) return; setBusy(true); for (const f of Array.from(e.target.files)) { try { await A.uploadFile(/^image\//.test(f.type) ? await A.compressImage(f) : f); } catch {} } setBusy(false); load(); }} />
+        <div className="ad-dropzone" onClick={() => ref.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={async (e) => { e.preventDefault(); await uploadAll(Array.from(e.dataTransfer.files)); }}>
+          <input ref={ref} type="file" multiple hidden onChange={async (e) => { if (!e.target.files) return; await uploadAll(Array.from(e.target.files)); if (ref.current) ref.current.value = ""; }} />
           {busy ? "⏳ Uploading…" : "⬆ Drop files or click to upload"}
         </div>
+        {err && <p className="ad-up-err">⚠ {err}</p>}
         <div className="ad-media-grid">
           {files.map((f) => (
             <div className="ad-media" key={f.name}>

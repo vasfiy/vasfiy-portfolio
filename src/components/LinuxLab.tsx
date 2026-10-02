@@ -2,9 +2,10 @@
 import Script from "next/script";
 import Link from "next/link";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { useLang } from "./Providers";
 import Reveal from "./Reveal";
-import { pinSort } from "@/lib/data";
+import { fmtDate, pinSort } from "@/lib/format";
 import { pick } from "@/lib/i18n";
 import { onVideoError } from "@/lib/media";
 import type { Lang, Category } from "@/lib/types";
@@ -20,7 +21,7 @@ const PROG_KEY = "kt-lesson-progress";
 const CTF_KEY = "kt-ctf-solved";
 
 export default function LinuxLab({ lessons, challenges = [], cats, challengeCats = {} }: { lessons: any[]; challenges?: any[]; cats: Record<string, Category>; challengeCats?: Record<string, Category> }) {
-  const { lang: ctxLang } = useLang();
+  const { lang: ctxLang, t: gt } = useLang();
   const lang = (ctxLang || "en") as Lang;
   const T = LX[lang] || LX.en;
   const [filter, setFilter] = useState("all");
@@ -28,6 +29,9 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
   const [done, setDone] = useState<string[]>([]);
   const termRef = useRef<HTMLDivElement>(null);
   const inited = useRef(false);
+  const [termErr, setTermErr] = useState(false);
+  const [attFail, setAttFail] = useState<Record<string, "img" | "vid">>({});
+  const stripTags = (h: string) => String(h || "").replace(/<[^>]*>/g, " ");
 
   useEffect(() => { try { setDone(JSON.parse(localStorage.getItem(PROG_KEY) || "[]")); } catch {} }, []);
   const toggleDone = (id: string) => setDone((p) => { const n = p.includes(id) ? p.filter((x) => x !== id) : [...p, id]; localStorage.setItem(PROG_KEY, JSON.stringify(n)); return n; });
@@ -36,13 +40,18 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
   useEffect(() => { initTerm(); }, [initTerm]);
 
   const runCmd = (cmd: string) => {
-    document.getElementById("terminal")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => window.WebTerm?.run(cmd), 380);
+    const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("terminal")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    if (!window.WebTerm) setTermErr(true);
+    let settled = false;
+    const fire = () => { if (settled) return; settled = true; window.removeEventListener("scrollend", fire); if (window.WebTerm) window.WebTerm.run(cmd); };
+    window.addEventListener("scrollend", fire);
+    setTimeout(fire, reduce ? 120 : 800);
   };
 
   const present = Array.from(new Set(lessons.map((l) => l.cat).filter(Boolean))) as string[];
   let items = filter === "all" ? lessons : lessons.filter((l) => l.cat === filter);
-  if (q) { const s = q.toLowerCase(); items = items.filter((l) => [l.title, l.titleUz, l.body, l.bodyUz, (l.commands || []).join(" ")].some((x: string) => (x || "").toLowerCase().includes(s))); }
+  if (q) { const s = q.toLowerCase(); items = items.filter((l) => [l.title, l.titleUz, stripTags(l.body), stripTags(l.bodyUz), (l.commands || []).join(" ")].some((x: string) => (x || "").toLowerCase().includes(s))); }
   items = pinSort(items);
   const total = lessons.length;
   const completedCount = lessons.filter((l) => done.includes(l.__id)).length;
@@ -50,12 +59,12 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
 
   return (
     <>
-      <Script src="/js/terminal.js" strategy="afterInteractive" onReady={initTerm} />
+      <Script src="/js/terminal.js" strategy="lazyOnload" onReady={initTerm} onError={() => setTermErr(true)} />
 
       <section className="section page-hero" id="lab-hero">
         <div className="container">
           <Reveal className="section-head">
-            <span className="section-kicker"><span className="kicker-num">🐧</span> <span>{T.badge}</span></span>
+            <span className="section-kicker"><span className="kicker-num" aria-hidden="true">🐧</span> <span>{T.badge}</span></span>
             <h1 className="section-title">{T.title}</h1>
             <p className="hero-desc" style={{ marginTop: 12 }}>{T.desc}</p>
             <div className="hero-cta" style={{ marginTop: 22 }}>
@@ -80,11 +89,11 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
           </div>
 
           <div className="lx-controls">
-            <input className="lx-search" placeholder={T.search} value={q} onChange={(e) => setQ(e.target.value)} />
+            <input className="lx-search" placeholder={T.search} aria-label={T.search} value={q} onChange={(e) => setQ(e.target.value)} />
             {present.length > 0 && (
               <div className="filter-bar">
-                <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{T.all}</button>
-                {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{(cats[c] && (cats[c].icon ? cats[c].icon + " " : "") + (cats[c][lang] || cats[c].en)) || c}</button>)}
+                <button className={"filter-chip" + (filter === "all" ? " active" : "")} aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{T.all}</button>
+                {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} aria-pressed={filter === c} onClick={() => setFilter(c)}>{(cats[c] && (cats[c].icon ? cats[c].icon + " " : "") + (cats[c][lang] || cats[c].en)) || c}</button>)}
               </div>
             )}
           </div>
@@ -99,17 +108,20 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
                 return (
                   <article className={"lesson-card glass" + (isDone ? " done" : "")} key={l.__id}>
                     {l.pinned && <span className="pin-badge">📌</span>}
-                    <div className="lesson-meta">{l.date && <span className="lesson-date">{l.date}</span>}{l.cat && <span className="lesson-cat">{cat.icon || ""} {(cat[lang] || cat.en || l.cat)}</span>}</div>
+                    <div className="lesson-meta">{l.date && <span className="lesson-date">{fmtDate(l.date, lang)}</span>}{l.cat && <span className="lesson-cat">{cat.icon || ""} {(cat[lang] || cat.en || l.cat)}</span>}</div>
                     <h3>{title}</h3>
-                    <div className="lesson-body" dangerouslySetInnerHTML={{ __html: body }} />
+                    <div className="lesson-body" dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || "") }} />
                     {(l.attachments || []).length > 0 && (
                       <div className="lesson-files">
                         {(l.attachments as any[]).map((a, i) => {
                           const ty = a.type || "";
-                          if (/^image/.test(ty)) return <a className="lesson-att-img" key={i} href={a.url} target="_blank" rel="noopener"><img src={a.url} alt={a.name || ""} loading="lazy" decoding="async" /></a>;
-                          if (/video/.test(ty)) return <video className="lesson-att-vid" key={i} src={a.url} controls preload="metadata" data-original={a.url} onError={onVideoError} />;
+                          const fk = l.__id + ":" + i;
+                          const fail = attFail[fk];
+                          const chip = <a className="lesson-att" key={i} href={a.url} target="_blank" rel="noopener"><span aria-hidden="true">📎</span> {lang === "uz" ? "Mavjud emas" : "Unavailable"} — {a.name || "file"} ↗</a>;
+                          if (/^image/.test(ty)) return fail ? chip : <a className="lesson-att-img" key={i} href={a.url} target="_blank" rel="noopener"><img src={a.url} alt={a.name || ""} loading="lazy" decoding="async" onError={() => setAttFail((m) => ({ ...m, [fk]: "img" as const }))} /></a>;
+                          if (/video/.test(ty)) return fail ? chip : <video className="lesson-att-vid" key={i} src={a.url} controls preload="metadata" data-original={a.url} onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setAttFail((m) => ({ ...m, [fk]: "vid" as const })); }} />;
                           const icon = /pdf/.test(ty) ? "📄" : /html/.test(ty) ? "🌐" : "📎";
-                          return <a className="lesson-att" key={i} href={a.url} target="_blank" rel="noopener">{icon} {a.name || "file"} ↗</a>;
+                          return <a className="lesson-att" key={i} href={a.url} target="_blank" rel="noopener"><span aria-hidden="true">{icon}</span> {a.name || "file"} ↗</a>;
                         })}
                       </div>
                     )}
@@ -136,7 +148,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
       <section className="section" id="terminal">
         <div className="container">
           <Reveal className="section-head">
-            <span className="section-kicker"><span className="kicker-num">03</span> <span>{T.termKicker}</span></span>
+            <span className="section-kicker"><span className="kicker-num">{challenges.length ? "03" : "02"}</span> <span>{T.termKicker}</span></span>
             <h2 className="section-title">{T.termTitle}</h2>
           </Reveal>
           <div className="term-window glass" onClick={() => (termRef.current?.querySelector(".term-input") as HTMLInputElement)?.focus()}>
@@ -144,7 +156,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
               <span className="term-dot d-red" /><span className="term-dot d-yellow" /><span className="term-dot d-green" />
               <span className="term-bar-title">kamoliddin@kali-lab — webterm</span>
             </div>
-            <div className="term" id="webterm" ref={termRef} />
+            <div className="term" id="webterm" ref={termRef}>{termErr && <p className="term-error" style={{ padding: "16px 18px", color: "#f87171" }}>{gt("lab.termError")}</p>}</div>
           </div>
           <p className="term-note">{T.termNote}</p>
         </div>
@@ -193,8 +205,8 @@ function Challenges({ list, runCmd, lang, T, cats = {} }: { list: any[]; runCmd:
         </div>
         {present.length > 0 && (
           <div className="filter-bar">
-            <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{T.all}</button>
-            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
+            <button className={"filter-chip" + (filter === "all" ? " active" : "")} aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{T.all}</button>
+            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} aria-pressed={filter === c} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
           </div>
         )}
         <div className="ctf-grid">
@@ -206,16 +218,16 @@ function Challenges({ list, runCmd, lang, T, cats = {} }: { list: any[]; runCmd:
             return (
               <article className={"ctf-card glass" + (done ? " solved" : "")} key={c.__id}>
                 <div className="ctf-top"><h3>{pick(c, "title", lang)}</h3><span className="ctf-pts">{pts(c)} {T.points}</span></div>
-                <div className="ctf-prompt" dangerouslySetInnerHTML={{ __html: pick(c, "prompt", lang) }} />
+                <div className="ctf-prompt" dangerouslySetInnerHTML={{ __html: sanitizeHtml(pick(c, "prompt", lang) || "") }} />
                 {c.command && <div className="lesson-cmds"><span className="lesson-cmds-label">{T.tryIt}</span><button className="cmd-chip" onClick={() => runCmd(c.command)}>{c.command}</button></div>}
                 {hint && (showHint ? <p className="ctf-hint">💡 {hint}</p> : <button className="ctf-hint-btn" onClick={() => setHints((h) => [...h, c.__id])}>{T.showHint}</button>)}
                 {done ? (
-                  <div className="ctf-solved-row">✓ {T.correct} <b>+{pts(c)}</b></div>
+                  <div className="ctf-solved-row" role="status">✓ {T.correct} <b>+{pts(c)}</b></div>
                 ) : (
                   <div className={"ctf-answer" + (f === "err" ? " shake" : "")}>
-                    <input placeholder={T.yourAnswer} value={ans[c.__id] || ""} onChange={(e) => setAns((a) => ({ ...a, [c.__id]: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") submit(c); }} />
+                    <input placeholder={T.yourAnswer} aria-label={T.yourAnswer} value={ans[c.__id] || ""} onChange={(e) => setAns((a) => ({ ...a, [c.__id]: e.target.value }))} onKeyDown={(e) => { if (e.key === "Enter") submit(c); }} />
                     <button className="btn btn-primary btn-sm" onClick={() => submit(c)}>{T.submit}</button>
-                    {f === "err" && <span className="ctf-fb-err">✗ {T.wrong}</span>}
+                    {f === "err" && <span className="ctf-fb-err" role="alert">✗ {T.wrong}</span>}
                   </div>
                 )}
               </article>

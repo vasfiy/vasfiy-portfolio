@@ -20,10 +20,14 @@ export default function AdminApp() {
   const [navOpen, setNavOpen] = useState(false);
   const [photo, setPhoto] = useState("");
   const [editTarget, setEditTarget] = useState<string | null>(null);
+  const [expired, setExpired] = useState(false); // a session just ended (signed out elsewhere/expired)
 
   useEffect(() => {
     A.getUser().then(setUser);
-    const { data } = A.sb().auth.onAuthStateChange((_e, session) => setUser(session?.user || null));
+    const { data } = A.sb().auth.onAuthStateChange((e, session) => {
+      setUser(session?.user || null);
+      if (e === "SIGNED_OUT") setExpired(true);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -43,7 +47,7 @@ export default function AdminApp() {
   useEffect(() => { if (user) A.getSettings().then((s) => setPhoto(s.profilePhoto || "")).catch(() => {}); }, [user]);
 
   if (user === undefined) return <div className="ad-loading">Loading…</div>;
-  if (!user) return <Login />;
+  if (!user) return <Login expired={expired} />;
 
   const col = COLLECTIONS.find((c) => c.id === active);
   return (
@@ -78,7 +82,7 @@ export default function AdminApp() {
   );
 }
 
-function Login() {
+function Login({ expired }: { expired?: boolean }) {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [err, setErr] = useState("");
@@ -92,6 +96,7 @@ function Login() {
       <form className="ad-lock-card glass" onSubmit={submit}>
         <div className="ad-lock-icon">🔒</div>
         <h1>Admin panel</h1>
+        {expired && <p className="ad-err">Session expired — log in to continue.</p>}
         <p>Sign in with your Supabase admin email &amp; password.</p>
         <input type="email" placeholder="Admin email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" required />
         <input type="password" placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" required />

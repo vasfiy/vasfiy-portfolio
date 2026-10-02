@@ -802,6 +802,29 @@
     }
   }
 
+  /* ---------- Store bootstrap: session persistence needs window.KTStore
+     from /js/store.js, which nothing on the site loads for us — inject it
+     lazily in init; on failure proceed without persistence (guards stay). */
+  function boot() {
+    if (window.KTStore) return ready();
+    const s = document.createElement("script");
+    s.src = "/js/store.js";
+    let done = false;
+    const fin = () => { if (done) return; done = true; ready(); };
+    s.onload = fin;
+    s.onerror = fin;
+    document.head.appendChild(s);
+    setTimeout(fin, 3000); // never hang the terminal on a slow/blocked script
+  }
+  function ready() {
+    if (outEl.children.length === 0) loadSession(); // don't clobber commands typed while store.js was loading
+    updatePrompt();
+    const restored = window.KTStore && KTStore.has("term");
+    print('<span class="term-dim">WebTerm — simulated Linux shell with pipes (|). Type <span class="term-cmd">help</span> to begin.' +
+      (restored ? ' Session restored — <span class="term-cmd">reset</span> to start fresh.' : '') + '</span>');
+    print(C.neofetch().html);
+  }
+
   /* ---------- Public API ---------- */
   function run(cmd) { inEl.value = ""; execute(cmd); inEl.focus(); }
   function init(root) {
@@ -813,12 +836,7 @@
     outEl = root.querySelector("#termOut");
     inEl = root.querySelector("#termIn");
     promptEl = root.querySelector("#termPrompt");
-    loadSession();
-    updatePrompt();
-    const restored = window.KTStore && KTStore.has("term");
-    print('<span class="term-dim">WebTerm — simulated Linux shell with pipes (|). Type <span class="term-cmd">help</span> to begin.' +
-      (restored ? ' Session restored — <span class="term-cmd">reset</span> to start fresh.' : '') + '</span>');
-    print(C.neofetch().html);
+    boot();
 
     inEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { const v = inEl.value; inEl.value = ""; execute(v); }

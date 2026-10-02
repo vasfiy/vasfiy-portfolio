@@ -105,30 +105,49 @@ export async function addItem(kind: string, obj: any) {
   const { error } = await sb().from("items").insert({ kind, data: clean(obj), position: pos, pinned: !!obj.pinned });
   if (error) throw error;
 }
+/* Supabase update/delete matching 0 rows returns NO error, so a stale tab would
+   show "✓ Saved" while nothing was written — item writes go through helpers that
+   turn 0 affected rows into a thrown error (the UI flashes it and refetches). */
+const STALE = "Item not found — it was changed or deleted in another tab. The list has been refreshed.";
+async function updateById(id: string, patch: Record<string, any>) {
+  const { data, error } = await sb().from("items").update(patch).eq("id", id).select("id");
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error(STALE);
+}
+function spReplace(arr: any[], id: string, x: any) {
+  if (!arr.some((y) => y.__id === id)) throw new Error(STALE);
+  return arr.map((y) => (y.__id === id ? x : y));
+}
 export async function updateItem(id: string, obj: any) {
   if (isSpId(id)) {
     const arr = await spLoad();
     const o = stripNul({ ...obj }); delete o.position; o.__id = id; o.pinned = !!obj.pinned;
-    await spSave(arr.map((x) => (x.__id === id ? o : x)));
+    await spSave(spReplace(arr, id, o));
     return;
   }
-  const { error } = await sb().from("items").update({ data: clean(obj), pinned: !!obj.pinned, updated_at: new Date().toISOString() }).eq("id", id);
-  if (error) throw error;
+  await updateById(id, { data: clean(obj), pinned: !!obj.pinned, updated_at: new Date().toISOString() });
 }
 export async function deleteItem(id: string) {
-  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.filter((x) => x.__id !== id)); return; }
-  const { error } = await sb().from("items").delete().eq("id", id); if (error) throw error;
+  const GONE = "Item not found — it was already deleted. The list has been refreshed.";
+  if (isSpId(id)) {
+    const arr = await spLoad();
+    const next = arr.filter((x) => x.__id !== id);
+    if (next.length === arr.length) throw new Error(GONE);
+    await spSave(next);
+    return;
+  }
+  const { data, error } = await sb().from("items").delete().eq("id", id).select("id");
+  if (error) throw error;
+  if (!data || data.length === 0) throw new Error(GONE);
 }
 export async function setPinned(id: string, val: boolean) {
-  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.map((x) => (x.__id === id ? { ...x, pinned: val } : x))); return; }
-  await sb().from("items").update({ pinned: val }).eq("id", id);
+  if (isSpId(id)) { const arr = await spLoad(); await spSave(spReplace(arr, id, { ...arr.find((x) => x.__id === id), pinned: val })); return; }
+  await updateById(id, { pinned: val });
 }
 /** Temporarily archive/unarchive an item (kept in admin, hidden from the public site). */
 export async function setArchived(id: string, data: any, val: boolean) {
-  if (isSpId(id)) { const arr = await spLoad(); await spSave(arr.map((x) => (x.__id === id ? { ...x, archived: val } : x))); return; }
-  const obj = { ...data, archived: val };
-  const { error } = await sb().from("items").update({ data: clean(obj), updated_at: new Date().toISOString() }).eq("id", id);
-  if (error) throw error;
+  if (isSpId(id)) { const arr = await spLoad(); await spSave(spReplace(arr, id, { ...arr.find((x) => x.__id === id), archived: val })); return; }
+  await updateById(id, { data: clean({ ...data, archived: val }), updated_at: new Date().toISOString() });
 }
 export async function reorder(orderedIds: string[]) {
   if (orderedIds.some(isSpId)) {
@@ -140,7 +159,7 @@ export async function reorder(orderedIds: string[]) {
     return;
   }
   // assign sequential positions matching the given visual order
-  await Promise.all(orderedIds.map((id, i) => sb().from("items").update({ position: i }).eq("id", id)));
+  await Promise.all(orderedIds.map((id, i) => updateById(id, { position: i })));
 }
 export async function moveItem(kind: string, id: string, dir: "up" | "down") {
   if (SETTINGS_ITEM_KINDS.has(kind)) {
@@ -159,8 +178,8 @@ export async function moveItem(kind: string, id: string, dir: "up" | "down") {
   const j = dir === "up" ? i - 1 : i + 1;
   if (i < 0 || j < 0 || j >= arr.length) return;
   const a = arr[i], b = arr[j];
-  await sb().from("items").update({ position: b.position }).eq("id", a.id);
-  await sb().from("items").update({ position: a.position }).eq("id", b.id);
+  await updateById(a.id, { position: b.position });
+  await updateById(b.id, { position: a.position });
 }
 
 /* ---------- Categories ----------
@@ -220,7 +239,9 @@ export async function setSetting(key: string, value: any) {
 }
 
 /* ---------- Storage ---------- */
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // ~50 MB — reject oversized files before the network does
 export async function uploadFile(file: File): Promise<string> {
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error(`"${file.name || "file"}" is ${(file.size / 1048576).toFixed(0)} MB — over the 50 MB upload limit, please compress it first`);
   const safe = (file.name || "file").replace(/[^\w.\-]/g, "_");
   const path = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7) + "-" + safe;
   const { error } = await sb().storage.from("media").upload(path, file, { upsert: false, contentType: file.type || undefined });
@@ -229,7 +250,8 @@ export async function uploadFile(file: File): Promise<string> {
 }
 export async function listStorage() {
   const { data } = await sb().storage.from("media").list("", { limit: 200, sortBy: { column: "created_at", order: "desc" } });
-  return (data || []).filter((o: any) => o.name).map((o: any) => ({ name: o.name, url: sb().storage.from("media").getPublicUrl(o.name).data.publicUrl, size: (o.metadata && o.metadata.size) || 0, type: (o.metadata && o.metadata.mimetype) || "" }));
+  // o.id/o.metadata are null for "folder" pseudo-entries (e.g. voice/) — not real files, skip them
+  return (data || []).filter((o: any) => o.name && o.id && o.metadata).map((o: any) => ({ name: o.name, url: sb().storage.from("media").getPublicUrl(o.name).data.publicUrl, size: (o.metadata && o.metadata.size) || 0, type: (o.metadata && o.metadata.mimetype) || "" }));
 }
 export async function removeStorage(name: string) { await sb().storage.from("media").remove([name]); }
 
@@ -239,7 +261,14 @@ export async function listMessages() {
   return (data || []).slice().sort((a: any, b: any) => (b.created_at || "").localeCompare(a.created_at || ""));
 }
 export async function deleteMessage(id: string) { await sb().from("messages").delete().eq("id", id); }
+/** Newest 5000 view rows — a sample for trend/breakdowns, not a total. */
 export async function listViews() { const { data } = await sb().from("pageviews").select("*").order("created_at", { ascending: false }).limit(5000); return data || []; }
+/** Exact tile counts via a head query — listViews() caps at 5000 and would freeze totals there. */
+export async function countViews(sinceIso?: string) {
+  const q = sb().from("pageviews").select("*", { count: "exact", head: true });
+  const { count } = await (sinceIso ? q.gte("created_at", sinceIso) : q);
+  return count || 0;
+}
 
 /* ---------- Dashboard / backup ---------- */
 export async function getCounts() {
@@ -267,17 +296,21 @@ export async function exportAll() {
 }
 
 /* ---------- Client-side image compression ---------- */
-export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
+/* When the browser can't decode the image, the ORIGINAL file comes back with
+   `uncompressedNote` set so the caller can flash "original uploaded (uncompressed)". */
+export type CompressedFile = File & { uncompressedNote?: string };
+const UNCOMPRESSED = "original uploaded (uncompressed)";
+export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<CompressedFile> {
   if (!/^image\//.test(file.type) || /gif|svg/.test(file.type)) return file;
   try {
     const bmp = await createImageBitmap(file);
     let { width, height } = bmp;
     if (Math.max(width, height) > maxDim) { const s = maxDim / Math.max(width, height); width = Math.round(width * s); height = Math.round(height * s); }
     const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
-    const ctx = canvas.getContext("2d"); if (!ctx) return file;
+    const ctx = canvas.getContext("2d"); if (!ctx) return Object.assign(file, { uncompressedNote: UNCOMPRESSED });
     ctx.drawImage(bmp, 0, 0, width, height);
     const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/webp", quality));
-    if (!blob) return file;
+    if (!blob) return Object.assign(file, { uncompressedNote: UNCOMPRESSED });
     return new File([blob], file.name.replace(/\.\w+$/, "") + ".webp", { type: "image/webp" });
-  } catch { return file; }
+  } catch { return Object.assign(file, { uncompressedNote: UNCOMPRESSED }); }
 }

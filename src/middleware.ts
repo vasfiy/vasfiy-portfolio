@@ -9,14 +9,31 @@ import type { NextRequest } from "next/server";
 const NO_STORE = "no-store, no-cache, must-revalidate, max-age=0";
 
 export function middleware(req: NextRequest) {
-  const host = (req.headers.get("host") || "").toLowerCase();
+  // Exact parsed hostname (host header minus port) — never a startsWith/endsWith
+  // match, which a hostile Host header like "admin.vasfiy.com.evil.com" would pass.
+  const hostname = (req.headers.get("host") || "").toLowerCase().split(":")[0];
   const { pathname } = req.nextUrl;
-  const isAdminHost = host.startsWith("admin.vasfiy.com");
+  const isAdminHost = hostname === "admin.vasfiy.com";
+  const isMarketHost = hostname === "market.vasfiy.com";
+  // keep local dev working: localhost may still serve /admin directly
+  const isLocal = hostname === "localhost" || hostname.endsWith(".localhost") || hostname === "127.0.0.1" || hostname === "0.0.0.0";
 
   if (isAdminHost && !pathname.startsWith("/admin")) {
     const url = req.nextUrl.clone();
     url.pathname = "/admin"; // any path on the admin host serves the admin app
     const res = NextResponse.rewrite(url);
+    res.headers.set("Cache-Control", NO_STORE);
+    res.headers.set("Netlify-CDN-Cache-Control", NO_STORE);
+    return res;
+  }
+  // The admin app lives on its own subdomain only: /admin requested from any
+  // other (non-dev) host is redirected to the real one instead of served.
+  if (!isAdminHost && !isLocal && pathname.startsWith("/admin")) {
+    const url = req.nextUrl.clone();
+    url.protocol = "https:";
+    url.hostname = "admin.vasfiy.com";
+    url.port = "";
+    const res = NextResponse.redirect(url);
     res.headers.set("Cache-Control", NO_STORE);
     res.headers.set("Netlify-CDN-Cache-Control", NO_STORE);
     return res;
@@ -27,7 +44,7 @@ export function middleware(req: NextRequest) {
     res.headers.set("Netlify-CDN-Cache-Control", NO_STORE);
     return res;
   }
-  if (host.startsWith("market.vasfiy.com") && !pathname.startsWith("/market")) {
+  if (isMarketHost && !pathname.startsWith("/market")) {
     const url = req.nextUrl.clone();
     url.pathname = "/market" + (pathname === "/" ? "" : pathname); // / → catalog, /<id> → product
     return NextResponse.rewrite(url);

@@ -30,11 +30,12 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
   const addPhotos = (a: Album) => { target.current = { album: a.album, cat: a.cat }; fileRef.current?.click(); };
   const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files; if (!files || !files.length) return;
-    setBusy(`Uploading ${files.length}…`); let fail = 0; let lastErr = "";
+    setBusy(`Uploading ${files.length}…`); let fail = 0; let lastErr = ""; let uncompressed = 0;
     for (const f of Array.from(files)) {
       try {
-        const file = f.type.startsWith("image") ? await A.compressImage(f) : f;
+        const file: A.CompressedFile = f.type.startsWith("image") ? await A.compressImage(f) : f;
         const url = await A.uploadFile(file);
+        if (file.uncompressedNote) uncompressed++;
         const obj: any = { src: url, caption: "", captionUz: "" };
         if (f.type.startsWith("video")) obj.video = true;
         if (target.current.album) { obj.album = target.current.album; obj.albumUz = target.current.album; }
@@ -43,22 +44,27 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
       } catch (err: any) { fail++; lastErr = err?.message || String(err); }
     }
     if (fileRef.current) fileRef.current.value = "";
-    setBusy(fail ? `⚠ ${fail} upload(s) failed — ${lastErr}` : ""); refreshAll();
+    if (fail) setBusy(`⚠ ${fail} upload(s) failed — ${lastErr}`);
+    else if (uncompressed) setBusy(`⚠ ${uncompressed} photo(s) uploaded uncompressed — original kept`);
+    else setBusy("");
+    refreshAll();
   };
   const rename = async (a: Album) => {
     const nn = await uiPrompt("New album name (blank = ungroup):", a.album || "");
     if (nn == null) return; setBusy("Renaming…");
-    for (const p of a.photos) await A.updateItem(p.__id, { ...p, album: nn || undefined, albumUz: nn || undefined });
+    try { for (const p of a.photos) await A.updateItem(p.__id, { ...p, album: nn || undefined, albumUz: nn || undefined }); }
+    catch (e: any) { setBusy("⚠ " + (e?.message || e)); return; }
     setBusy(""); refreshAll();
   };
   const delAlbum = async (a: Album) => {
     if (!(await uiConfirm(`Delete album "${name(a)}" and its ${a.photos.length} photo(s)?`))) return;
     setBusy("Deleting…");
-    for (const p of a.photos) await A.deleteItem(p.__id);
+    try { for (const p of a.photos) await A.deleteItem(p.__id); }
+    catch (e: any) { setBusy("⚠ " + (e?.message || e)); return; }
     setBusy(""); refreshAll();
   };
-  const delPhoto = async (p: any) => { if (!(await uiConfirm("Delete this photo?"))) return; await A.deleteItem(p.__id); refreshAll(); };
-  const setCover = async (a: Album, p: any) => { for (const x of a.photos) await A.setPinned(x.__id, x.__id === p.__id); refreshAll(); };
+  const delPhoto = async (p: any) => { if (!(await uiConfirm("Delete this photo?"))) return; try { await A.deleteItem(p.__id); refreshAll(); } catch (e: any) { setBusy("⚠ " + (e?.message || e)); } };
+  const setCover = async (a: Album, p: any) => { try { for (const x of a.photos) await A.setPinned(x.__id, x.__id === p.__id); refreshAll(); } catch (e: any) { setBusy("⚠ " + (e?.message || e)); } };
 
   return (
     <div className="ad-card">

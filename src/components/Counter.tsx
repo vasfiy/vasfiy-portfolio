@@ -8,6 +8,7 @@ export default function Counter({ to, suffix = "" }: { to: number; suffix?: stri
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setVal(to); return; } // reduced motion: jump straight to the final value
     const io = new IntersectionObserver((es) => {
       es.forEach((e) => {
         if (e.isIntersecting && !done.current) {

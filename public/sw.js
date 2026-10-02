@@ -5,7 +5,7 @@
 const CACHE = "kt-v3";
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/offline-fallback.html"])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/offline-fallback.html"])).catch(() => {}));
   self.skipWaiting();
 });
 
@@ -34,9 +34,28 @@ self.addEventListener("fetch", (e) => {
   const isFreshData = url.pathname.startsWith("/prepared/") || url.pathname.endsWith(".json");
 
   if (isDocument || isFreshData) {
-    e.respondWith(
-      fetch(req).catch(() => (isDocument ? caches.match("/offline-fallback.html") || caches.match("/") : Response.error())),
-    );
+    e.respondWith((async () => {
+      try { return await fetch(req); } catch {
+        if (!isDocument) return Response.error();
+        return (await caches.match("/offline-fallback.html")) || (await caches.match("/")) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Immutable, content-hashed build assets: cache-first (no SW hop when warm,
+  // no pointless re-write of unchanged files on every navigation).
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/fonts/")) {
+    e.respondWith((async () => {
+      const hit = await caches.match(req);
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res && res.status === 200) {
+        const c = await caches.open(CACHE);
+        c.put(req, res.clone());
+      }
+      return res;
+    })());
     return;
   }
 

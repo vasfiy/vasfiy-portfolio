@@ -1,11 +1,11 @@
 "use client";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
-import { pinSort } from "@/lib/data";
+import { pinSort } from "@/lib/format";
 import type { SiteData } from "@/lib/types";
 
 export default function CV({ data }: { data: SiteData }) {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const st = data.settings.siteText || {};
   const cv = data.settings.cvUrl;
   const T = lang === "uz"
@@ -14,21 +14,21 @@ export default function CV({ data }: { data: SiteData }) {
 
   const jobs = pinSort(data.experience), skills = pinSort(data.skills), langs = pinSort(data.languages);
   const edu = pinSort(data.education), certs = pinSort(data.certs), projects = pinSort(data.projects);
-  const summary = [pick(st, "aboutP1", lang), pick(st, "aboutP3", lang)].filter(Boolean).join(" ").replace(/<[^>]+>/g, "");
+  const summary = [pick(st, "aboutP1", lang), pick(st, "aboutP3", lang)].filter(Boolean).join(" ").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&rsquo;/g, "\u2019").replace(/&quot;/g, '"');
   const email = st.socialEmail, li = st.socialLinkedin, loc = pick(st, "contactLocation", lang);
 
   return (
     <section className="section cv-wrap">
       <div className="cv-actions">
         <button className="btn btn-primary" onClick={() => window.print()}>{T.print}</button>
-        {cv && <a className="btn btn-ghost" href={cv} download>{T.download}</a>}
+        {cv && <a className="btn btn-ghost" href={cv} download target="_blank" rel="noopener">{T.download}</a>}
       </div>
 
       <article className="cv-page">
         <header className="cv-head">
           <div>
             <h1 className="cv-name">Kamoliddin Tilonboyev</h1>
-            <p className="cv-role">{pick(st, "heroRoles", lang) ? (lang === "uz" ? st.heroRolesUz?.[0] : st.heroRoles?.[0]) || "SOC Analyst" : "SOC Analyst"}</p>
+            <p className="cv-role">{(lang === "uz" ? st.heroRolesUz : st.heroRoles)?.[0] || st.heroRoles?.[0] || "SOC Analyst"}</p>
           </div>
           <ul className="cv-contact">
             {email && <li>✉ {email}</li>}
@@ -42,7 +42,7 @@ export default function CV({ data }: { data: SiteData }) {
         {jobs.length > 0 && (
           <section className="cv-sec"><h2>{T.exp}</h2>
             {jobs.map((j, i) => {
-              const bullets = (lang === "uz" ? j.bulletsUz : j.bullets) || j.bullets || [];
+              const bullets = lang === "uz" && j.bulletsUz?.length ? j.bulletsUz : j.bullets || [];
               return (
                 <div className="cv-job" key={i}>
                   <div className="cv-job-top"><b>{pick(j, "role", lang)}</b><span>{j.date}</span></div>

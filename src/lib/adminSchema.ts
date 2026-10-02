@@ -239,3 +239,44 @@ export const SITE_GROUPS: { group: string; fields: Field[] }[] = [
     ],
   },
 ];
+
+
+/* ---------- Save-time normalization & validation ----------
+   ItemManager runs every add/update through this before writing: strings are
+   trimmed, number-ish fields are digit-stripped, the page slug is normalized
+   and checked for uniqueness within the kind, and anything oversized is
+   refused with a clear thrown error (the UI flashes it) instead of being
+   silently truncated. */
+export const MAX_FIELD_LEN = 20000;
+const NAME_KEYS = ["title", "titleUz", "name", "nameUz", "role", "roleUz", "label", "labelUz", "degree", "degreeUz", "titleRu", "titleDe"];
+const NUM_KEYS = ["price", "pct", "points"];
+
+export function sanitizeItem(c: Collection, form: any, items: any[], excludeId?: string | null): any {
+  const obj: any = { ...form };
+  const labelOf = (k: string) => c.fields.find((f) => f.k === k)?.label || k;
+  c.fields.forEach((f) => {
+    const v = obj[f.k];
+    if (f.t === "list" && typeof v === "string") { obj[f.k] = v.split("\n").map((s: string) => s.trim()).filter(Boolean); return; }
+    if (typeof v !== "string") return;
+    if (v.length > MAX_FIELD_LEN) throw new Error(`"${labelOf(f.k)}" is too long (${v.length.toLocaleString()} characters, max ${MAX_FIELD_LEN.toLocaleString()}) — shorten it and save again.`);
+    let s = v.trim();
+    if (NUM_KEYS.includes(f.k)) s = s.replace(/\D+/g, ""); // digits only
+    obj[f.k] = s;
+  });
+  // keys not declared in the schema (legacy fields kept on edited items) still get the length guard
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === "string" && v.length > MAX_FIELD_LEN) throw new Error(`"${labelOf(k)}" is too long (${v.length.toLocaleString()} characters, max ${MAX_FIELD_LEN.toLocaleString()}).`);
+  }
+  // page slug: lowercase, trimmed, spaces → dashes, unique among the kind's items
+  if (c.fields.some((f) => f.k === "slug")) {
+    const slug = String(obj.slug || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+/, "").replace(/-+$/, "");
+    if (!slug || !/^[a-z0-9-]+$/.test(slug)) throw new Error("Slug may only contain lowercase letters, numbers and dashes — spaces are converted automatically.");
+    if (items.some((it) => it.__id !== excludeId && it.slug === slug)) throw new Error(`Slug "${slug}" is already used by another page — pick a different one.`);
+    obj.slug = slug;
+  }
+  // whatever title-ish fields the collection defines, at least one must be filled
+  const nameFields = c.fields.filter((f) => NAME_KEYS.includes(f.k));
+  if (nameFields.length && nameFields.every((f) => !String(obj[f.k] || "").trim()))
+    throw new Error(`A title is required — fill in "${labelOf(nameFields[0].k)}" (or another language variant).`);
+  return obj;
+}

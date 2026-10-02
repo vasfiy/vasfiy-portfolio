@@ -55,6 +55,7 @@ export default function BlockEditor({ value, onChange, onUpload }: {
             {b.type === "video" && <>
               {b.url && <video className="blk-media" src={b.url} controls preload="metadata" />}
               <input placeholder="Caption (EN)" value={b.caption || ""} onChange={(e) => update(i, { caption: e.target.value })} />
+              <input placeholder="Izoh (UZ, ixtiyoriy)" value={b.captionUz || ""} onChange={(e) => update(i, { captionUz: e.target.value })} />
             </>}
             {b.type === "youtube" && <>
               <input placeholder="YouTube URL or video ID" value={b.url || ""} onChange={(e) => update(i, { url: e.target.value })} />

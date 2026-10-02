@@ -29,8 +29,8 @@ export default function ThemeFab() {
 
   return (
     <>
-      <button className="theme-fab" id="themeFab" aria-label="Change colors" onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>🎨</button>
-      <div className={"theme-panel glass" + (open ? " open" : "")} id="themePanel" role="dialog" aria-label="Color themes">
+      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>🎨</button>
+      <div className={"theme-panel glass" + (open ? " open" : "")} id="themePanel" role="dialog" aria-label={t("theme.title")}>
         <h4>{t("theme.title")}</h4>
         <div className="swatches">
           {THEMES.map((th) => (
@@ -41,7 +41,7 @@ export default function ThemeFab() {
         </div>
         <div className="mode-row">
           <span>{t("theme.mode")}</span>
-          <button className="mode-toggle" aria-label="Toggle light/dark mode" onClick={() => applyMode(mode === "light" ? "dark" : "light")}>
+          <button className="mode-toggle" aria-label={t("theme.toggleMode")} onClick={() => applyMode(mode === "light" ? "dark" : "light")}>
             <span className={"mode-opt" + (mode === "dark" ? " active" : "")}>🌙</span>
             <span className={"mode-opt" + (mode === "light" ? " active" : "")}>☀️</span>
           </button>

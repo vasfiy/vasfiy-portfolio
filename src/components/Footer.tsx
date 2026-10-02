@@ -54,7 +54,7 @@ export default function Footer() {
       <div className="container footer-bottom">
         <span>© {year} Kamoliddin Tilonboyev</span>
         <span>{t("footer.built")}</span>
-        <button className="footer-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>↑ Top</button>
+        <button className="footer-top" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}>{t("footer.top")}</button>
       </div>
     </footer>
   );

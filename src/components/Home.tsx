@@ -6,8 +6,7 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import Counter from "./Counter";
 import { pick } from "@/lib/i18n";
-import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
-import { supabase } from "@/lib/data";
+import { pinSort, blogSort, fmtDate, ytId, isVideo, readingTime } from "@/lib/format";
 import { mediaUrl, onMediaError } from "@/lib/media";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
@@ -52,12 +51,14 @@ export default function Home({ data }: { data: SiteData }) {
 /* ---------------- Hero ---------------- */
 function Hero({ data, st }: { data: SiteData; st: any }) {
   const { lang, t } = useLang();
-  const roles: string[] = (lang === "uz" ? st.heroRolesUz : st.heroRoles) || st.heroRoles || ["SOC Analyst", "Blue-Team Defender", "Threat Hunter"];
+  const rawRoles: string[] = (lang === "uz" ? st.heroRolesUz : st.heroRoles) || st.heroRoles || [];
+  const roles = rawRoles.length ? rawRoles : ["SOC Analyst", "Blue-Team Defender", "Threat Hunter"]; // [] is truthy: don't let the typewriter loop forever
   const [typed, setTyped] = useState("");
   const [ri, setRi] = useState(0);
 
   useEffect(() => {
     const word = roles[ri % roles.length] || "";
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setTyped(word); return; } // reduced motion: static full word
     let i = 0, del = false, to: any;
     const run = () => {
       if (!del) { setTyped(word.slice(0, i + 1)); i++; if (i === word.length) { del = true; to = setTimeout(run, 1600); return; } }
@@ -66,10 +67,10 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
     };
     to = setTimeout(run, 250);
     return () => clearTimeout(to);
-  }, [ri]); // eslint-disable-line
+  }, [ri, lang, roles.join("|")]); // eslint-disable-line
 
-  const badge = pick(st, "heroBadge", lang) || "Open to relocation · Europe";
-  const desc = pick(st, "heroDesc", lang) || "Aspiring SOC Analyst with hands-on experience in blue-team operations, threat monitoring, and network analysis.";
+  const badge = pick(st, "heroBadge", lang) || (lang === "uz" ? "Yevropaga ishga joylashishga ochiq" : "Open to relocation · Europe");
+  const desc = pick(st, "heroDesc", lang) || (lang === "uz" ? "Blue-team operatsiyalari, tahdid monitoringi va tarmoq tahlili bo‘yicha amaliy tajribaga ega istiqbolli SOC analitigi." : "Aspiring SOC Analyst with hands-on experience in blue-team operations, threat monitoring, and network analysis.");
   const soc = st;
 
   return (
@@ -80,19 +81,19 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
           <div className="hero-main">
             <div className="hero-badge"><span className="status-dot" /> <span data-edit="heroBadge">{badge}</span></div>
             <h1 className="hero-title">
-              <span className="hero-hi">Hi, I&apos;m</span>
+              <span className="hero-hi">{t("hero.hi")}</span>
               <span className="hero-name">Kamoliddin Tilonboyev</span>
             </h1>
-            <p className="hero-role-line"><span className="hero-role-prefix">I&apos;m a</span> <span className="hero-role gradient-text">{typed}</span><span className="caret">|</span></p>
+            <p className="hero-role-line"><span className="hero-role-prefix">{t("hero.iam")}</span> <span className="hero-role gradient-text" aria-hidden="true">{typed}</span><span className="caret" aria-hidden="true">|</span><span className="sr-only">{roles[0]}</span></p>
             <p className="hero-desc" data-edit="heroDesc">{desc}</p>
             <div className="hero-cta">
               <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
-              <Link href="/cv" className="btn btn-ghost">📄 {t("hero.cv")}</Link>
+              <Link href="/cv" className="btn btn-ghost"><span aria-hidden="true">📄</span> {t("hero.cv")}</Link>
               <a href="#projects" className="btn btn-ghost">{t("hero.work")}</a>
             </div>
             <div className="hero-socials">
               {soc.socialLinkedin && <a href={soc.socialLinkedin} target="_blank" rel="noopener" aria-label="LinkedIn" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z" /></svg></a>}
-              {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label="Website" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
+              {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label={t("hero.website")} className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
               {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
             </div>
           </div>
@@ -126,12 +127,14 @@ function About({ data, st }: { data: SiteData; st: any }) {
               {photo ? <img src={mediaUrl(photo, 800)} data-original={photo} onError={onMediaError} alt="Kamoliddin Tilonboyev" loading="lazy" decoding="async" /> : <span className="photo-fallback">KT</span>}
             </div>
           </Reveal>
-          <Reveal className="about-text glass">
-            {["aboutP1", "aboutP2", "aboutP3"].map((k) => {
-              const v = pick(st, k, lang);
-              return v ? <p key={k} data-edit={k} dangerouslySetInnerHTML={{ __html: v }} /> : null;
-            })}
-          </Reveal>
+          {["aboutP1", "aboutP2", "aboutP3"].some((k) => pick(st, k, lang)) && (
+            <Reveal className="about-text glass">
+              {["aboutP1", "aboutP2", "aboutP3"].map((k) => {
+                const v = pick(st, k, lang);
+                return v ? <p key={k} data-edit={k} dangerouslySetInnerHTML={{ __html: v }} /> : null;
+              })}
+            </Reveal>
+          )}
         </div>
         {stats.length > 0 && (
           <Reveal className="about-stats">
@@ -153,6 +156,7 @@ function Skills({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
   const skills = pinSort(data.skills);
   const langs = pinSort(data.languages);
+  if (!skills.length && !langs.length) return null; // no heading over an empty section
   return (
     <section className="section" id="skills">
       <div className="container">
@@ -163,7 +167,7 @@ function Skills({ data }: { data: SiteData }) {
         <div className="skills-grid">
           {skills.map((s, i) => (
             <Reveal className="skill-card glass" key={i}>
-              <div className="skill-icon">{s.icon || "🛠"}</div>
+              <div className="skill-icon" aria-hidden="true">{s.icon || "🛠"}</div>
               <h3>{pick(s, "name", lang)}</h3>
               <div className="tags">{(s.tags || []).map((tg, j) => <span key={j}>{tg}</span>)}</div>
             </Reveal>
@@ -189,6 +193,7 @@ function Skills({ data }: { data: SiteData }) {
 function Experience({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
   const jobs = pinSort(data.experience);
+  if (!jobs.length) return null; // no heading over an empty section
   return (
     <section className="section" id="experience">
       <div className="container">
@@ -198,7 +203,7 @@ function Experience({ data }: { data: SiteData }) {
         </Reveal>
         <div className="timeline">
           {jobs.map((j, i) => {
-            const bullets = (lang === "uz" ? j.bulletsUz : j.bullets) || j.bullets || [];
+            const bullets = lang === "uz" && j.bulletsUz?.length ? j.bulletsUz : j.bullets || []; // [] is truthy: fall through to en bullets
             return (
               <Reveal className="tl-item" key={i}>
                 <div className="tl-dot" />
@@ -221,6 +226,7 @@ function Projects({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
   const [filter, setFilter] = useState("all");
   const all = pinSort(data.projects);
+  if (!all.length) return null; // no heading over an empty section
   const cats = data.cats?.project || {};
   const present = Array.from(new Set(all.map((p) => p.cat).filter(Boolean))) as string[];
   const catLabel = (c: string) => { const m = cats[c]; return m ? (m.icon ? m.icon + " " : "") + (m[lang] || m.en || c) : c; };
@@ -234,19 +240,19 @@ function Projects({ data }: { data: SiteData }) {
         </Reveal>
         {present.length > 0 && (
           <div className="filter-bar" style={{ marginBottom: 24 }}>
-            <button className={"filter-chip" + (filter === "all" ? " active" : "")} onClick={() => setFilter("all")}>{lang === "uz" ? "Hammasi" : "All"}</button>
-            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
+            <button className={"filter-chip" + (filter === "all" ? " active" : "")} aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{t("ui.all")}</button>
+            {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} aria-pressed={filter === c} onClick={() => setFilter(c)}>{catLabel(c)}</button>)}
           </div>
         )}
         <div className="projects-grid">
           {projects.map((p, i) => (
             <Reveal className="project-card glass" key={i}>
-              <div className="project-head"><div className="project-icon">{p.icon || "🔧"}</div><span className="project-period">{p.period}</span></div>
+              <div className="project-head"><div className="project-icon" aria-hidden="true">{p.icon || "🔧"}</div><span className="project-period">{p.period}</span></div>
               <h3>{pick(p, "title", lang)}</h3>
               {pick(p, "sub", lang) && <p className="project-sub">{pick(p, "sub", lang)}</p>}
               <p className="project-desc">{pick(p, "desc", lang)}</p>
               <div className="tags">{(p.tags || []).map((tg, j) => <span key={j}>{tg}</span>)}</div>
-              {p.linkUrl && <div className="project-links"><a href={p.linkUrl} target="_blank" rel="noopener">{pick(p, "linkLabel", lang) || "Visit ↗"}</a></div>}
+              {p.linkUrl && <div className="project-links"><a href={p.linkUrl} target="_blank" rel="noopener">{pick(p, "linkLabel", lang) || t("proj.visit")}</a></div>}
             </Reveal>
           ))}
         </div>
@@ -263,6 +269,8 @@ function Education({ data }: { data: SiteData }) {
   const [viewing, setViewing] = useState<{ src: string; title: string; pdf: boolean } | null>(null);
   const readerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const lastFocus = useRef<HTMLElement | null>(null);
   const [active, setActive] = useState(0);
   const toggleFs = () => { const el = readerRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
 
@@ -271,8 +279,11 @@ function Education({ data }: { data: SiteData }) {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !document.fullscreenElement) setViewing(null); };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+    lastFocus.current = document.activeElement as HTMLElement | null; // move focus into the dialog, restore it on close
+    viewerRef.current?.focus();
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; lastFocus.current?.focus(); lastFocus.current = null; };
   }, [viewing]);
+  if (!edu.length && !certs.length) return null; // no heading over an empty section (kept after all hooks)
 
   // A site-hosted (/certs/…) or uploaded (Supabase) file is shown in-site; the verify URL goes to TryHackMe.
   const fileSrc = (c: any) => { const f = String(c.file || "").trim(); return /^(https?:\/\/|\/)/.test(f) ? f : ""; };
@@ -332,10 +343,10 @@ function Education({ data }: { data: SiteData }) {
             </div>
             <button className="cert-nav cert-next" type="button" aria-label={lang === "uz" ? "Keyingi" : "Next"} onClick={() => nudge(1)}>›</button>
           </div>
-          <div className="cert-dots" role="tablist" aria-label={t("edu.certTitle")}>
+          <div className="cert-dots">
             {slides.map((c, i) => (
               <button
-                key={c.__id || i} type="button" role="tab" aria-label={`${i + 1}`}
+                key={c.__id || i} type="button" aria-label={pick(c, "name", lang)} aria-current={i === active ? "true" : undefined}
                 className={i === active ? "active" : ""}
                 onClick={() => trackRef.current?.scrollTo({ left: i * step(), behavior: "smooth" })}
               />
@@ -344,14 +355,14 @@ function Education({ data }: { data: SiteData }) {
         </Reveal>
       </div>
       {viewing && (
-        <div className="reader-modal open" role="dialog" aria-modal onClick={() => setViewing(null)}>
+        <div className="reader-modal open" role="dialog" aria-modal="true" aria-label={viewing.title} tabIndex={-1} ref={viewerRef} onClick={() => setViewing(null)}>
           <div className="reader-inner glass" ref={readerRef} onClick={(e) => e.stopPropagation()}>
             <div className="reader-bar">
               <span className="reader-title">{viewing.title}</span>
               <span className="reader-actions">
                 <button className="btn btn-ghost btn-sm" onClick={toggleFs} title={lang === "uz" ? "To'liq ekran" : "Fullscreen"}>⛶</button>
                 <a className="btn btn-ghost btn-sm" href={viewing.src} target="_blank" rel="noopener">↓ {lang === "uz" ? "Yuklab olish" : "Download"}</a>
-                <button className="reader-close" aria-label="Close" onClick={() => setViewing(null)}>×</button>
+                <button className="reader-close" aria-label={t("ui.close")} onClick={() => setViewing(null)}>×</button>
               </span>
             </div>
             {viewing.pdf
@@ -374,11 +385,11 @@ function JournalPreview({ data }: { data: SiteData }) {
     const img = blocks.find((b: any) => b.type === "image" && b.url);
     if (img) return <div className="bl-thumb"><img src={mediaUrl(img.url, 800)} data-original={img.url} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
     const yt = blocks.find((b: any) => b.type === "youtube" && b.url);
-    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url)}/hqdefault.jpg`} alt={title} loading="lazy" decoding="async" /><span className="vid-badge">▶</span></div>;
+    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url)}/hqdefault.jpg`} alt={title} loading="lazy" decoding="async" /><span className="vid-badge" aria-hidden="true">▶</span></div>;
     if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={mediaUrl(p.media, 800)} data-original={p.media} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
-    if (p.type === "video" && p.media) return <div className="bl-thumb bl-thumb-text"><span>▶</span></div>;
-    if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
-    return <div className="bl-thumb bl-thumb-text"><span>📝</span></div>;
+    if (p.type === "video" && p.media) return <div className="bl-thumb bl-thumb-text" aria-hidden="true"><span>▶</span></div>;
+    if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge" aria-hidden="true">▶</span></div>;
+    return <div className="bl-thumb bl-thumb-text" aria-hidden="true"><span>📝</span></div>;
   };
   return (
     <section className="section" id="journal">
@@ -393,10 +404,10 @@ function JournalPreview({ data }: { data: SiteData }) {
             const full = pick(p, "full", lang) || body;
             return (
               <Link className="bl-card glass" key={p.__id || i} href={`/blog/${p.__id ?? i}`}>
-                {p.pinned && <span className="pin-badge">📌</span>}
+                {p.pinned && <span className="pin-badge" aria-hidden="true">📌</span>}
                 {thumb(p, title)}
                 <div className="bl-body">
-                  <div className="blog-meta"><span>{fmtDate(p.date, lang)}</span>{p.location && <span className="b-loc">📍 {p.location}</span>}<span className="read-time">⏱ {readingTime(full)} {t("blog.min")}</span></div>
+                  <div className="blog-meta"><span>{fmtDate(p.date, lang)}</span>{p.location && <span className="b-loc"><span aria-hidden="true">📍</span> {p.location}</span>}<span className="read-time"><span aria-hidden="true">⏱</span> {readingTime(full)} {t("blog.min")}</span></div>
                   <h3>{title}</h3><p>{body}</p><span className="bl-read">{t("blog.read")}</span>
                 </div>
               </Link>
@@ -427,8 +438,8 @@ function GalleryPreview({ data }: { data: SiteData }) {
           {photos.map((p, i) => {
             const v = p.video || isVideo(p.src);
             return (
-              <Link key={i} className="gprev-tile" href={`/gallery/${encodeURIComponent(keyOf(p))}`} aria-label={pick(p, "caption", lang) || "photo"}>
-                {v ? <div className="video-ph"><span className="vid-badge">▶</span></div> : <img src={mediaUrl(p.src, 480)} data-original={p.src} onError={onMediaError} alt={pick(p, "caption", lang)} loading="lazy" decoding="async" />}
+              <Link key={i} className="gprev-tile" href={`/gallery/${encodeURIComponent(keyOf(p))}`} aria-label={pick(p, "caption", lang) || t("gallery.photo")}>
+                {v ? <div className="video-ph"><span className="vid-badge" aria-hidden="true">▶</span></div> : <img src={mediaUrl(p.src, 480)} data-original={p.src} onError={onMediaError} alt={pick(p, "caption", lang)} loading="lazy" decoding="async" />}
               </Link>
             );
           })}
@@ -443,16 +454,13 @@ function GalleryPreview({ data }: { data: SiteData }) {
 
 function Explore({ data }: { data: SiteData }) {
   const { lang, t } = useLang();
-  const albums = groupAlbums(data.gallery);
-  const posts = blogSort(data.blog);
   const httpOnly = (u?: string) => (u && /^https?:\/\//.test(u) ? u : undefined);
   const ec = data.settings.exploreCovers || {}; // admin-set custom covers per card
-  void albums; void posts;
   const cards = [
-    { id: "library", href: "/library", icon: "library", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? "book" : "books"}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
-    { id: "learning", href: "/learning", icon: "learning", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? "course" : "courses"}`, cover: httpOnly(ec.learning) },
-    { id: "linux", href: "/linux", icon: "lab", title: t("nav.lab"), desc: t("explore.labDesc"), meta: "Interactive", cover: httpOnly(ec.linux) },
-    { id: "tools", href: "/tools", icon: "tools", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: "QR · Password · Base64", cover: httpOnly(ec.tools) },
+    { id: "library", href: "/library", icon: "library", title: t("nav.library"), desc: t("explore.libraryDesc"), meta: `${data.books.length} ${data.books.length === 1 ? t("explore.book") : t("explore.books")}`, cover: httpOnly(ec.library) || httpOnly(data.books.find((b) => httpOnly(b.cover))?.cover) },
+    { id: "learning", href: "/learning", icon: "learning", title: t("nav.learning"), desc: t("explore.learnDesc"), meta: `${data.courses.length} ${data.courses.length === 1 ? t("explore.course") : t("explore.courses")}`, cover: httpOnly(ec.learning) },
+    { id: "linux", href: "/linux", icon: "lab", title: t("nav.lab"), desc: t("explore.labDesc"), meta: t("explore.interactive"), cover: httpOnly(ec.linux) },
+    { id: "tools", href: "/tools", icon: "tools", title: t("nav.tools"), desc: t("explore.toolsDesc"), meta: t("explore.toolsMeta"), cover: httpOnly(ec.tools) },
   ];
   return (
     <section className="section" id="explore">
@@ -475,9 +483,7 @@ function Explore({ data }: { data: SiteData }) {
                 </div>
               </>
             );
-            return (c as any).raw
-              ? <Reveal className="digest-wrap" key={i}><a className="digest-card glass" href={c.href}>{inner}</a></Reveal>
-              : <Reveal className="digest-wrap" key={i}><Link className="digest-card glass" href={c.href}>{inner}</Link></Reveal>;
+            return <Reveal className="digest-wrap" key={i}><Link className="digest-card glass" href={c.href}>{inner}</Link></Reveal>;
           })}
         </div>
       </div>
@@ -506,9 +512,9 @@ function Contact({ st }: { st: any }) {
     setStatus({ kind: "send", msg: t("contact.sending") });
     try {
       let audio: string | null = null;
-      if (voice) { try { audio = await uploadVoice(voice); } catch {} }
+      if (voice) { try { audio = await (await import("@/lib/data")).uploadVoice(voice); } catch {} }
       const payload: any = { name: String(fd.get("name") || ""), email: String(fd.get("email") || ""), message: msg, audio };
-      const { error } = await supabase.from("messages").insert(payload);
+      const { error } = await (await import("@/lib/data")).supabase.from("messages").insert(payload);
       if (error) throw error;
       // fire-and-forget email notification (no-op unless RESEND env is set)
       fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
@@ -519,7 +525,7 @@ function Contact({ st }: { st: any }) {
   };
   const mail = st.socialEmail, li = st.socialLinkedin;
   const loc = pick(st, "contactLocation", lang) || "Tashkent, Uzbekistan";
-  const rel = pick(st, "contactRelocate", lang) || "Open to relocation (Europe)";
+  const rel = pick(st, "contactRelocate", lang) || (lang === "uz" ? "Yevropaga ishga joylashishga ochiq (Yevropa)" : "Open to relocation (Europe)");
   return (
     <section className="section" id="contact">
       <div className="container">

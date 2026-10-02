@@ -13,11 +13,13 @@ async function findAlbum(rawKey: string) {
   const data = await getSiteData();
   const photos = pinSort(data.gallery.filter((p) => keyOf(p) === key));
   let name = "Gallery";
+  let nameUz: string | undefined;
   if (photos.length) {
     const f = photos[0];
     name = f.album || (f.cat ? ((data.galleryCats[f.cat] && (data.galleryCats[f.cat].en)) || f.cat) : "Gallery");
+    nameUz = f.albumUz || (f.cat && data.galleryCats[f.cat] && data.galleryCats[f.cat].uz) || undefined;
   }
-  return { name, photos };
+  return { name, nameUz, photos };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ key: string }> }): Promise<Metadata> {
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ key: stri
 
 export default async function AlbumPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-  const { name, photos } = await findAlbum(key);
+  const { name, nameUz, photos } = await findAlbum(key);
   if (!photos.length) notFound();
-  return <AlbumView name={name} photos={photos} />;
+  return <AlbumView name={name} nameUz={nameUz} photos={photos} />;
 }

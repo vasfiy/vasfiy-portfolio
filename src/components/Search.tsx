@@ -2,20 +2,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLang } from "./Providers";
-import { groupAlbums, getSiteData } from "@/lib/data";
-import { pick } from "@/lib/i18n";
+import { groupAlbums } from "@/lib/format";
+import { pick, tr } from "@/lib/i18n";
 import type { SiteData, Lang } from "@/lib/types";
 
 interface Hit { kind: string; icon: string; title: string; sub: string; href: string; text: string; }
 
 function buildIndex(data: SiteData, lang: Lang): Hit[] {
   const hits: Hit[] = [];
-  data.blog.forEach((p) => hits.push({ kind: "Journal", icon: "📝", title: pick(p, "title", lang), sub: p.date || "", href: `/blog/${p.__id}`, text: [pick(p, "title", lang), pick(p, "body", lang), pick(p, "full", lang)].join(" ") }));
-  groupAlbums(data.gallery).forEach((a) => { const nm = a.album || (a.cat ? (data.galleryCats[a.cat]?.[lang] || data.galleryCats[a.cat]?.en || a.cat) : "Gallery"); hits.push({ kind: "Gallery", icon: "🖼️", title: nm, sub: `${a.photos.length} photos`, href: `/gallery/${encodeURIComponent(a.key)}`, text: nm + " " + a.photos.map((p) => pick(p, "caption", lang)).join(" ") }); });
-  data.books.forEach((b) => hits.push({ kind: "Library", icon: "📚", title: pick(b, "title", lang), sub: b.author || "", href: "/library", text: [pick(b, "title", lang), b.author, pick(b, "desc", lang)].join(" ") }));
-  data.projects.forEach((p) => hits.push({ kind: "Project", icon: "🚀", title: pick(p, "title", lang), sub: p.period || "", href: "/#projects", text: [pick(p, "title", lang), pick(p, "desc", lang), (p.tags || []).join(" ")].join(" ") }));
-  data.skills.forEach((s) => hits.push({ kind: "Skill", icon: "🧠", title: pick(s, "name", lang), sub: (s.tags || []).join(", "), href: "/#skills", text: pick(s, "name", lang) + " " + (s.tags || []).join(" ") }));
-  data.experience.forEach((j) => hits.push({ kind: "Experience", icon: "💼", title: pick(j, "role", lang), sub: j.company || "", href: "/#experience", text: [pick(j, "role", lang), j.company, ((lang === "uz" ? j.bulletsUz : j.bullets) || []).join(" ")].join(" ") }));
+  data.blog.forEach((p) => hits.push({ kind: tr(lang, "search.kindJournal"), icon: "📝", title: pick(p, "title", lang), sub: p.date || "", href: `/blog/${p.__id}`, text: [pick(p, "title", lang), pick(p, "body", lang), pick(p, "full", lang)].join(" ") }));
+  groupAlbums(data.gallery).forEach((a) => { const nm = a.album ? (lang === "uz" ? a.albumUz || a.album : a.album) : a.cat ? (data.galleryCats[a.cat]?.[lang] || data.galleryCats[a.cat]?.en || a.cat) : tr(lang, "nav.gallery"); hits.push({ kind: tr(lang, "search.kindGallery"), icon: "🖼️", title: nm, sub: `${a.photos.length} ${tr(lang, a.photos.length === 1 ? "gallery.photo" : "gallery.photos")}`, href: `/gallery/${encodeURIComponent(a.key)}`, text: nm + " " + a.photos.map((p) => pick(p, "caption", lang)).join(" ") }); });
+  data.books.forEach((b) => hits.push({ kind: tr(lang, "search.kindLibrary"), icon: "📚", title: pick(b, "title", lang), sub: b.author || "", href: "/library", text: [pick(b, "title", lang), b.author, pick(b, "desc", lang)].join(" ") }));
+  data.projects.forEach((p) => hits.push({ kind: tr(lang, "search.kindProject"), icon: "🚀", title: pick(p, "title", lang), sub: p.period || "", href: "/#projects", text: [pick(p, "title", lang), pick(p, "desc", lang), (p.tags || []).join(" ")].join(" ") }));
+  data.skills.forEach((s) => hits.push({ kind: tr(lang, "search.kindSkill"), icon: "🧠", title: pick(s, "name", lang), sub: (s.tags || []).join(", "), href: "/#skills", text: pick(s, "name", lang) + " " + (s.tags || []).join(" ") }));
+  data.experience.forEach((j) => hits.push({ kind: tr(lang, "search.kindExperience"), icon: "💼", title: pick(j, "role", lang), sub: j.company || "", href: "/#experience", text: [pick(j, "role", lang), j.company, ((lang === "uz" ? j.bulletsUz : j.bullets) || []).join(" ")].join(" ") }));
   return hits;
 }
 
@@ -35,7 +35,7 @@ export default function Search() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  useEffect(() => { if (open) { if (!data) getSiteData().then(setData).catch(() => {}); setTimeout(() => inputRef.current?.focus(), 50); } else setQ(""); }, [open, data]);
+  useEffect(() => { if (open) { if (!data) import("@/lib/data").then((d) => d.getSiteData()).then(setData).catch(() => {}); setTimeout(() => inputRef.current?.focus(), 50); } else setQ(""); }, [open, data]);
 
   const results = q.trim().length < 2 ? [] : index.filter((h) => h.text.toLowerCase().includes(q.toLowerCase())).slice(0, 12);
 
@@ -53,7 +53,7 @@ export default function Search() {
               <kbd>Esc</kbd>
             </div>
             <div className="search-results">
-              {q.trim().length >= 2 && results.length === 0 && <p className="search-empty">{t("search.none")}</p>}
+              {q.trim().length >= 2 && results.length === 0 && <p className="search-empty" role="status">{t("search.none")}</p>}
               {results.map((h, i) => (
                 <Link key={i} href={h.href} className="search-hit" onClick={() => setOpen(false)}>
                   <span className="search-hit-ic">{h.icon}</span>
