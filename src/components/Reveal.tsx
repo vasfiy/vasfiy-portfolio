@@ -23,7 +23,7 @@ export default function Reveal({ children, className, delay = 0 }: { children: R
         el.classList.add("reveal-in");
         obs.disconnect();
       },
-      { rootMargin: "0px 0px -12% 0px" },
+      { rootMargin: "0px 0px -6% 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
