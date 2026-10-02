@@ -46,7 +46,7 @@ function QrTool({ t }: { t: any }) {
   return (
     <div className="tool-pane">
       <input className="tool-in" placeholder={t.qrPh} value={text} onChange={(e) => setText(e.target.value)} />
-      {url ? <div className="qr-out"><img src={url} alt="QR" width={240} height={240} /><button className="btn btn-primary btn-sm" onClick={download}>↓ {t.download}</button></div> : <p className="tool-hint">{t.qrPh}</p>}
+      {url ? <div className="qr-out"><img src={url} alt="QR" width={240} height={240} decoding="async" /><button className="btn btn-primary btn-sm" onClick={download}>↓ {t.download}</button></div> : <p className="tool-hint">{t.qrPh}</p>}
     </div>
   );
 }

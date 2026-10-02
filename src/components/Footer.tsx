@@ -2,8 +2,16 @@
 import Link from "next/link";
 import { useLang } from "./Providers";
 
+/* Local strings — these footer strings are not in the global DICT (src/lib/i18n.ts);
+   same bilingual local-dict pattern as Tools/LinuxLab. */
+const T = {
+  en: { tag: "SOC analyst — blue-team operations, threat monitoring & network defense.", profile: "Profile", explore: "Explore", more: "More" },
+  uz: { tag: "SOC analitik — blue-team operatsiyalari, tahdid monitoringi va tarmoq himoyasi.", profile: "Profil", explore: "Bo'limlar", more: "Qo'shimcha" },
+};
+
 export default function Footer() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const d = T[lang] || T.en;
   const year = new Date().getFullYear();
   return (
     <footer className="footer">
@@ -13,10 +21,10 @@ export default function Footer() {
             <span className="brand-mark">KT</span>
             <span className="brand-name">Kamoliddin<span className="brand-dot">.</span></span>
           </div>
-          <p className="footer-tag">SOC analyst — blue-team operations, threat monitoring &amp; network defense.</p>
+          <p className="footer-tag">{d.tag}</p>
         </div>
         <div className="footer-col">
-          <h4>Profile</h4>
+          <h4>{d.profile}</h4>
           <ul>
             <li><Link href="/#about">{t("nav.about")}</Link></li>
             <li><Link href="/#skills">{t("nav.skills")}</Link></li>
@@ -25,7 +33,7 @@ export default function Footer() {
           </ul>
         </div>
         <div className="footer-col">
-          <h4>Explore</h4>
+          <h4>{d.explore}</h4>
           <ul>
             <li><Link href="/blog">{t("nav.journal")}</Link></li>
             <li><Link href="/gallery">{t("nav.gallery")}</Link></li>
@@ -34,7 +42,7 @@ export default function Footer() {
           </ul>
         </div>
         <div className="footer-col">
-          <h4>More</h4>
+          <h4>{d.more}</h4>
           <ul>
             <li><Link href="/linux">{t("nav.lab")}</Link></li>
             <li><Link href="/tools">{t("nav.tools")}</Link></li>

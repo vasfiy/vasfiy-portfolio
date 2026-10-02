@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import { pinSort, groupAlbums } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import PhotoGrid from "./PhotoGrid";
 import type { Photo, Category, Album } from "@/lib/types";
 
@@ -50,7 +51,7 @@ export default function GalleryGrid({ photos, cats }: { photos: Photo[]; cats: R
               const nm = albumName(a);
               return (
                 <Link className="album-card" href={`/gallery/${encodeURIComponent(a.key)}`} key={a.key}>
-                  {cover?.src ? <img src={cover.src} alt={nm} loading="lazy" /> : <div className="ph">🖼️</div>}
+                  {cover?.src ? <img src={mediaUrl(cover.src, 480)} data-original={cover.src} onError={onMediaError} alt={nm} loading="lazy" decoding="async" /> : <div className="ph">🖼️</div>}
                   <div className="album-overlay"><h3>{nm}</h3><span className="album-count">{a.photos.length} {a.photos.length === 1 ? t("gallery.photo") : t("gallery.photos")}</span></div>
                 </Link>
               );

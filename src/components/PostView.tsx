@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import { fmtDate, ytId, readingTime } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import AdminEditLink from "./AdminEditLink";
 import type { Post } from "@/lib/types";
 
@@ -66,7 +67,7 @@ export default function PostView({ post, related }: { post: Post | null; related
 
   const renderBlock = (b: any, i: number) => {
     if (b.type === "text") { const t2 = pick(b, "text", lang); return t2.trim() ? <div className="post-block-text" key={i}>{t2.split(/\n{2,}/).filter((p: string) => p.trim()).map((p: string, j: number) => <p key={j}>{p.split("\n").map((ln: string, k: number) => <span key={k}>{k ? <br /> : null}{ln}</span>)}</p>)}</div> : null; }
-    if (b.type === "image" && b.url) return <figure className="post-block-img" key={i}><img src={b.url} alt={pick(b, "caption", lang) || ""} loading="lazy" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
+    if (b.type === "image" && b.url) return <figure className="post-block-img" key={i}><img src={mediaUrl(b.url, 800)} data-original={b.url} onError={onMediaError} alt={pick(b, "caption", lang) || ""} loading="lazy" decoding="async" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
     if (b.type === "video" && b.url) return <figure className="post-block-img" key={i}><video src={b.url} controls preload="metadata" />{pick(b, "caption", lang) && <figcaption>{pick(b, "caption", lang)}</figcaption>}</figure>;
     if (b.type === "youtube" && b.url) return <div className="post-media post-media-video post-block-yt" key={i}><iframe src={`https://www.youtube.com/embed/${ytId(b.url)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
     if (b.type === "file" && b.url) return <a className="post-block-file" href={b.url} target="_blank" rel="noopener" key={i}>📎 {b.name || "Download"}</a>;
@@ -74,8 +75,8 @@ export default function PostView({ post, related }: { post: Post | null; related
   };
 
   const media = () => {
-    if (cover) return <div className="post-media"><img src={cover.url} alt={title} /></div>;
-    if (post.type === "image" && post.media) return <div className="post-media"><img src={post.media} alt={title} /></div>;
+    if (cover) return <div className="post-media"><img src={mediaUrl(cover.url, 800)} data-original={cover.url} onError={onMediaError} alt={title} decoding="async" /></div>;
+    if (post.type === "image" && post.media) return <div className="post-media"><img src={mediaUrl(post.media, 800)} data-original={post.media} onError={onMediaError} alt={title} decoding="async" /></div>;
     if (post.type === "video" && post.media) return <div className="post-media"><video src={post.media} controls preload="metadata" /></div>;
     if (post.type === "youtube" && post.media) return <div className="post-media post-media-video"><iframe src={`https://www.youtube.com/embed/${ytId(post.media)}`} title={title} allowFullScreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" /></div>;
     return null;

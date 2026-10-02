@@ -5,6 +5,7 @@ import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import { pick } from "@/lib/i18n";
 import { blogSort, fmtDate, ytId, readingTime } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import type { Post, Category } from "@/lib/types";
 
 export default function BlogList({ posts, cats = {} }: { posts: Post[]; cats?: Record<string, Category> }) {
@@ -26,13 +27,13 @@ export default function BlogList({ posts, cats = {} }: { posts: Post[]; cats?: R
     // New block model: cover = first image block (else first video/youtube).
     const blocks = Array.isArray(p.blocks) ? p.blocks : [];
     const img = blocks.find((b) => b.type === "image" && b.url);
-    if (img) return <div className="bl-thumb"><img src={img.url} alt={title} loading="lazy" /></div>;
+    if (img) return <div className="bl-thumb"><img src={mediaUrl(img.url, 800)} data-original={img.url} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
     const vid = blocks.find((b) => b.type === "video" && b.url);
-    if (vid) return <div className="bl-thumb"><video src={vid.url} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
+    if (vid) return <div className="bl-thumb bl-thumb-text"><span>▶</span></div>;
     const yt = blocks.find((b) => b.type === "youtube" && b.url);
-    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url!)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
-    if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={p.media} alt={title} loading="lazy" /></div>;
-    if (p.type === "video" && p.media) return <div className="bl-thumb"><video src={p.media} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
+    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url!)}/hqdefault.jpg`} alt={title} loading="lazy" decoding="async" /><span className="vid-badge">▶</span></div>;
+    if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={mediaUrl(p.media, 800)} data-original={p.media} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
+    if (p.type === "video" && p.media) return <div className="bl-thumb bl-thumb-text"><span>▶</span></div>;
     if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
     return <div className="bl-thumb bl-thumb-text"><span>📝</span></div>;
   };

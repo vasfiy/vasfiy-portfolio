@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 import Reveal from "./Reveal";
 import { pinSort } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import { pick } from "@/lib/i18n";
 import type { Book, Category } from "@/lib/types";
 
@@ -61,7 +62,7 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
               const isPdf = file && /\.pdf(\?|$)/i.test(file);
               return (
                 <Reveal className="book-card glass" key={b.__id || i}>
-                  <div className="book-cover">{cover ? <img src={cover} alt={title} loading="lazy" /> : <span className="book-emoji">📕</span>}</div>
+                  <div className="book-cover">{cover ? <img src={mediaUrl(cover, 800)} data-original={cover} onError={onMediaError} alt={title} loading="lazy" decoding="async" /> : <span className="book-emoji">📕</span>}</div>
                   <div className="book-info">
                     <h3>{title}</h3>
                     {b.author && <p className="book-author">{t("library.by")} {b.author}</p>}

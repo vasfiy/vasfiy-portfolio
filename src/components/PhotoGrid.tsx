@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLang } from "./Providers";
 import { isVideo } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import { pick } from "@/lib/i18n";
 import type { Photo, Lang } from "@/lib/types";
 
@@ -88,8 +89,8 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
           return (
             <figure className="ip-tile" key={i} onClick={() => setLb(i)}>
               {vid
-                ? <><video src={g.src} muted playsInline preload="metadata" /><span className="vid-badge">▶</span></>
-                : <img src={g.src} alt={pick(g, "caption", lang)} loading="lazy" />}
+                ? <div className="video-ph"><span className="vid-badge">▶</span></div>
+                : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={pick(g, "caption", lang)} loading="lazy" decoding="async" />}
             </figure>
           );
         })}
@@ -117,7 +118,7 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
   useEffect(() => {
     [index - 1, index + 1].forEach((j) => {
       const p = photos[(j + photos.length) % photos.length];
-      if (p && p.src && !(p.video || isVideo(p.src))) { const im = new Image(); im.src = p.src; }
+      if (p && p.src && !(p.video || isVideo(p.src))) { const im = new Image(); im.src = mediaUrl(p.src, 1400)!; }
     });
   }, [index, photos]);
 
@@ -172,7 +173,7 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       <div className="ip-lb-stage" onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}>
         {vid
           ? <video src={cur.src} controls playsInline autoPlay />
-          : <img src={cur.src} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current ? "none" : "transform .25s" }} />}
+          : <img src={mediaUrl(cur.src, 1400)} data-original={cur.src} onError={onMediaError} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current ? "none" : "transform .25s" }} />}
       </div>
       <button className="ip-lb-nav ip-lb-prev" aria-label="Previous" onClick={(e) => { e.stopPropagation(); onStep(-1); }}>‹</button>
       <button className="ip-lb-nav ip-lb-next" aria-label="Next" onClick={(e) => { e.stopPropagation(); onStep(1); }}>›</button>

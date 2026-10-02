@@ -8,6 +8,7 @@ import Counter from "./Counter";
 import { pick } from "@/lib/i18n";
 import { pinSort, groupAlbums, blogSort, fmtDate, ytId, isVideo, readingTime, uploadVoice } from "@/lib/data";
 import { supabase } from "@/lib/data";
+import { mediaUrl, onMediaError } from "@/lib/media";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
 import Astronaut from "./Astronaut";
@@ -122,7 +123,7 @@ function About({ data, st }: { data: SiteData; st: any }) {
         <div className="about-top">
           <Reveal className="photo-card glass">
             <div className="photo-frame"><span className="photo-ring" />
-              {photo ? <img src={photo} alt="Kamoliddin Tilonboyev" /> : <span className="photo-fallback">KT</span>}
+              {photo ? <img src={mediaUrl(photo, 800)} data-original={photo} onError={onMediaError} alt="Kamoliddin Tilonboyev" loading="lazy" decoding="async" /> : <span className="photo-fallback">KT</span>}
             </div>
           </Reveal>
           <Reveal className="about-text glass">
@@ -289,7 +290,7 @@ function Education({ data }: { data: SiteData }) {
     <section className="section" id="education">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">05</span> <span>{t("edu.kicker")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("edu.kicker")}</span></span>
           <h2 className="section-title">{t("edu.title")}</h2>
         </Reveal>
         <div className="edu-grid">
@@ -319,7 +320,7 @@ function Education({ data }: { data: SiteData }) {
                     onClick={open} role="button" tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}
                   >
-                    <img src={img} alt={name} loading="lazy" />
+                    <img src={mediaUrl(img, 800)} data-original={img} onError={onMediaError} alt={name} loading="lazy" decoding="async" />
                     <figcaption>
                       <h4>{name}</h4>
                       <p className="cert-meta">{pick(c, "meta", lang)}</p>
@@ -355,7 +356,7 @@ function Education({ data }: { data: SiteData }) {
             </div>
             {viewing.pdf
               ? <iframe src={viewing.src} title={viewing.title} />
-              : <div className="cert-img-wrap"><img src={viewing.src} alt={viewing.title} /></div>}
+              : <div className="cert-img-wrap"><img src={mediaUrl(viewing.src, 1400)} data-original={viewing.src} onError={onMediaError} alt={viewing.title} decoding="async" /></div>}
           </div>
         </div>
       )}
@@ -371,11 +372,11 @@ function JournalPreview({ data }: { data: SiteData }) {
   const thumb = (p: any, title: string) => {
     const blocks = Array.isArray(p.blocks) ? p.blocks : [];
     const img = blocks.find((b: any) => b.type === "image" && b.url);
-    if (img) return <div className="bl-thumb"><img src={img.url} alt={title} loading="lazy" /></div>;
+    if (img) return <div className="bl-thumb"><img src={mediaUrl(img.url, 800)} data-original={img.url} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
     const yt = blocks.find((b: any) => b.type === "youtube" && b.url);
-    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
-    if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={p.media} alt={title} loading="lazy" /></div>;
-    if (p.type === "video" && p.media) return <div className="bl-thumb"><video src={p.media} muted preload="metadata" /><span className="vid-badge">▶</span></div>;
+    if (yt) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(yt.url)}/hqdefault.jpg`} alt={title} loading="lazy" decoding="async" /><span className="vid-badge">▶</span></div>;
+    if (p.type === "image" && p.media) return <div className="bl-thumb"><img src={mediaUrl(p.media, 800)} data-original={p.media} onError={onMediaError} alt={title} loading="lazy" decoding="async" /></div>;
+    if (p.type === "video" && p.media) return <div className="bl-thumb bl-thumb-text"><span>▶</span></div>;
     if (p.type === "youtube" && p.media) return <div className="bl-thumb"><img src={`https://i.ytimg.com/vi/${ytId(p.media)}/hqdefault.jpg`} alt={title} loading="lazy" /><span className="vid-badge">▶</span></div>;
     return <div className="bl-thumb bl-thumb-text"><span>📝</span></div>;
   };
@@ -383,7 +384,7 @@ function JournalPreview({ data }: { data: SiteData }) {
     <section className="section" id="journal">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">06</span> <span>{t("nav.journal")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">05</span> <span>{t("nav.journal")}</span></span>
           <h2 className="section-title">{t("explore.journalDesc")}</h2>
         </Reveal>
         <Reveal className="bl-grid">
@@ -419,7 +420,7 @@ function GalleryPreview({ data }: { data: SiteData }) {
     <section className="section" id="gallery-preview">
       <div className="container">
         <Reveal className="section-head">
-          <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("nav.gallery")}</span></span>
+          <span className="section-kicker"><span className="kicker-num">06</span> <span>{t("nav.gallery")}</span></span>
           <h2 className="section-title">{t("explore.galleryDesc")}</h2>
         </Reveal>
         <Reveal className="gprev-grid">
@@ -427,7 +428,7 @@ function GalleryPreview({ data }: { data: SiteData }) {
             const v = p.video || isVideo(p.src);
             return (
               <Link key={i} className="gprev-tile" href={`/gallery/${encodeURIComponent(keyOf(p))}`} aria-label={pick(p, "caption", lang) || "photo"}>
-                {v ? <><video src={p.src} muted preload="metadata" /><span className="vid-badge">▶</span></> : <img src={p.src!} alt={pick(p, "caption", lang)} loading="lazy" />}
+                {v ? <div className="video-ph"><span className="vid-badge">▶</span></div> : <img src={mediaUrl(p.src, 480)} data-original={p.src} onError={onMediaError} alt={pick(p, "caption", lang)} loading="lazy" decoding="async" />}
               </Link>
             );
           })}
@@ -464,7 +465,7 @@ function Explore({ data }: { data: SiteData }) {
           {cards.map((c, i) => {
             const inner = (
               <>
-                {c.cover ? <img className="digest-cover" src={c.cover} alt="" loading="lazy" /> : <div className="digest-cover ph"><Icon name={c.icon} size={34} /></div>}
+                {c.cover ? <img className="digest-cover" src={mediaUrl(c.cover, 800)} data-original={c.cover} onError={onMediaError} alt="" loading="lazy" decoding="async" /> : <div className="digest-cover ph"><Icon name={c.icon} size={34} /></div>}
                 <div className="digest-body">
                   <div className="digest-icon"><Icon name={c.icon} /></div>
                   <h3>{c.title}</h3>
@@ -494,7 +495,14 @@ function Contact({ st }: { st: any }) {
     const f = e.currentTarget;
     const fd = new FormData(f);
     const msg = String(fd.get("message") || "").trim();
-    if (!msg && !voice) { setStatus({ kind: "err", msg: t("contact.empty") }); return; }
+    if (!msg && !voice) { setStatus({ kind: "err", msg: t("contact.empty") }); f.querySelector<HTMLTextAreaElement>("[name=message]")?.focus(); return; }
+    // form is noValidate: surface missing/invalid fields in the status line (the native bubble is transient)
+    const missing = [!String(fd.get("name") || "").trim() && t("contact.name"), !/^\S+@\S+\.\S+$/.test(String(fd.get("email") || "").trim()) && t("contact.email")].filter(Boolean) as string[];
+    if (missing.length) {
+      setStatus({ kind: "err", msg: (lang === "uz" ? "Iltimos, to'ldiring: " : "Please fill in: ") + missing.join(", ") });
+      f.querySelector<HTMLInputElement>(missing[0] === t("contact.name") ? "[name=name]" : "[name=email]")?.focus();
+      return;
+    }
     setStatus({ kind: "send", msg: t("contact.sending") });
     try {
       let audio: string | null = null;
@@ -519,7 +527,7 @@ function Contact({ st }: { st: any }) {
           <span className="section-kicker center"><span className="kicker-num">09</span> <span>{t("contact.kicker")}</span></span>
           <h2 className="section-title center">{pick(st, "contactTitle", lang) || t("contact.title")}</h2>
           <p className="contact-desc">{pick(st, "contactDesc", lang)}</p>
-          <form className="contact-form" onSubmit={onSubmit}>
+          <form className="contact-form" onSubmit={onSubmit} noValidate>
             <div className="cf-row">
               <input type="text" name="name" required placeholder={t("contact.name")} />
               <input type="email" name="email" required placeholder={t("contact.email")} />
