@@ -57,7 +57,7 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   useEffect(() => {
     const word = roles[ri % roles.length] || "";
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setTyped(word); return; } // reduced motion: static full word
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(max-width: 768px)").matches) { setTyped(word); return; } // reduced motion + phones: static full word (typing is unreadable on small screens)
     let i = 0, del = false, to: any;
     const run = () => {
       if (!del) { setTyped(word.slice(0, i + 1)); i++; if (i === word.length) { del = true; to = setTimeout(run, 1600); return; } }
@@ -81,9 +81,9 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
             <div className="hero-badge"><span className="status-dot" /> <span data-edit="heroBadge">{badge}</span></div>
             <h1 className="hero-title">
               <span className="hero-hi">{t("hero.hi")}</span>
-              <span className="hero-name">Kamoliddin Tilonboyev</span>
+              <span className="hero-name" translate="no">Kamoliddin Tilonboyev</span>
             </h1>
-            <p className="hero-role-line"><span className="hero-role-prefix">{t("hero.iam")}</span> <span className="hero-role gradient-text" aria-hidden="true">{typed}</span><span className="caret" aria-hidden="true">|</span><span className="sr-only">{roles[0]}</span></p>
+            <p className="hero-role-line" translate="no"><span className="hero-role-prefix">{t("hero.iam")}</span> <span className="hero-role gradient-text" aria-hidden="true">{typed}</span><span className="caret" aria-hidden="true">|</span><span className="sr-only">{roles[0]}</span></p>
             <p className="hero-desc" data-edit="heroDesc">{desc}</p>
             <div className="hero-cta">
               <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
