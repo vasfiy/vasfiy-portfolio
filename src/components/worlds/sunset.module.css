@@ -1,9 +1,0 @@
-/* Sunset world canvas — fills the fixed .world-layer (globals.css provides
-   position/z-index/pointer-events); the engine sets explicit px size on
-   resize, these are the pre-first-paint defaults. */
-.canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}

@@ -1,6 +1,0 @@
-/* COSMOS world — the engine sizes the canvas element (style w/h + DPR);
-   this just pins it to the fixed .world-layer viewport. */
-.canvas {
-  position: absolute;
-  inset: 0;
-}

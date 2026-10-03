@@ -1,0 +1,10 @@
+{
+  "theme": "matrix",
+  "photos": [
+    { "src": "/worlds/matrix/1.jpg", "pos": "50% 40%" },
+    { "src": "/worlds/matrix/2.jpg", "pos": "50% 45%" },
+    { "src": "/worlds/matrix/3.jpg", "pos": "50% 35%" },
+    { "src": "/worlds/matrix/4.jpg", "pos": "50% 45%" },
+    { "src": "/worlds/matrix/5.jpg", "pos": "50% 40%" }
+  ]
+}

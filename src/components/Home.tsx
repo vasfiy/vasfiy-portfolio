@@ -30,41 +30,22 @@ function HeroCanvasLazy() {
   return show ? <HeroCanvas /> : null;
 }
 
-/* The hero panel mirrors the active world theme (localStorage + data-theme,
-   kept live via MutationObserver) so it never fights the ThemeFab. */
-const WORLD_THEMES = ["cosmos", "ocean", "cyber", "matrix", "sunset"];
-function useWorldTheme() {
-  const [theme, setTheme] = useState("cosmos");
-  useEffect(() => {
-    const el = document.documentElement;
-    const read = () => {
-      const t = localStorage.getItem("theme") || el.getAttribute("data-theme") || "cosmos";
-      setTheme(WORLD_THEMES.includes(t) ? t : "cosmos");
-    };
-    read();
-    const mo = new MutationObserver(read);
-    mo.observe(el, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => mo.disconnect();
-  }, []);
-  return theme;
-}
-
 export default function Home({ data }: { data: SiteData }) {
   const st = data.settings.siteText || {};
   return (
     <>
       <Hero data={data} st={st} />
-      <WorldBreak />
+      <WorldBreak slot={0} />
       <About data={data} st={st} />
       <Skills data={data} />
       <Experience data={data} />
       <Projects data={data} />
-      <WorldBreak />
+      <WorldBreak slot={1} />
       <JournalPreview data={data} />
       <GalleryPreview data={data} />
       <Education data={data} />
       <Explore data={data} />
-      <WorldBreak />
+      <WorldBreak slot={2} />
       <Contact st={st} />
     </>
   );
@@ -73,13 +54,6 @@ export default function Home({ data }: { data: SiteData }) {
 /* ---------------- Hero ---------------- */
 function Hero({ data, st }: { data: SiteData; st: any }) {
   const { lang, t } = useLang();
-  const theme = useWorldTheme();
-  // Scene crossfade: the outgoing photo stays mounted underneath while the
-  // incoming one fades in over it (CSS keyframe on the keyed <img>).
-  const [scene, setScene] = useState({ prev: theme, cur: theme });
-  useEffect(() => {
-    setScene((s) => (s.cur === theme ? s : { prev: s.cur, cur: theme }));
-  }, [theme]);
   const rawRoles: string[] = (lang === "uz" ? st.heroRolesUz : st.heroRoles) || st.heroRoles || [];
   const roles = rawRoles.length ? rawRoles : ["SOC Analyst", "Blue-Team Defender", "Threat Hunter"]; // [] is truthy: don't let the typewriter loop forever
   const [typed, setTyped] = useState("");
@@ -104,10 +78,6 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   return (
     <section className="hero" id="hero">
-      <div className={"hero-scene " + theme} aria-hidden="true">
-        {scene.prev !== scene.cur && <img key={scene.prev} className="hero-scene-img" src={`/worlds/hero-${scene.prev}.jpg`} alt="" />}
-        <img key={scene.cur} className="hero-scene-img" src={`/worlds/hero-${scene.cur}.jpg`} alt="" loading="eager" fetchPriority="high" />
-      </div>
       <div className="hero-canvas"><HeroCanvasLazy /></div>
       <div className="container hero-inner">
         <div className="hero-grid">

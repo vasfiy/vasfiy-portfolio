@@ -1,0 +1,64 @@
+/* Fixed full-viewport photo backdrop behind the whole page (celion-style):
+   edge-to-edge photographs under a constant --bg veil. The veil uses
+   var(--bg) so the same gradient darkens light themes and lightens dark
+   ones — text stays readable over every photo without per-theme rules. */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.92) saturate(1.05);
+  opacity: 0;
+}
+
+.front {
+  opacity: 1;
+}
+
+/* Motion (fx on + no reduced-motion): 1.8s crossfade on opacity, 9s linear
+   Ken Burns on transform (scale driven inline: 1 -> 1.05 per slide). The
+   layer itself fades in once on mount/theme switch so a new theme's first
+   photo eases out of the page background instead of popping. */
+.motion .img {
+  transition: opacity 1.8s ease, transform 9s linear;
+  will-change: opacity, transform;
+}
+.motion {
+  animation: layerIn 1.4s ease-out both;
+}
+@keyframes layerIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* fx off / reduced motion: no transitions, no zoom, no entrance — a static
+   photograph. Toggled live from JS via the .still class. */
+.still .img {
+  transition: none;
+  animation: none;
+}
+
+/* The legibility veil — constant, theme-aware (var(--bg)), strongest at the
+   very top (navbar) and bottom (next section), lightest in the upper-middle
+   where the hero headline sits. */
+.veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg) 72%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 40%, transparent) 32%,
+    color-mix(in srgb, var(--bg) 48%, transparent) 70%,
+    color-mix(in srgb, var(--bg) 74%, transparent) 100%
+  );
+}

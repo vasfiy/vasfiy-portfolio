@@ -3,13 +3,23 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 
 /* Full-bleed themed image band between Home sections — mood-first: the photo
-   IS the strip, melting into the page via --bg gradients. The image follows
-   the active world (same read pattern as WorldLayer: localStorage + data-theme
-   + MutationObserver), crossfades on theme swaps, zooms almost imperceptibly,
-   and drifts a few pixels with the scroll for depth. All motion is skipped for
-   reduced-motion users and when fx is switched off (CSS + the fxchange hook). */
+   IS the strip, melting into the page via --bg gradients. Each instance
+   consumes the SAME /worlds/<theme>.json manifest as the global PhotoLayer
+   but shows a DIFFERENT photo per `slot` (photos[slot % len]), so the three
+   bands never repeat each other or the hero mood. Theme read follows the
+   same pattern as WorldLayer/PhotoLayer (localStorage + data-theme +
+   MutationObserver); the outgoing photo stays mounted underneath while the
+   new one fades in on theme swaps. Motion (slow zoom + scroll parallax) runs
+   only when fx is on and the user hasn't asked for reduced motion, and
+   reacts live to "fxchange" and media-query changes. The old html[data-fx]
+   CSS gates are dead code (nothing sets that attribute), so fx-off is
+   enforced here in JS via inline animation:none. If the manifest is
+   missing/empty for a theme the band renders nothing — the PhotoLayer
+   carries the mood alone. */
 
 const THEMES = ["cosmos", "ocean", "cyber", "matrix", "sunset"];
+
+type Photo = { src: string; pos: string };
 
 const TITLE: Record<string, { en: string; uz: string }> = {
   cosmos: { en: "Written in the stars", uz: "Yulduzlar yozgan hikoya" },
@@ -27,11 +37,13 @@ const LINE: Record<string, { en: string; uz: string }> = {
   sunset: { en: "Even a screen glows warmer at golden hour.", uz: "Oltin soatda ekran ham iliqroq nur taratadi." },
 };
 
-export default function WorldBreak() {
+export default function WorldBreak({ slot = 0 }: { slot?: number }) {
   const { lang } = useLang();
   const [theme, setTheme] = useState("cosmos");
+  const [photos, setPhotos] = useState<Photo[] | null>(null);
   // keeps the outgoing band image mounted underneath while the new one fades in
-  const [scene, setScene] = useState({ prev: "cosmos", cur: "cosmos" });
+  const [scene, setScene] = useState<{ prev: Photo | null; cur: Photo | null }>({ prev: null, cur: null });
+  const [motion, setMotion] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,8 +59,45 @@ export default function WorldBreak() {
   }, []);
 
   useEffect(() => {
-    setScene((s) => (s.cur === theme ? s : { prev: s.cur, cur: theme }));
+    const syncFx = () => setMotion(localStorage.getItem("fx") !== "off" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    syncFx();
+    window.addEventListener("fxchange", syncFx);
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    media.addEventListener("change", syncFx);
+    return () => {
+      window.removeEventListener("fxchange", syncFx);
+      media.removeEventListener("change", syncFx);
+    };
+  }, []);
+
+  // Same manifest as PhotoLayer. On theme change the previous theme's photos
+  // stay up until the new manifest arrives (then crossfade); a missing
+  // manifest drops the band to null (render nothing).
+  useEffect(() => {
+    let dead = false;
+    fetch(`/worlds/${theme}.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: any) => {
+        if (dead) return;
+        const list: Photo[] = Array.isArray(data?.photos)
+          ? data.photos
+              .filter((p: any) => p && typeof p.src === "string" && p.src)
+              .map((p: any) => ({ src: p.src as string, pos: typeof p.pos === "string" ? p.pos : "50% 50%" }))
+          : [];
+        setPhotos(list.length ? list : null);
+      })
+      .catch(() => { if (!dead) setPhotos(null); });
+    return () => {
+      dead = true;
+    };
   }, [theme]);
+
+  // Pick this band's photo: photos[slot % len]. Swap keeps prev mounted for
+  // the crossfade; a missing/empty manifest clears the band entirely.
+  useEffect(() => {
+    const target = photos && photos.length ? photos[((slot % photos.length) + photos.length) % photos.length] : null;
+    setScene((s) => (s.cur === target ? s : { prev: s.cur, cur: target }));
+  }, [photos, slot]);
 
   // Gentle parallax: the whole image layer drifts as the band crosses the
   // viewport center. The slow zoom lives on the imgs in CSS, so the transform
@@ -56,9 +105,7 @@ export default function WorldBreak() {
   useEffect(() => {
     const band = ref.current;
     const media = band?.querySelector<HTMLDivElement>(".world-break-media");
-    if (!band || !media) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (localStorage.getItem("fx") === "off") return;
+    if (!band || !media || !motion) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -67,33 +114,29 @@ export default function WorldBreak() {
       media.style.transform = `translateY(${Math.min(60, Math.max(-60, drift))}px)`;
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    // ThemeFab flips fx live (dispatches "fxchange"), so honor it mid-session.
-    const onFx = () => {
-      if (localStorage.getItem("fx") === "off") { if (raf) cancelAnimationFrame(raf); raf = 0; media.style.transform = ""; }
-      else update();
-    };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    window.addEventListener("fxchange", onFx);
     return () => {
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      window.removeEventListener("fxchange", onFx);
       media.style.transform = "";
     };
-  }, []);
+  }, [motion]);
 
+  if (!scene.cur) return null;
+  const still = !motion;
+  const imgStyle = (p: Photo) => ({ objectPosition: p.pos, animation: still ? ("none" as const) : undefined });
   return (
     <div className="world-break" ref={ref}>
       <div className="world-break-media" aria-hidden="true">
-        {scene.prev !== scene.cur && <img key={scene.prev} src={`/worlds/band-${scene.prev}.jpg`} alt="" loading="lazy" />}
-        <img key={scene.cur} src={`/worlds/band-${scene.cur}.jpg`} alt="" loading="lazy" />
+        {scene.prev && scene.prev.src !== scene.cur.src && <img key={scene.prev.src} src={scene.prev.src} alt="" loading="lazy" style={imgStyle(scene.prev)} />}
+        <img key={scene.cur.src} src={scene.cur.src} alt="" loading="lazy" style={imgStyle(scene.cur)} />
       </div>
       <div className="world-break-cap">
-        <h2>{(TITLE[theme] || TITLE.cosmos)[lang]}</h2>
-        <p>{(LINE[theme] || LINE.cosmos)[lang]}</p>
+        <h2 className="on-photo">{(TITLE[theme] || TITLE.cosmos)[lang]}</h2>
+        <p className="on-photo">{(LINE[theme] || LINE.cosmos)[lang]}</p>
       </div>
     </div>
   );
