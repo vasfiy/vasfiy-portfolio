@@ -128,7 +128,7 @@ export default function ItemManager({ collection, initialEditId }: { collection:
       if (it.full || it.fullUz) blocks.push({ type: "text", text: toText(it.full), textUz: toText(it.fullUz) });
       if (blocks.length) form.blocks = blocks;
     }
-    setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: "smooth" });
+    setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
   const remove = async (it: any) => {
     if (!(await uiConfirm("Delete this item?"))) return;

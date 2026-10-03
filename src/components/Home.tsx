@@ -294,7 +294,7 @@ function Education({ data }: { data: SiteData }) {
   const imgSrc = (c: any) => { const s = String(c.img || "").trim(); if (!s) return ""; return /^https?:\/\//.test(s) || s.startsWith("/") ? s : "/" + s.replace(/^\.?\//, ""); };
   const slides = certs.filter((c) => imgSrc(c));
   const step = () => { const t = trackRef.current; const s = t?.querySelector<HTMLElement>(".cert-slide"); return s ? s.getBoundingClientRect().width + 22 : t?.clientWidth || 0; };
-  const nudge = (dir: number) => trackRef.current?.scrollBy({ left: dir * step(), behavior: "smooth" });
+  const nudge = (dir: number) => trackRef.current?.scrollBy({ left: dir * step(), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   const onTrackScroll = () => { const t = trackRef.current; if (!t) return; const w = step(); if (w) setActive(Math.min(Math.round(t.scrollLeft / w), slides.length - 1)); };
 
   return (
@@ -349,7 +349,7 @@ function Education({ data }: { data: SiteData }) {
               <button
                 key={c.__id || i} type="button" aria-label={pick(c, "name", lang)} aria-current={i === active ? "true" : undefined}
                 className={i === active ? "active" : ""}
-                onClick={() => trackRef.current?.scrollTo({ left: i * step(), behavior: "smooth" })}
+                onClick={() => trackRef.current?.scrollTo({ left: i * step(), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
               />
             ))}
           </div>

@@ -44,7 +44,7 @@ export default function ThemeFab() {
 
   return (
     <>
-      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} onClick={(e) => { e.stopPropagation(); if (!open) THEMES.forEach((th) => fetch(`/worlds/${th}.json`)); setOpen((o) => !o); }}>🎨</button>
+      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} aria-expanded={open} aria-controls="themePanel" onClick={(e) => { e.stopPropagation(); if (!open) THEMES.forEach((th) => fetch(`/worlds/${th}.json`)); setOpen((o) => !o); }}>🎨</button>
       <div className={"theme-panel glass" + (open ? " open" : "")} id="themePanel" role="dialog" aria-label={t("theme.title")}>
         <h4>{t("theme.title")}</h4>
         <div className="swatches">
@@ -64,8 +64,8 @@ export default function ThemeFab() {
         <div className="mode-row">
           <span>{t("theme.fx")}</span>
           <button className="mode-toggle" role="switch" aria-checked={fx} aria-label={t("theme.fx")} onClick={() => applyFx(!fx)}>
-            <span className={"mode-opt" + (fx ? " active" : "")}>✨</span>
-            <span className={"mode-opt" + (!fx ? " active" : "")}>⏸</span>
+            <span className={"mode-opt" + (fx ? " active" : "")} aria-hidden="true">✨</span>
+            <span className={"mode-opt" + (!fx ? " active" : "")} aria-hidden="true">⏸</span>
           </button>
         </div>
       </div>
