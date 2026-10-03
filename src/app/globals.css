@@ -1979,14 +1979,6 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
   100% { transform: translate3d(130vw, 38vh, 0) rotate(16deg); opacity: 0; }
 }
 
-/* Astronaut floats above the SOC console — cosmos only */
-[data-mode="dark"][data-theme="cosmos"] 
-@keyframes astro {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-16px) rotate(5deg); }
-}
-@media (max-width: 1060px) {  }
-
 /* Stellar glow on accent numbers/text */
 [data-theme="cosmos"] .stat-num,
 [data-theme="cosmos"] .gradient-text { text-shadow: 0 0 22px color-mix(in srgb, var(--cyan) 38%, transparent); }
