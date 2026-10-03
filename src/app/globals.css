@@ -1889,26 +1889,7 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
   justify-self: center; align-self: center;
   pointer-events: none; /* decorative — the rings must never block clicks */
 }
-.hero-orbit::before {
-  content: ""; position: absolute; inset: -70px; z-index: -1; pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--cyan) 12%, transparent), transparent 72%);
-}
-.orbit-ring { position: absolute; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--cyan) 24%, transparent); pointer-events: none; }
-.orbit-ring.r1 { inset: 13%; animation: orbitspin 46s linear infinite; }
-.orbit-ring.r2 { inset: 0; border-color: color-mix(in srgb, var(--violet) 32%, transparent); animation: orbitspin 70s linear infinite reverse; }
-.orbit-ring.r3 { inset: 26%; border-style: dashed; opacity: .55; animation: orbitspin 34s linear infinite; }
-.orbit-ring.r1::after, .orbit-ring.r2::after {
-  content: ""; position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; border-radius: 50%;
-  background: var(--cyan); box-shadow: 0 0 14px var(--cyan); transform: translateX(-50%);
-  pointer-events: none;
-}
-.orbit-ring.r2::after { background: var(--pink); box-shadow: 0 0 14px var(--pink); }
-.orbit-core {
-  position: absolute; inset: 39%; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle at 38% 34%, color-mix(in srgb, var(--cyan) 32%, transparent), color-mix(in srgb, var(--violet) 14%, transparent) 62%, transparent 78%);
-  filter: blur(2px);
-}
-@keyframes orbitspin { to { transform: rotate(360deg); } }
+/* orbit rings + glowing core removed — the theme worlds own the sky now */
 @media (max-width: 1060px) { .hero-grid { grid-template-columns: 1fr; } .hero-orbit { display: none; } }
 
 /* Card hover polish — elevation only: each card rule above lifts with

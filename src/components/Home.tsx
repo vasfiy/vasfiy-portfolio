@@ -100,8 +100,6 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
             </div>
           </div>
           <div className="hero-orbit" aria-hidden="true">
-            <span className="orbit-ring r1" /><span className="orbit-ring r2" /><span className="orbit-ring r3" />
-            <span className="orbit-core" />
             <Astronaut className="astronaut" />
           </div>
         </div>
