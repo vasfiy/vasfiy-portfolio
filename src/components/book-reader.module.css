@@ -312,6 +312,6 @@
 
 /* phone verifier polish: comfortable hit targets and no iOS input zoom */
 @media (max-width: 720px) {
-  .toolBtn { width: 40px; height: 40px; }
+  .toolBtn { width: 44px; height: 44px; }
   .pageInput { font-size: 16px; }
 }

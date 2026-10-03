@@ -2,8 +2,8 @@
   "theme": "ocean",
   "photos": [
     {
-      "src": "/worlds/ocean/9.jpg",
-      "pos": "50% 55%"
+      "src": "/worlds/ocean/8.jpg",
+      "pos": "50% 45%"
     },
     {
       "src": "/worlds/ocean/1.jpg",
@@ -15,10 +15,6 @@
     },
     {
       "src": "/worlds/ocean/4.jpg",
-      "pos": "50% 45%"
-    },
-    {
-      "src": "/worlds/ocean/8.jpg",
       "pos": "50% 45%"
     },
     {

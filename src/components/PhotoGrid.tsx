@@ -286,6 +286,7 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
     <div
       className="lightbox open ip-lb"
       role="dialog"
+      aria-label={cap || (lang === "uz" ? "Galereya" : "Gallery")}
       aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}
       onTouchStart={onTouchStart}

@@ -4,9 +4,40 @@ import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import Reveal from "./Reveal";
 import type { Course } from "@/lib/types";
+import type { ReactNode } from "react";
 import S from "./learning.module.css";
 
 const cx = (...parts: Array<string | false | null | undefined>) => parts.filter(Boolean).join(" ");
+
+/* Line icons for the course badges — emoji read cheap at 52px against the mono /
+   gradient design language. Known keys map to SVG; anything else the admin stored
+   still renders as-is. */
+const ICONS: Record<string, ReactNode> = {
+  "📝": (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="3" width="14" height="18" rx="2.5" />
+      <path d="M9 8h6M9 12h6M9 16h4" />
+    </svg>
+  ),
+  "🐧": (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M7 9l3 3-3 3M12.5 15H17" />
+    </svg>
+  ),
+  "🎓": (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2.5 9.5L12 5l9.5 4.5L12 14 2.5 9.5Z" />
+      <path d="M6.5 11.5V16c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4.5M21 10v5" />
+    </svg>
+  ),
+  "📘": (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z" />
+      <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20" />
+    </svg>
+  ),
+};
 
 /* Links are stored for the static site ("aplus.html"); map them onto this app.
    Self-contained simulators live in /public as plain HTML; everything else is a route. */
@@ -126,7 +157,7 @@ export default function Learning({ courses }: { courses: Course[] }) {
               const body = (
                 <>
                   <div className={S.top}>
-                    <span className={S.iconBadge} aria-hidden="true">{c.icon || "📘"}</span>
+                    <span className={S.iconBadge} aria-hidden="true">{ICONS[(c.icon || "").replace(/[\s\uFE0F]/g, "")] ?? (c.icon || "📘")}</span>
                     {tag && <span className={S.tag}>{tag}</span>}
                     {!linked && <span className={S.soon}>{str.soon}</span>}
                   </div>

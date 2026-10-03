@@ -333,6 +333,7 @@ img { max-width: 100%; display: block; }
 }
 [data-mode="light"] .kicker-num {
   background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, #0a0a18 12%, var(--ink-accent)));
+  -webkit-background-clip: text; background-clip: text;
 }
 .section-kicker::after {
   content: ""; width: 48px; height: 1px; display: inline-block;
@@ -426,7 +427,7 @@ img { max-width: 100%; display: block; }
 .bar-label { display: block; font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
 .bar { height: 8px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; border-radius: 6px; background: var(--grad); transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
-.bar.animate i { width: var(--w); }
+.lang-bars.reveal-in .bar i, .bar.animate i { width: var(--w); } /* animate: dead legacy hook; reveal-in is what Reveal adds */
 
 /* ---------- Timeline ---------- */
 .timeline { position: relative; padding-left: 34px; }
@@ -500,7 +501,7 @@ img { max-width: 100%; display: block; }
 .cert-nav:hover { transform: translateY(-50%) scale(1.08); }
 .cert-prev { left: -10px; }
 .cert-next { right: -10px; }
-.cert-dots { display: flex; gap: 8px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
+.cert-dots { display: flex; gap: 12px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
 .cert-dots button {
   width: 8px; height: 8px; border-radius: 50%; border: 0; padding: 0;
   background: var(--border-strong); cursor: pointer; transition: transform .2s, background .2s;
@@ -697,7 +698,7 @@ img { max-width: 100%; display: block; }
 .lightbox.open { display: flex; }
 .lightbox img { max-width: 92vw; max-height: 82vh; border-radius: 14px; box-shadow: var(--shadow-lift); }
 .lightbox-cap { position: absolute; bottom: 26px; left: 0; right: 0; text-align: center; color: var(--text-dim); font-size: 14px; }
-.lightbox-close { position: absolute; top: 22px; right: 26px; font-size: 30px; color: #fff; cursor: pointer; background: none; border: none; line-height: 1; }
+.lightbox-close { position: absolute; top: 22px; right: 26px; font-size: 30px; color: #fff; cursor: pointer; background: none; border: none; line-height: 1; z-index: 20; }
 
 /* ============================================================
    Blog / Travel
@@ -1309,7 +1310,7 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .ctf-prompt { color: var(--text-dim); font-size: .92rem; line-height: 1.55; }
 .ctf-prompt code { background: var(--bg); padding: 1px 6px; border-radius: 5px; font-family: var(--font-mono); font-size: .85em; color: var(--ink-accent); }
 .ctf-hint { background: var(--bg); border-left: 3px solid var(--cyan); padding: 8px 12px; border-radius: 6px; font-size: .85rem; color: var(--text-dim); }
-.ctf-hint-btn { align-self: flex-start; background: none; border: 0; color: var(--text-faint); cursor: pointer; font-size: .82rem; padding: 0; }
+.ctf-hint-btn { align-self: flex-start; background: none; border: 0; color: var(--text-faint); cursor: pointer; font-size: .82rem; padding: 10px 12px; margin: -10px -12px; }
 .ctf-hint-btn:hover { color: var(--cyan); }
 .ctf-answer { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: auto; }
 .ctf-answer input { flex: 1; min-width: 150px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; color: var(--text); font: inherit; font-size: .9rem; }
@@ -2193,7 +2194,7 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   outline-offset: 2px;
 }
 /* icon-only stragglers below 40px */
-.ip-lb-zoom button { min-width: 40px; min-height: 40px; }
+.ip-lb-zoom button { min-width: 44px; min-height: 44px; }
 .bl-search-x { width: 34px; height: 34px; margin: -4px -8px -4px 0; display: grid; place-items: center; border-radius: 50%; transition: color .15s, background .15s; }
 .bl-search-x:hover { background: var(--surface-2); }
 .voice-x { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
@@ -2415,7 +2416,7 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   /* 7 — keep hero text clear of the fixed FAB cluster (theme 52px
      + search 46px own the bottom ~68px): reserve a bottom band so
      the centered hero never runs under them */
-  .hero { padding-bottom: 96px; }
+  .hero { padding-bottom: 104px; }
 }
 /* tiny phones: single-column CTA stack */
 @media (max-width: 359px) {
@@ -2533,4 +2534,55 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   .voice-x { width: 44px; height: 44px; }
   .cmd-chip { padding: 12px 14px; }
   .post-back { padding: 12px 12px 12px 0; }
+}
+
+/* ===== Footer mobile redesign (owner: single column ran ~2 viewport heights) ===== */
+.footer-bottom { padding-left: 80px; } /* desktop: to-top FAB (bottom-left) grazed the © strip */
+@media (max-width: 860px) {
+  .footer { padding: 38px 0 22px; }
+  .footer-grid { gap: 22px 16px; padding-bottom: 24px; }
+  .footer-tag { margin-top: 8px; font-size: .95rem; max-width: 46ch; }
+  .footer-col h4 { margin-bottom: 8px; }
+  .footer-col ul { gap: 7px; }
+  .footer-col a { font-size: .9rem; display: inline-block; padding: 4px 0; }
+}
+@media (max-width: 520px) {
+  /* Profile | Explore side by side; More spans full width as a 2x2 link grid */
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px 14px; padding-bottom: 22px; }
+  .footer-about { grid-column: 1 / -1; }
+  .footer-col:last-child { grid-column: 1 / -1; }
+  .footer-col:last-child ul { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+  .footer-bottom { padding-top: 16px; font-size: .8125rem; gap: 6px 12px; }
+}
+@media (max-width: 760px) {
+  /* FAB cluster (bottom-right) + to-top FAB (bottom-left) own both bottom corners */
+  .footer-bottom { padding-right: 150px; padding-left: 78px; }
+}
+
+/* ===== verifier polish round ===== */
+@media (pointer: coarse) {
+  .filter-chip { min-height: 40px; }
+}
+@media (max-height: 640px) {
+  .hero { align-items: flex-start; } /* short viewports: keep CTAs clear of the FAB cluster */
+}
+@media (max-width: 420px) {
+  .term { font-size: 12px; } /* neofetch info column wrapped mid-value at 13.5px */
+}
+
+/* ===== a11y verifier round 2 ===== */
+/* a dot's own 12px box must never be covered by a LATER sibling's ::after hit zone */
+.cert-dots button { z-index: 0; }
+.cert-dots button::after { z-index: -1; }
+/* search input: outline:none beat the :where ring — give the field its own focus-within indicator */
+.search-inp:focus-within {
+  border-bottom-color: color-mix(in srgb, var(--ink-accent) 60%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink-accent) 14%, transparent);
+}
+@media (pointer: coarse) {
+  .term-input { min-height: 44px; }
+  .lesson-done { min-height: 40px; }
+  .cert-view-btn { min-height: 40px; }
+  .footer-top { padding: 10px 0; }
+  .lang-opt { min-width: 44px; }
 }

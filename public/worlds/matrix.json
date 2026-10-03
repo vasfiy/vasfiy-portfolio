@@ -14,16 +14,16 @@
       "pos": "50% 48%"
     },
     {
-      "src": "/worlds/matrix/7.jpg",
-      "pos": "50% 50%"
-    },
-    {
       "src": "/worlds/matrix/1.jpg",
       "pos": "50% 40%"
     },
     {
       "src": "/worlds/matrix/8.jpg",
       "pos": "50% 45%"
+    },
+    {
+      "src": "/worlds/matrix/7.jpg",
+      "pos": "50% 50%"
     }
   ]
 }

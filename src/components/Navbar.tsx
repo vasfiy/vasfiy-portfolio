@@ -36,12 +36,15 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
   useEffect(() => {
     const el = linksRef.current;
     if (el) el.style.transform = open ? "translateX(0)" : "";
+    // WCAG 2.4.3: the drawer follows the burger in DOM order, so move focus into
+    // it when it opens (Escape close restores focus to the burger).
+    if (open) requestAnimationFrame(() => el?.querySelector("a")?.focus());
   }, [open]);
 
   // Drawer open: close on Escape and lock body scroll (restored on close/unmount)
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setOpen(false); (document.querySelector(".menu-btn") as HTMLElement | null)?.focus(); } };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";

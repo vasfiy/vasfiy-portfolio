@@ -2,7 +2,7 @@
   "theme": "sunset",
   "photos": [
     {
-      "src": "/worlds/sunset/4.jpg",
+      "src": "/worlds/sunset/3.jpg",
       "pos": "50% 60%"
     },
     {
@@ -10,16 +10,16 @@
       "pos": "50% 45%"
     },
     {
-      "src": "/worlds/sunset/11.jpg",
-      "pos": "50% 60%"
+      "src": "/worlds/sunset/12.jpg",
+      "pos": "50% 55%"
     },
     {
       "src": "/worlds/sunset/1.jpg",
       "pos": "50% 45%"
     },
     {
-      "src": "/worlds/sunset/12.jpg",
-      "pos": "50% 55%"
+      "src": "/worlds/sunset/4.jpg",
+      "pos": "50% 60%"
     },
     {
       "src": "/worlds/sunset/8.jpg",
@@ -28,10 +28,6 @@
     {
       "src": "/worlds/sunset/13.jpg",
       "pos": "50% 45%"
-    },
-    {
-      "src": "/worlds/sunset/3.jpg",
-      "pos": "50% 60%"
     }
   ]
 }
