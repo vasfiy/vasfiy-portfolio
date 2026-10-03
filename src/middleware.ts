@@ -49,6 +49,26 @@ export function middleware(req: NextRequest) {
     url.pathname = "/market" + (pathname === "/" ? "" : pathname); // / → catalog, /<id> → product
     return NextResponse.rewrite(url);
   }
+  /* Public documents must never be cacheable. Next's ISR default puts
+     "s-maxage=30, stale-while-revalidate=31535970" on page HTML; after a
+     redeploy a phone still holding that document requests the JS/CSS hashes
+     it names — deleted in the new build — and renders raw unstyled HTML.
+     Trade-off, accepted for this personal site: HTML is now uncacheable in
+     browsers AND the public CDN (Netlify-CDN-Cache-Control), while ISR still
+     works server-side (x-nextjs-cache), so responses stay cheap to render.
+     Only documents are affected: /_next/static assets keep Next's built-in
+     immutable year-long caching (next.config.ts deliberately adds nothing). */
+  if (
+    req.method === "GET" &&
+    !isMarketHost && // market host keeps its rewrite path above; its documents fall through unchanged
+    (req.headers.get("accept") || "").includes("text/html") &&
+    !(pathname.split("/").pop() || "").includes(".") // navigation, not a file — the matcher below also enforces this
+  ) {
+    const res = NextResponse.next();
+    res.headers.set("Cache-Control", NO_STORE);
+    res.headers.set("Netlify-CDN-Cache-Control", NO_STORE);
+    return res;
+  }
   return NextResponse.next();
 }
 

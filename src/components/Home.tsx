@@ -49,14 +49,6 @@ function useWorldTheme() {
   return theme;
 }
 
-const HERO_VISUAL_CAP: Record<string, { en: string; uz: string }> = {
-  cosmos: { en: "Deep space · live", uz: "Chuqur kosmos · jonli" },
-  ocean: { en: "The ocean floor · live", uz: "Okean tubi · jonli" },
-  cyber: { en: "Neon grid · live", uz: "Neon panjara · jonli" },
-  matrix: { en: "Code rain · live", uz: "Kod yomg'iri · jonli" },
-  sunset: { en: "Golden hour · live", uz: "Oltin soat · jonli" },
-};
-
 export default function Home({ data }: { data: SiteData }) {
   const st = data.settings.siteText || {};
   return (
@@ -82,6 +74,12 @@ export default function Home({ data }: { data: SiteData }) {
 function Hero({ data, st }: { data: SiteData; st: any }) {
   const { lang, t } = useLang();
   const theme = useWorldTheme();
+  // Scene crossfade: the outgoing photo stays mounted underneath while the
+  // incoming one fades in over it (CSS keyframe on the keyed <img>).
+  const [scene, setScene] = useState({ prev: theme, cur: theme });
+  useEffect(() => {
+    setScene((s) => (s.cur === theme ? s : { prev: s.cur, cur: theme }));
+  }, [theme]);
   const rawRoles: string[] = (lang === "uz" ? st.heroRolesUz : st.heroRoles) || st.heroRoles || [];
   const roles = rawRoles.length ? rawRoles : ["SOC Analyst", "Blue-Team Defender", "Threat Hunter"]; // [] is truthy: don't let the typewriter loop forever
   const [typed, setTyped] = useState("");
@@ -106,6 +104,10 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   return (
     <section className="hero" id="hero">
+      <div className={"hero-scene " + theme} aria-hidden="true">
+        {scene.prev !== scene.cur && <img key={scene.prev} className="hero-scene-img" src={`/worlds/hero-${scene.prev}.jpg`} alt="" />}
+        <img key={scene.cur} className="hero-scene-img" src={`/worlds/hero-${scene.cur}.jpg`} alt="" loading="eager" fetchPriority="high" />
+      </div>
       <div className="hero-canvas"><HeroCanvasLazy /></div>
       <div className="container hero-inner">
         <div className="hero-grid">
@@ -129,10 +131,6 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
               {soc.socialWebsite && <a href={soc.socialWebsite} target="_blank" rel="noopener" aria-label={t("hero.website")} className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg></a>}
               {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
             </div>
-          </div>
-          <div className="hero-visual">
-            <img src={`/worlds/${theme}.jpg`} alt="" loading="eager" />
-            <span className="hero-visual-cap">{(HERO_VISUAL_CAP[theme] || HERO_VISUAL_CAP.cosmos)[lang]}</span>
           </div>
         </div>
       </div>

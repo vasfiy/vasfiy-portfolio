@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 
-/* Full-bleed themed image band between Home sections. The image follows the
-   active world (same read pattern as WorldLayer: localStorage + data-theme +
-   MutationObserver) and drifts a few pixels with the scroll for depth —
-   skipped entirely for reduced-motion users and when fx is switched off. */
+/* Full-bleed themed image band between Home sections — mood-first: the photo
+   IS the strip, melting into the page via --bg gradients. The image follows
+   the active world (same read pattern as WorldLayer: localStorage + data-theme
+   + MutationObserver), crossfades on theme swaps, zooms almost imperceptibly,
+   and drifts a few pixels with the scroll for depth. All motion is skipped for
+   reduced-motion users and when fx is switched off (CSS + the fxchange hook). */
 
 const THEMES = ["cosmos", "ocean", "cyber", "matrix", "sunset"];
 
@@ -28,6 +30,8 @@ const LINE: Record<string, { en: string; uz: string }> = {
 export default function WorldBreak() {
   const { lang } = useLang();
   const [theme, setTheme] = useState("cosmos");
+  // keeps the outgoing band image mounted underneath while the new one fades in
+  const [scene, setScene] = useState({ prev: "cosmos", cur: "cosmos" });
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,11 +46,17 @@ export default function WorldBreak() {
     return () => mo.disconnect();
   }, []);
 
-  // Gentle parallax: the image drifts as the band crosses the viewport center.
+  useEffect(() => {
+    setScene((s) => (s.cur === theme ? s : { prev: s.cur, cur: theme }));
+  }, [theme]);
+
+  // Gentle parallax: the whole image layer drifts as the band crosses the
+  // viewport center. The slow zoom lives on the imgs in CSS, so the transform
+  // must be applied to this wrapper, never to the imgs themselves.
   useEffect(() => {
     const band = ref.current;
-    const img = band?.querySelector<HTMLImageElement>("img");
-    if (!band || !img) return;
+    const media = band?.querySelector<HTMLDivElement>(".world-break-media");
+    if (!band || !media) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (localStorage.getItem("fx") === "off") return;
     let raf = 0;
@@ -54,12 +64,12 @@ export default function WorldBreak() {
       raf = 0;
       const r = band.getBoundingClientRect();
       const drift = (window.innerHeight / 2 - (r.top + r.height / 2)) * 0.08;
-      img.style.transform = `translateY(${Math.min(60, Math.max(-60, drift))}px)`;
+      media.style.transform = `translateY(${Math.min(60, Math.max(-60, drift))}px)`;
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     // ThemeFab flips fx live (dispatches "fxchange"), so honor it mid-session.
     const onFx = () => {
-      if (localStorage.getItem("fx") === "off") { if (raf) cancelAnimationFrame(raf); raf = 0; img.style.transform = ""; }
+      if (localStorage.getItem("fx") === "off") { if (raf) cancelAnimationFrame(raf); raf = 0; media.style.transform = ""; }
       else update();
     };
     update();
@@ -71,13 +81,16 @@ export default function WorldBreak() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("fxchange", onFx);
-      img.style.transform = "";
+      media.style.transform = "";
     };
   }, []);
 
   return (
     <div className="world-break" ref={ref}>
-      <img src={`/worlds/${theme}.jpg`} alt="" loading="lazy" />
+      <div className="world-break-media" aria-hidden="true">
+        {scene.prev !== scene.cur && <img key={scene.prev} src={`/worlds/band-${scene.prev}.jpg`} alt="" loading="lazy" />}
+        <img key={scene.cur} src={`/worlds/band-${scene.cur}.jpg`} alt="" loading="lazy" />
+      </div>
       <div className="world-break-cap">
         <h2>{(TITLE[theme] || TITLE.cosmos)[lang]}</h2>
         <p>{(LINE[theme] || LINE.cosmos)[lang]}</p>
