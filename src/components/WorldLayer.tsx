@@ -17,6 +17,13 @@ const WORLDS: Record<string, ComponentType> = {
 
 export default function WorldLayer() {
   const [theme, setTheme] = useState<string | null>(null);
+  const [fxOn, setFxOn] = useState(true);
+  useEffect(() => {
+    const syncFx = () => setFxOn(localStorage.getItem("fx") !== "off");
+    syncFx();
+    window.addEventListener("fxchange", syncFx);
+    return () => window.removeEventListener("fxchange", syncFx);
+  }, []);
   useEffect(() => {
     const el = document.documentElement;
     const read = () => setTheme(localStorage.getItem("theme") || el.getAttribute("data-theme"));
@@ -25,7 +32,7 @@ export default function WorldLayer() {
     mo.observe(el, { attributes: true, attributeFilter: ["data-theme"] });
     return () => mo.disconnect();
   }, []);
-  const World = theme ? WORLDS[theme] : null;
+  const World = theme && fxOn ? WORLDS[theme] : null;
   if (!World) return null;
   return (
     <div className="world-layer" aria-hidden="true">

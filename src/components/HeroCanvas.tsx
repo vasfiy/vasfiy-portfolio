@@ -12,6 +12,7 @@ export default function HeroCanvas() {
     const canvas = ref.current;
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (localStorage.getItem("fx") === "off") return; // live fx disabled from the theme panel
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 

@@ -63,7 +63,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
 
       <section className="section page-hero" id="lab-hero">
         <div className="container">
-          <Reveal className="section-head">
+          <Reveal className="section-head split masthead">
             <span className="section-kicker"><span className="kicker-num" aria-hidden="true">🐧</span> <span>{T.badge}</span></span>
             <h1 className="section-title">{T.title}</h1>
             <p className="hero-desc" style={{ marginTop: 12 }}>{T.desc}</p>
@@ -77,7 +77,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
 
       <section className="section" id="lessons">
         <div className="container">
-          <Reveal className="section-head">
+          <Reveal className="section-head masthead">
             <span className="section-kicker"><span className="kicker-num">01</span> <span>{T.lessonsKicker}</span></span>
             <h2 className="section-title">{T.lessonsTitle}</h2>
           </Reveal>
@@ -147,7 +147,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
 
       <section className="section" id="terminal">
         <div className="container">
-          <Reveal className="section-head">
+          <Reveal className="section-head masthead">
             <span className="section-kicker"><span className="kicker-num">{challenges.length ? "03" : "02"}</span> <span>{T.termKicker}</span></span>
             <h2 className="section-title">{T.termTitle}</h2>
           </Reveal>
@@ -194,7 +194,7 @@ function Challenges({ list, runCmd, lang, T, cats = {} }: { list: any[]; runCmd:
   return (
     <section className="section" id="challenges">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">02</span> <span>{T.ctfKicker}</span></span>
           <h2 className="section-title">{T.ctfTitle}</h2>
         </Reveal>

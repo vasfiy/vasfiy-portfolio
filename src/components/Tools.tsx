@@ -16,7 +16,7 @@ export default function Tools() {
   return (
     <section className="section page-hero">
       <div className="container">
-        <div className="section-head">
+        <div className="section-head split masthead">
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t.kicker}</span></span>
           <h1 className="section-title">{t.title}</h1>
           <p className="hero-desc" style={{ marginTop: 10 }}>{t.sub}</p>

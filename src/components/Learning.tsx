@@ -27,7 +27,7 @@ export default function Learning({ courses }: { courses: Course[] }) {
   return (
     <section className="section page-hero" id="learning">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("learn.sub")}</span></span>
           <h1 className="section-title">{t("learn.title")}</h1>
         </Reveal>

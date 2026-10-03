@@ -26,7 +26,7 @@ export default function GalleryGrid({ photos, cats }: { photos: Photo[]; cats: R
   return (
     <section className="section page-hero">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("gallery.sub")}</span></span>
           <h1 className="section-title">{t("gallery.title")}</h1>
         </Reveal>

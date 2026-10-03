@@ -49,7 +49,7 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
   return (
     <section className="section page-hero">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("library.sub")}</span></span>
           <h1 className="section-title">{t("library.title")}</h1>
         </Reveal>

@@ -10,7 +10,7 @@ import { pinSort, blogSort, fmtDate, ytId, isVideo, readingTime } from "@/lib/fo
 import { mediaUrl, onMediaError } from "@/lib/media";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
-import Astronaut from "./Astronaut";
+import WorldBreak from "./WorldBreak";
 import type { SiteData, Lang } from "@/lib/types";
 
 const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
@@ -30,19 +30,49 @@ function HeroCanvasLazy() {
   return show ? <HeroCanvas /> : null;
 }
 
+/* The hero panel mirrors the active world theme (localStorage + data-theme,
+   kept live via MutationObserver) so it never fights the ThemeFab. */
+const WORLD_THEMES = ["cosmos", "ocean", "cyber", "matrix", "sunset"];
+function useWorldTheme() {
+  const [theme, setTheme] = useState("cosmos");
+  useEffect(() => {
+    const el = document.documentElement;
+    const read = () => {
+      const t = localStorage.getItem("theme") || el.getAttribute("data-theme") || "cosmos";
+      setTheme(WORLD_THEMES.includes(t) ? t : "cosmos");
+    };
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(el, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => mo.disconnect();
+  }, []);
+  return theme;
+}
+
+const HERO_VISUAL_CAP: Record<string, { en: string; uz: string }> = {
+  cosmos: { en: "Deep space · live", uz: "Chuqur kosmos · jonli" },
+  ocean: { en: "The ocean floor · live", uz: "Okean tubi · jonli" },
+  cyber: { en: "Neon grid · live", uz: "Neon panjara · jonli" },
+  matrix: { en: "Code rain · live", uz: "Kod yomg'iri · jonli" },
+  sunset: { en: "Golden hour · live", uz: "Oltin soat · jonli" },
+};
+
 export default function Home({ data }: { data: SiteData }) {
   const st = data.settings.siteText || {};
   return (
     <>
       <Hero data={data} st={st} />
+      <WorldBreak />
       <About data={data} st={st} />
       <Skills data={data} />
       <Experience data={data} />
       <Projects data={data} />
+      <WorldBreak />
       <JournalPreview data={data} />
       <GalleryPreview data={data} />
       <Education data={data} />
       <Explore data={data} />
+      <WorldBreak />
       <Contact st={st} />
     </>
   );
@@ -51,6 +81,7 @@ export default function Home({ data }: { data: SiteData }) {
 /* ---------------- Hero ---------------- */
 function Hero({ data, st }: { data: SiteData; st: any }) {
   const { lang, t } = useLang();
+  const theme = useWorldTheme();
   const rawRoles: string[] = (lang === "uz" ? st.heroRolesUz : st.heroRoles) || st.heroRoles || [];
   const roles = rawRoles.length ? rawRoles : ["SOC Analyst", "Blue-Team Defender", "Threat Hunter"]; // [] is truthy: don't let the typewriter loop forever
   const [typed, setTyped] = useState("");
@@ -99,8 +130,9 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
               {soc.socialEmail && <a href={"mailto:" + soc.socialEmail} aria-label="Email" className="social-link"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></a>}
             </div>
           </div>
-          <div className="hero-orbit" aria-hidden="true">
-            <Astronaut className="astronaut" />
+          <div className="hero-visual">
+            <img src={`/worlds/${theme}.jpg`} alt="" loading="eager" />
+            <span className="hero-visual-cap">{(HERO_VISUAL_CAP[theme] || HERO_VISUAL_CAP.cosmos)[lang]}</span>
           </div>
         </div>
       </div>

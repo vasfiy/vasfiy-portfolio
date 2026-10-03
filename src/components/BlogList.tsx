@@ -41,7 +41,7 @@ export default function BlogList({ posts, cats = {} }: { posts: Post[]; cats?: R
   return (
     <section className="section page-hero">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("blog.sub")}</span></span>
           <h1 className="section-title">{t("blog.title")}</h1>
         </Reveal>
