@@ -2285,3 +2285,6 @@ html[data-fx="off"] .world-break-media img { animation: none; }
 .ip-zoom button { background: color-mix(in srgb, var(--panel) 72%, transparent); }
 [data-mode="light"] .seg-toggle, [data-mode="light"] .bl-search, [data-mode="light"] .lx-search,
 [data-mode="light"] .ctf-score, [data-mode="light"] .ip-zoom button { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+
+/* the photo layer covers the page — stop the hidden bg-wrap from animating */
+html:has(.photo-layer) .bg-wrap { display: none; }

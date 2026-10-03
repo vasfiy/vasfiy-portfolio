@@ -1,4 +1,5 @@
 "use client";
+import { loadManifest } from "@/lib/worlds";
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "./Providers";
 
@@ -11,8 +12,7 @@ import { useLang } from "./Providers";
    MutationObserver); the outgoing photo stays mounted underneath while the
    new one fades in on theme swaps. Motion (slow zoom + scroll parallax) runs
    only when fx is on and the user hasn't asked for reduced motion, and
-   reacts live to "fxchange" and media-query changes. The old html[data-fx]
-   CSS gates are the html[data-fx] CSS gates are live (ThemeFab sets the attribute)
+   reacts live to "fxchange" and media-query changes. The html[data-fx] CSS gates in globals.css are live too (ThemeFab sets the attribute)
    enforced here in JS via inline animation:none. If the manifest is
    missing/empty for a theme the band renders nothing — the PhotoLayer
    carries the mood alone. */
@@ -75,8 +75,7 @@ export default function WorldBreak({ slot = 0 }: { slot?: number }) {
   // manifest drops the band to null (render nothing).
   useEffect(() => {
     let dead = false;
-    fetch(`/worlds/${theme}.json`)
-      .then((r) => (r.ok ? r.json() : null))
+    loadManifest(theme)
       .then((data: any) => {
         if (dead) return;
         const list: Photo[] = Array.isArray(data?.photos)
@@ -97,6 +96,9 @@ export default function WorldBreak({ slot = 0 }: { slot?: number }) {
   useEffect(() => {
     const target = photos && photos.length ? photos[((slot % photos.length) + photos.length) % photos.length] : null;
     setScene((s) => (s.cur === target ? s : { prev: s.cur, cur: target }));
+    // the outgoing photo only exists for the 0.9s crossfade — release it after
+    const t = setTimeout(() => setScene((s2) => ({ ...s2, prev: null })), 1100);
+    return () => clearTimeout(t);
   }, [photos, slot]);
 
   // Gentle parallax: the whole image layer drifts as the band crosses the

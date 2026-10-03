@@ -44,7 +44,7 @@ export default function ThemeFab() {
 
   return (
     <>
-      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>🎨</button>
+      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} onClick={(e) => { e.stopPropagation(); if (!open) THEMES.forEach((th) => fetch(`/worlds/${th}.json`)); setOpen((o) => !o); }}>🎨</button>
       <div className={"theme-panel glass" + (open ? " open" : "")} id="themePanel" role="dialog" aria-label={t("theme.title")}>
         <h4>{t("theme.title")}</h4>
         <div className="swatches">

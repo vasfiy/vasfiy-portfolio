@@ -1,4 +1,5 @@
 "use client";
+import { loadManifest } from "@/lib/worlds";
 import { useCallback, useEffect, useState } from "react";
 import s from "./photo-layer.module.css";
 
@@ -88,8 +89,7 @@ export default function PhotoLayer() {
     let dead = false;
     // keep the previous theme's photos mounted while fetching — no hard pop to --bg
     setZoom(false);
-    fetch(`/worlds/${theme}.json`)
-      .then((r) => (r.ok ? r.json() : null))
+    loadManifest(theme)
       .then((data: any) => {
         if (dead) return;
         const list: Photo[] = Array.isArray(data?.photos)
@@ -115,9 +115,9 @@ export default function PhotoLayer() {
       const len = photos?.length ?? 0;
       if (!p || len < 2) return p;
       const next = (p.cur + 1) % len;
-      const slotNext = { photo: photos![next], idx: next };
-      if (p.active === "a") return { a: slotNext, b: p.b, active: "b", cur: next };
-      return { a: p.a, b: slotNext, active: "a", cur: next };
+      const refill = { photo: photos![(next + 1) % len], idx: (next + 1) % len };
+      if (p.active === "a") return { a: refill, b: p.b, active: "b", cur: next };
+      return { a: p.a, b: refill, active: "a", cur: next };
     });
   }, [photos]);
 
@@ -166,6 +166,7 @@ export default function PhotoLayer() {
           <img
             key={k}
             className={front ? `${s.img} ${s.front}` : s.img}
+            fetchPriority={slot.idx === 0 ? "high" : undefined}
             src={slot.photo.src}
             alt=""
             style={{
