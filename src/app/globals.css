@@ -2263,7 +2263,8 @@ html[data-fx="off"] .bg-comet { display: none; }
 [data-mode="light"] .ctf-score { background: #ffffff; box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
 
 /* the photo layer covers the page — stop the hidden bg-wrap from animating */
-html.has-photo-layer .bg-wrap, html:has(.photo-layer) .bg-wrap { display: none; }
+html.has-photo-layer .bg-wrap { display: none; }
+html:has(.photo-layer) .bg-wrap { display: none; }
 body.edit-on .to-top-fab { bottom: 76px; }
 
 /* a11y round: cosmos accent readable on photos; hero name keeps a soft edge */
