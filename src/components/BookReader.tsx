@@ -180,7 +180,7 @@ function PageCanvas({ doc, pageNumber, scale, active, onSize }: {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !(scale > 0)) return;
+    if (!canvas) return;
     let dead = false;
 
     (async () => {
@@ -188,8 +188,9 @@ function PageCanvas({ doc, pageNumber, scale, active, onSize }: {
         const p = await doc.getPage(pageNumber);
         if (dead) return;
         const base = p.getViewport({ scale: 1 });
-        onSize(pageNumber, base.width, base.height);
+        onSize(pageNumber, base.width, base.height); // breaks the scale=0 bootstrap cycle
 
+        if (!(scale > 0)) return; // fit scale unknown until a size is reported
         const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
         const vp = p.getViewport({ scale });
         const cssW = Math.floor(vp.width);
