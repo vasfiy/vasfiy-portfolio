@@ -62,3 +62,12 @@
     color-mix(in srgb, var(--bg) 74%, transparent) 100%
   );
 }
+
+/* phones: strengthen the veil so the headline zone stays readable over bright photos */
+@media (max-width: 760px) {
+  .veil { background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 70%, transparent) 28%,
+    color-mix(in srgb, var(--bg) 56%, transparent) 60%,
+    color-mix(in srgb, var(--bg) 74%, transparent) 100%); }
+}

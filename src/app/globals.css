@@ -1101,7 +1101,7 @@ img, video, iframe { max-width: 100%; }
    Secondary pages: blog list, single post, share, gallery albums
    ============================================================ */
 section.page-hero { padding-top: 124px; }
-article.post-page { max-width: 780px; padding-top: 120px; padding-bottom: 80px; } /* 820px minus container padding left ~708px of text — a hair too wide */
+article.post-page { max-width: 780px; padding-top: 120px; padding-bottom: 80px;  background: color-mix(in srgb, var(--panel) 88%, transparent); border-radius: var(--radius); padding: clamp(22px, 3vw, 40px); box-shadow: var(--shadow-card);} /* 820px minus container padding left ~708px of text — a hair too wide */
 /* Album pages reuse the post shell, but their body is a photo GRID, not prose —
    the 780px reading cap would strand ~70% of the row on desktop. */
 article.post-page.album-page { max-width: min(1240px, 100%); }
@@ -1414,7 +1414,7 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .cv-certs li { color: #2a3650; font-size: .88rem; margin-bottom: 3px; }
 @media (max-width: 620px) { .cv-page { padding: 28px 22px; } .cv-head { flex-direction: column; } .cv-contact { text-align: left; } .cv-cols { grid-template-columns: 1fr; } }
 @media print {
-  .navbar, .theme-fab, .theme-panel, .footer, .bg-wrap, .scroll-progress, .cv-actions, .edit-fab, .edit-hint, .edit-toast { display: none !important; }
+  .navbar, .theme-fab, .theme-panel, .footer, .bg-wrap, .photo-layer, .scroll-progress, .cv-actions, .edit-fab, .edit-hint, .edit-toast { display: none !important; }
   body { background: #fff !important; }
   .cv-wrap { padding: 0; max-width: none; }
   .cv-page { box-shadow: none; border-radius: 0; padding: 0; }
@@ -1980,17 +1980,12 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
 }
 
 /* Astronaut floats above the SOC console — cosmos only */
-.astronaut { display: none; }
-[data-mode="dark"][data-theme="cosmos"] .astronaut {
-  display: block; position: absolute; top: -6%; right: 2%; width: 132px; height: auto; z-index: 3;
-  filter: drop-shadow(0 0 26px rgba(139, 124, 255, .5));
-  animation: astro 7.5s ease-in-out infinite;
-}
+[data-mode="dark"][data-theme="cosmos"] 
 @keyframes astro {
   0%, 100% { transform: translateY(0) rotate(-4deg); }
   50% { transform: translateY(-16px) rotate(5deg); }
 }
-@media (max-width: 1060px) { .astronaut { display: none !important; } }
+@media (max-width: 1060px) {  }
 
 /* Stellar glow on accent numbers/text */
 [data-theme="cosmos"] .stat-num,
@@ -2214,7 +2209,7 @@ html[data-fx="off"] .bg-comet { display: none; }
    vertical veil so the headline stays readable over the photo */
 
 /* --- world-break: full-bleed themed band — the photo IS the page here too --- */
-.world-break { position: relative; height: clamp(380px, 68vh, 760px); overflow: hidden; }
+.world-break { position: relative; height: clamp(380px, 68svh, 760px); overflow: hidden; }
 /* the media layer bleeds 64px above/below so the scroll drift can never show
    an edge (CSS zoom lives on the img; the JS parallax lives on this wrapper) */
 .world-break-media { position: absolute; inset: -64px 0; }
@@ -2270,10 +2265,11 @@ html[data-fx="off"] .world-break-media img { animation: none; }
 [data-mode="light"] .hero-main { text-shadow: none; }
 
 /* light mode: dim every photographic layer. .photo-layer is the agreed
-   convention for the fixed photo layer (z -1); 
+   convention for the fixed photo layer (z -1); bands dim too. */
+[data-mode="light"] .photo-layer img,
 [data-mode="light"] .world-break img { filter: brightness(.7) saturate(.9); }
-[data-mode="light"] 
-[data-mode="light"] 
+[data-mode="light"][data-theme="matrix"] .photo-layer img,
+[data-mode="light"][data-theme="matrix"] .world-break img { filter: brightness(.6) saturate(.9); }
 
 /* light mode: chips & ghost surfaces get MORE opacity — photos stay
    brighter there, and dark text needs a whiter island (84% panel).
@@ -2286,3 +2282,14 @@ html[data-fx="off"] .world-break-media img { animation: none; }
 [data-mode="light"] .lang-bars,
 [data-mode="light"] .filter-chip:not(.active),
 [data-mode="light"] .share-btn:not(.ok) { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+
+/* photo-round caveats: hover must not dissolve the reading island; the
+   gradient-filled hero name must not inherit the on-photo text shadow */
+.btn-ghost:hover, .social-link:hover, .lang-toggle:hover, .filter-chip:hover { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+.hero-name { text-shadow: none; }
+
+/* subpages verifier: controls become reading islands over photos */
+.seg-toggle, .bl-search, .lx-search, .ctf-score { background: color-mix(in srgb, var(--panel) 72%, transparent); }
+.ip-zoom button { background: color-mix(in srgb, var(--panel) 72%, transparent); }
+[data-mode="light"] .seg-toggle, [data-mode="light"] .bl-search, [data-mode="light"] .lx-search,
+[data-mode="light"] .ctf-score, [data-mode="light"] .ip-zoom button { background: color-mix(in srgb, var(--panel) 84%, transparent); }

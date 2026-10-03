@@ -12,7 +12,7 @@ import { useLang } from "./Providers";
    new one fades in on theme swaps. Motion (slow zoom + scroll parallax) runs
    only when fx is on and the user hasn't asked for reduced motion, and
    reacts live to "fxchange" and media-query changes. The old html[data-fx]
-   CSS gates are dead code (nothing sets that attribute), so fx-off is
+   CSS gates are the html[data-fx] CSS gates are live (ThemeFab sets the attribute)
    enforced here in JS via inline animation:none. If the manifest is
    missing/empty for a theme the band renders nothing — the PhotoLayer
    carries the mood alone. */

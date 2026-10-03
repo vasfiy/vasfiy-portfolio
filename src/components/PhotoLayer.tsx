@@ -86,8 +86,7 @@ export default function PhotoLayer() {
      (the page keeps its plain --bg backdrop, nothing breaks). */
   useEffect(() => {
     let dead = false;
-    setPhotos(null);
-    setShow(null);
+    // keep the previous theme's photos mounted while fetching — no hard pop to --bg
     setZoom(false);
     fetch(`/worlds/${theme}.json`)
       .then((r) => (r.ok ? r.json() : null))
