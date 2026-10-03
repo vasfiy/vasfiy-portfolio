@@ -77,7 +77,7 @@
   --shadow-card: 0 1px 2px rgba(20, 30, 60, 0.05), 0 10px 28px -18px rgba(20, 30, 60, 0.16);
   --shadow-lift: 0 2px 4px rgba(20, 30, 60, 0.06), 0 20px 44px -22px rgba(20, 30, 60, 0.28);
   /* darker, theme-tinted accent so accent text stays readable on light bg */
-  --ink-accent: color-mix(in srgb, var(--violet) 55%, #0a0a18); /* 55% keeps every theme's accent text >= 4.5:1 on light bg */
+  --ink-accent: color-mix(in srgb, var(--violet) 48%, #0a0a18); /* 55% keeps every theme's accent text >= 4.5:1 on light bg */
 }
 /* darken the gradient's bright start so big gradient text stays legible on light */
 
@@ -315,6 +315,9 @@ img { max-width: 100%; display: block; }
    built on --ink-accent so light mode keeps its contrast. */
 .kicker-num {
   background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, var(--violet) 18%, var(--ink-accent)));
+[data-mode="light"] .kicker-num {
+  background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, #0a0a18 12%, var(--ink-accent)));
+}
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--ink-accent);
   font-variant-numeric: tabular-nums;
 }
@@ -2276,7 +2279,7 @@ html.has-photo-layer .bg-wrap, html:has(.photo-layer) .bg-wrap { display: none; 
    1. PHOTOS NEVER GLARE  light mode dims every photographic layer
       (rules above): brightness(.7) saturate(.9), and brightness(.6)
       on the matrix theme — on top of the PhotoLayer's --bg veil
-      (photo-layer.module.css, mid-stop 62% dark / 86% light). Do not
+      (photo-layer.module.css, mid-stop 75% dark / 86% light). Do not
       weaken either side without re-running the 4.5:1 contrast audit.
    2. FX OFF = NOTHING MOVES  ThemeFab sets html[data-fx="off"].
       The point gates above (blobs, comets) stay for clarity; this
@@ -2367,7 +2370,7 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   opacity: 0; transform: translateY(10px); pointer-events: none;
   transition: opacity .25s, transform .25s, background .2s, color .2s;
 }
-.to-top-fab.show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top-fab.show { opacity: 1; visibility: visible; transform: none; pointer-events: auto; }
 .to-top-fab:hover { background: var(--surface-2); color: var(--ink-accent); }
 @media print { .to-top-fab { display: none !important; } }
 

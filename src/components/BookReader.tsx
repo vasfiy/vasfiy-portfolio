@@ -236,7 +236,7 @@ function PageCanvas({ doc, pageNumber, scale, active, onSize }: {
 
   return (
     <div className={S.pageWrap + (active ? ` ${S.active}` : "")} aria-hidden={!active}>
-      <canvas ref={canvasRef} className={S.canvas + (painted ? ` ${S.painted}` : "")} />
+      <canvas ref={canvasRef} className={S.canvas + (painted ? ` ${S.painted}` : "")}  aria-hidden="true" />
     </div>
   );
 }
