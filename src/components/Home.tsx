@@ -88,7 +88,9 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
             <p className="hero-desc" data-edit="heroDesc">{desc}</p>
             <div className="hero-cta">
               <a href="#contact" className="btn btn-primary">{t("hero.cta")}</a>
-              <Link href="/cv" className="btn btn-ghost"><span aria-hidden="true">📄</span> {t("hero.cv")}</Link>
+              {data.settings.cvUrl
+                ? <a className="btn btn-ghost" href={data.settings.cvUrl} download target="_blank" rel="noopener"><span aria-hidden="true">📄</span> {t("hero.cv")}</a>
+                : <Link href="/cv" className="btn btn-ghost"><span aria-hidden="true">📄</span> {t("hero.cv")}</Link>}
               <a href="#projects" className="btn btn-ghost">{t("hero.work")}</a>
             </div>
             <div className="hero-socials">
@@ -162,7 +164,7 @@ function Skills({ data }: { data: SiteData }) {
       <div className="container">
         <Reveal className="section-head">
           <span className="section-kicker"><span className="kicker-num">02</span> <span>{t("skills.kicker")}</span></span>
-          <h2 className="section-title">{t("skills.title")}</h2>
+          <h2 className="section-title">{pick(data.settings.siteText, "skillsTitle", lang) || t("skills.title")}</h2>
         </Reveal>
         <div className="skills-grid">
           {skills.map((s, i) => (
@@ -199,7 +201,7 @@ function Experience({ data }: { data: SiteData }) {
       <div className="container">
         <Reveal className="section-head">
           <span className="section-kicker"><span className="kicker-num">03</span> <span>{t("exp.kicker")}</span></span>
-          <h2 className="section-title">{t("exp.title")}</h2>
+          <h2 className="section-title">{pick(data.settings.siteText, "expTitle", lang) || t("exp.title")}</h2>
         </Reveal>
         <div className="timeline">
           {jobs.map((j, i) => {
@@ -236,7 +238,7 @@ function Projects({ data }: { data: SiteData }) {
       <div className="container">
         <Reveal className="section-head">
           <span className="section-kicker"><span className="kicker-num">04</span> <span>{t("proj.kicker")}</span></span>
-          <h2 className="section-title">{t("proj.title")}</h2>
+          <h2 className="section-title">{pick(data.settings.siteText, "projTitle", lang) || t("proj.title")}</h2>
         </Reveal>
         {present.length > 0 && (
           <div className="filter-bar" style={{ marginBottom: 24 }}>
@@ -302,7 +304,7 @@ function Education({ data }: { data: SiteData }) {
       <div className="container">
         <Reveal className="section-head">
           <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("edu.kicker")}</span></span>
-          <h2 className="section-title">{t("edu.title")}</h2>
+          <h2 className="section-title">{pick(data.settings.siteText, "eduTitle", lang) || t("edu.title")}</h2>
         </Reveal>
         <div className="edu-grid">
           <Reveal className="edu-col">
@@ -327,13 +329,14 @@ function Education({ data }: { data: SiteData }) {
                 const open = () => setViewing({ src: fileSrc(c) || img, title: name, pdf: !isImg(fileSrc(c) || img) });
                 return (
                   <figure
-                    className="cert-slide glass" key={c.__id || i}
+                    className="cert-slide glass cert-clickable" key={c.__id || i}
                     onClick={open} role="button" tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}
                   >
                     <img src={mediaUrl(img, 800)} data-original={img} onError={onMediaError} alt={name} loading="lazy" decoding="async" />
                     <figcaption>
                       <h4>{name}</h4>
+                      {c.badge ? <span className="cert-badge">{c.badge}</span> : null}
                       <p className="cert-meta">{pick(c, "meta", lang)}</p>
                       {verifyUrl(c) && <a className="cert-view-btn" href={verifyUrl(c)} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()}>{lang === "uz" ? "Sertifikat sahifasi" : "View certificate"} ↗</a>}
                     </figcaption>
@@ -511,14 +514,18 @@ function Contact({ st }: { st: any }) {
     }
     setStatus({ kind: "send", msg: t("contact.sending") });
     try {
-      let audio: string | null = null;
-      if (voice) { try { audio = await (await import("@/lib/data")).uploadVoice(voice); } catch {} }
-      const payload: any = { name: String(fd.get("name") || ""), email: String(fd.get("email") || ""), message: msg, audio };
-      const { error } = await (await import("@/lib/data")).supabase.from("messages").insert(payload);
-      if (error) throw error;
+      let voiceFail = false;
+      const up = new FormData();
+      up.set("name", String(fd.get("name") || ""));
+      up.set("email", String(fd.get("email") || ""));
+      up.set("message", msg);
+      if (voice) up.set("audio", voice);
+      const res = await fetch("/api/contact", { method: "POST", body: up }).then((r) => r.json()).catch(() => ({ ok: false }));
+      if (!res.ok) throw new Error("send failed");
+      if (voice && !res.voice) voiceFail = true;
       // fire-and-forget email notification (no-op unless RESEND env is set)
-      fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
-      setStatus({ kind: "ok", msg: t("contact.sent") }); f.reset(); setVoice(null);
+      fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: up.get("name"), email: up.get("email"), message: msg }) }).catch(() => {});
+      setStatus({ kind: "ok", msg: t("contact.sent") + (voiceFail ? (lang === "uz" ? " (Ovozli xabar yuklanmadi — yozib yuboring.)" : " (Voice note failed to upload — please type it.)") : "") }); f.reset(); setVoice(null);
     } catch {
       setStatus({ kind: "err", msg: t("contact.error") });
     }
@@ -540,7 +547,7 @@ function Contact({ st }: { st: any }) {
             </div>
             <textarea name="message" rows={4} placeholder={t("contact.message")} />
             <VoiceRecorder label={t("contact.voice")} onChange={setVoice} />
-            <button type="submit" className="btn btn-primary" disabled={status.kind === "send"}>{t("contact.send")}</button>
+            <button type="submit" className="btn btn-primary" disabled={status.kind === "send"}>{status.kind === "send" ? t("contact.sending") : t("contact.send")}</button>
             <p className={"cf-status " + status.kind}>{status.msg}</p>
           </form>
           <div className="contact-actions">

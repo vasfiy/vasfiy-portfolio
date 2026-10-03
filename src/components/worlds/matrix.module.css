@@ -1,0 +1,10 @@
+/* Matrix world (data-theme="matrix") — digital rain canvas.
+   Placement is owned by globals.css: .world-layer is position:fixed,
+   inset:0, z-index:-1, pointer-events:none. This module only pins the
+   canvas to the layer before the engine writes explicit px sizes. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

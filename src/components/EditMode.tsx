@@ -29,7 +29,8 @@ export default function EditMode() {
       const el = e.currentTarget as HTMLElement;
       const base = el.dataset.edit!;
       const key = langRef.current === "uz" ? base + "Uz" : base;
-      const text = el.innerText.trim();
+      // aboutP1-3 are rich HTML — save innerHTML so in-place edits don't strip markup
+      const text = base.startsWith("aboutP") ? el.innerHTML.trim() : el.innerText.trim();
       try {
         const A = await import("@/lib/admin");
         if (!stRef.current) stRef.current = (await A.getSettings()).siteText || {};

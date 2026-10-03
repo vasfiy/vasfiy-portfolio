@@ -69,7 +69,7 @@ export default function LibraryGrid({ books, cats }: { books: Book[]; cats: Reco
               const isPdf = file && /\.pdf(\?|$)/i.test(file);
               return (
                 <Reveal className="book-card glass" key={b.__id || i}>
-                  <div className="book-cover">{cover ? <img src={mediaUrl(cover, 800)} data-original={cover} onError={coverError} alt={title ? "" : "cover"} loading="lazy" decoding="async" /> : <span className="book-emoji">📕</span>}</div>
+                  <div className="book-cover">{cover ? <img src={mediaUrl(cover, 800)} data-original={cover} onError={coverError} alt={title ? "" : "cover"} loading="lazy" decoding="async" /> : <span className="book-emoji">{b.cover || "📕"}</span>}</div>
                   <div className="book-info">
                     <h3>{title}</h3>
                     {b.author && <p className="book-author">{t("library.by")} {b.author}</p>}

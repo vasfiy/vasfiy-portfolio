@@ -4,28 +4,27 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import SiteFrame from "@/components/SiteFrame";
 import PWARegister from "@/components/PWARegister";
-import { getNavPages } from "@/lib/data";
+import { getNavPages, getSiteData } from "@/lib/data";
 
 // Self-hosted, optimized fonts (no render-blocking Google Fonts request, no FOUT).
 const display = Space_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--f-display", display: "swap" });
 const body = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--f-body", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--f-mono", display: "swap" });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://vasfiy.com"),
-  title: "Kamoliddin Tilonboyev — SOC Analyst",
-  description: "Aspiring SOC Analyst — blue-team operations, threat monitoring & network analysis. TryHackMe certified, global top 1%.",
-  openGraph: {
-    title: "Kamoliddin Tilonboyev — SOC Analyst",
-    description: "Aspiring SOC Analyst — blue-team operations, threat monitoring & network analysis.",
-    images: ["/og-image.jpg"],
-    type: "website",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const st = ((await getSiteData()).settings.siteText || {}) as Record<string, string>;
+  const title = st.metaTitle || "Kamoliddin Tilonboyev — SOC Analyst";
+  const description = st.metaDesc || "Aspiring SOC Analyst — blue-team operations, threat monitoring & network analysis. TryHackMe certified, global top 1%.";
+  return {
+    metadataBase: new URL("https://vasfiy.com"),
+    title, description,
+    openGraph: { title, description, images: ["/og-image.jpg"], type: "website" },
   twitter: { card: "summary_large_image" },
   icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Kamoliddin" },
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
-};
+  };
+}
 
 export const viewport: Viewport = {
   viewportFit: "cover", themeColor: "#030310" };

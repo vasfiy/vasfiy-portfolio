@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import AdminEditLink from "./AdminEditLink";
@@ -22,7 +23,7 @@ export default function PageView({ page }: { page: Page | null }) {
       <h1 className="post-title">{page.icon ? page.icon + " " : ""}{title}</h1>
       <div className="post-text">
         {body
-          ? <div className="post-rich" dangerouslySetInnerHTML={{ __html: body }} />
+          ? <div className="post-rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
           : <p className="empty-note">{lang === "uz" ? "Kontent hali yo'q." : "No content yet."}</p>}
       </div>
     </article>

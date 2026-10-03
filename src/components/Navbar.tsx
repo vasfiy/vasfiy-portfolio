@@ -11,7 +11,7 @@ import type { Page } from "@/lib/types";
 const SECTIONS = ["hero", "about", "skills", "experience", "projects", "education", "contact"];
 
 export default function Navbar({ pages = [] }: { pages?: Page[] }) {
-  const { t, lang, toggle } = useLang();
+  const { t, lang, setLang } = useLang();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -80,6 +80,7 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
     <>
       <div className="scroll-progress" id="scrollProgress" aria-hidden="true" />
       <header className={"navbar" + (scrolled ? " scrolled" : "")} id="navbar">
+        {open && <div className="nav-scrim" onClick={close} aria-hidden="true" />}
         <div className="container nav-inner">
           <Link href="/" className={"brand" + (home && (sec === "hero" || !sec) ? " active" : "")} aria-label={t("nav.home")}>
             <span className="brand-mark">KT</span>
@@ -87,11 +88,11 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
           </Link>
           <nav className={"nav-links" + (open ? " open" : "")} id="navLinks" ref={linksRef}>{links}</nav>
           <div className="nav-actions">
-            <button className="lang-toggle" onClick={toggle} aria-label={t("nav.switchLang")}>
-              <span className={"lang-opt" + (lang === "en" ? " active" : "")}>EN</span>
+            <div className="lang-toggle" role="group" aria-label={t("nav.switchLang")}>
+              <button type="button" className={"lang-opt" + (lang === "en" ? " active" : "")} onClick={() => setLang("en")} aria-pressed={lang === "en"}>EN</button>
               <span className="lang-sep">/</span>
-              <span className={"lang-opt" + (lang === "uz" ? " active" : "")}>UZ</span>
-            </button>
+              <button type="button" className={"lang-opt" + (lang === "uz" ? " active" : "")} onClick={() => setLang("uz")} aria-pressed={lang === "uz"}>UZ</button>
+            </div>
             <button className={"menu-btn" + (open ? " open" : "")} onClick={() => setOpen((o) => !o)} aria-label={t("nav.menu")} aria-expanded={open}>
               <span /><span /><span />
             </button>

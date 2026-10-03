@@ -7,8 +7,10 @@ import { uiConfirm } from "./Dialog";
 
 /* ---------------- Site text + Profile/CV ---------------- */
 const EXPLORE_KEYS: { k: string; label: string }[] = [
-  { k: "gallery", label: "Gallery cover" }, { k: "blog", label: "Journal cover" },
-  { k: "library", label: "Library cover" }, { k: "linux", label: "Linux Lab cover" },
+  { k: "library", label: "Library cover" },
+  { k: "learning", label: "Learning cover" },
+  { k: "linux", label: "Linux lab cover" },
+  { k: "tools", label: "Tools cover" },
 ];
 
 export function SiteText() {

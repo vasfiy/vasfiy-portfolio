@@ -25,6 +25,8 @@ async function getLabData() {
   (cats.data || []).forEach((c: any) => { if ((arch.lesson || []).includes(c.key)) return; catMap[c.key] = { en: c.en, uz: c.uz, icon: c.icon }; });
   const ctfCatMap: Record<string, any> = {};
   for (const key in (extra.challenge || {})) { if (!(arch.challenge || []).includes(key)) ctfCatMap[key] = extra.challenge[key]; }
+  // challenge cats are usually the same keys as lesson cats — fall back so chips never render raw keys
+  for (const key in catMap) { if (!ctfCatMap[key]) ctfCatMap[key] = catMap[key]; }
   return { lessons, challenges, catMap, ctfCatMap };
 }
 

@@ -20,8 +20,10 @@ export default function ThemeFab() {
       const panel = document.getElementById("themePanel");
       if (panel && !panel.contains(e.target as Node) && e.target !== fab) setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     document.addEventListener("click", onDoc);
-    return () => document.removeEventListener("click", onDoc);
+    window.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("click", onDoc); window.removeEventListener("keydown", onKey); };
   }, []);
 
   const applyTheme = (th: string) => { setTheme(th); document.documentElement.setAttribute("data-theme", th); localStorage.setItem("theme", th); };

@@ -7,6 +7,7 @@ import ThemeFab from "./ThemeFab";
 import Search from "./Search";
 import Tracker from "./Tracker";
 import EditMode from "./EditMode";
+import WorldLayer from "./WorldLayer";
 import type { Page } from "@/lib/types";
 
 export default function SiteFrame({ children, navPages = [] }: { children: React.ReactNode; navPages?: Page[] }) {
@@ -25,6 +26,7 @@ export default function SiteFrame({ children, navPages = [] }: { children: React
   if (p.startsWith("/admin") || p.startsWith("/market") || bareHost) return <>{children}</>;
   return (
     <>
+      <WorldLayer />
       <Navbar pages={navPages} />
       <main>{children}</main>
       <Footer />

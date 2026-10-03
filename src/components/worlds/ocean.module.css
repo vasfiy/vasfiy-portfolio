@@ -1,0 +1,9 @@
+/* Ocean world — its own styles only (never globals.css).
+   The canvas lives inside the fixed .world-layer frame (globals.css);
+   the engine sets inline pixel sizes (DPR-aware) — this guarantees full
+   coverage and clean rasterization regardless of paint order. */
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

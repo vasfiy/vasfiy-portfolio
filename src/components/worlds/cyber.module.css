@@ -1,0 +1,7 @@
+/* Cyber world — the engine sets explicit px size on the canvas inline;
+   this only guarantees full-bleed before that first inline sizing lands. */
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

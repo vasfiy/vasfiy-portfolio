@@ -95,7 +95,7 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
             <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
               {vid
                 ? <div className="video-ph">
-                    <video src={`${g.src}#t=0.1`} muted preload="metadata" playsInline aria-hidden="true" tabIndex={-1} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    <VideoTile src={g.src!} />
                     <span className="vid-badge">▶</span>
                   </div>
                 : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={cap} loading="lazy" decoding="async" />}
@@ -107,6 +107,59 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
 
       {lb >= 0 && <Lightbox photos={photos} index={lb} onClose={close} onStep={step} lang={lang} />}
     </>
+  );
+}
+
+/* Video tile poster: captures a real frame into a canvas so EVERY browser —
+   iOS Safari included — shows a video thumbnail (browsers often refuse to
+   paint preload="metadata" frames, which read as "video won't open").
+   Preference: captured poster <img> → live #t=0.1 <video> (may paint) →
+   the .video-ph gradient + ▶ badge (always there underneath). */
+function VideoTile({ src }: { src: string }) {
+  const [poster, setPoster] = useState<string | null>(null);
+  const [live, setLive] = useState(false); // capture impossible → show the raw video (old behavior)
+  const [dead, setDead] = useState(false); // video itself failed → gradient + badge only
+  const vidRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = vidRef.current;
+    if (!v || poster || live || dead) return;
+    let cancelled = false;
+    const capture = () => {
+      if (cancelled) return;
+      try {
+        const c = document.createElement("canvas");
+        c.width = 480; c.height = 480;
+        const cx = c.getContext("2d");
+        if (!cx) throw new Error("no 2d");
+        const vw = v.videoWidth || 480, vh = v.videoHeight || 480;
+        const cov = Math.max(480 / vw, 480 / vh);
+        const sw = 480 / cov, sh = 480 / cov;
+        cx.drawImage(v, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, 480, 480);
+        setPoster(c.toDataURL("image/jpeg", 0.72));
+      } catch {
+        setLive(true); // tainted canvas (no CORS) or no frame — remount visible
+      }
+    };
+    v.addEventListener("loadeddata", capture, { once: true });
+    // two-strike: first failure drops crossOrigin (live retry), only a second one kills the tile
+    v.addEventListener("error", () => { if (!cancelled) { if (v.crossOrigin) setLive(true); else setDead(true); } }, { once: true });
+    v.load();
+    return () => { cancelled = true; };
+  }, [poster, live, dead, src]);
+
+  if (dead) return null;
+  if (poster) return <img src={poster} alt="" />;
+  return (
+    <video
+      ref={vidRef}
+      src={`${src}#t=0.1`}
+      muted preload="metadata" playsInline
+      crossOrigin={live ? undefined : "anonymous"}
+      aria-hidden="true" tabIndex={-1}
+      style={live ? undefined : { opacity: 0.01 }}
+      key={live ? "live" : "capture"}
+    />
   );
 }
 

@@ -35,7 +35,7 @@ export default function Search() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  useEffect(() => { if (open) { if (!data) import("@/lib/data").then((d) => d.getSiteData()).then(setData).catch(() => {}); setTimeout(() => inputRef.current?.focus(), 50); } else setQ(""); }, [open, data]);
+  useEffect(() => { if (open) { if (!data) fetch("/api/site-data").then((r) => r.json()).then((d) => setData(d as SiteData)).catch(() => {}); setTimeout(() => inputRef.current?.focus(), 50); } else setQ(""); }, [open, data]);
 
   const results = q.trim().length < 2 ? [] : index.filter((h) => h.text.toLowerCase().includes(q.toLowerCase())).slice(0, 12);
 
@@ -53,7 +53,8 @@ export default function Search() {
               <kbd>Esc</kbd>
             </div>
             <div className="search-results">
-              {q.trim().length >= 2 && results.length === 0 && <p className="search-empty" role="status">{t("search.none")}</p>}
+              {q.trim().length >= 2 && data && results.length === 0 && <p className="search-empty" role="status">{t("search.none")}</p>}
+              {q.trim().length >= 2 && !data && <p className="search-empty" role="status">{lang === "uz" ? "Qidirilmoqda…" : "Searching…"}</p>}
               {results.map((h, i) => (
                 <Link key={i} href={h.href} className="search-hit" onClick={() => setOpen(false)}>
                   <span className="search-hit-ic">{h.icon}</span>

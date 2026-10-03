@@ -19,6 +19,12 @@ export default function PostView({ post, related }: { post: Post | null; related
   const richRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLElement>(null);
   useEffect(() => { setFailedVids(new Set()); setLegacyVidFail(false); }, [post]);
+  // the global scroll-progress bar double-paints the reading bar — hide it here
+  useEffect(() => {
+    const gp = document.getElementById("scrollProgress");
+    if (gp) gp.style.visibility = "hidden";
+    return () => { if (gp) gp.style.visibility = ""; };
+  }, []);
 
   // Reading progress bar tied to how far through the article you've scrolled —
   // written straight to the DOM via ref and rAF-throttled so scrolling never
