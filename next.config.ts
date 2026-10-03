@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: "/pdfjs/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
         // Documents (browser navigations) are never cacheable — a cached page
         // names build-specific asset hashes that stop existing after a rebuild,
         // which is exactly how phones ended up with raw unstyled HTML.

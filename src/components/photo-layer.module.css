@@ -73,6 +73,7 @@
 }
 
 /* light mode: photos become a quiet texture — dark text on near-solid bg */
+:global([data-mode="light"]) .front { opacity: .5; }
 :global([data-mode="light"]) .veil { background: linear-gradient(180deg,
   color-mix(in srgb, var(--bg) 92%, transparent) 0%,
   color-mix(in srgb, var(--bg) 86%, transparent) 32%,

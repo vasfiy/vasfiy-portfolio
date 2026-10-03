@@ -2479,3 +2479,8 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
+
+/* a11y verifier: the terminal is a dark theater surface — keep it dark in light mode */
+[data-mode="light"] .term { background: #0b1120; }
+[data-mode="light"] .term-window { background: #0b1120; }
+[data-mode="light"] .ad-lock input { background: #ffffff; border-color: var(--border-strong); }
