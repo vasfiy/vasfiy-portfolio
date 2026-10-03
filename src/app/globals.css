@@ -2519,3 +2519,18 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   .post-back { padding: 10px 12px 10px 0; margin-bottom: 10px; }
   .post-toc summary { padding: 15px 0; }
 }
+
+/* ===== a11y phone pass: every control to a comfortable touch target ===== */
+.cert-dots button {
+  width: 12px; height: 12px; padding: 0; position: relative; background-clip: content-box; box-sizing: content-box;
+}
+.cert-dots button::after { content: ""; position: absolute; inset: -16px; }
+@media (max-width: 760px) {
+  .ip-zoom button { width: 44px; height: 44px; }
+  .lightbox-close { width: 44px; height: 44px; }
+  .mode-opt { min-width: 44px; min-height: 40px; }
+  .bl-search-x { width: 44px; height: 44px; }
+  .voice-x { width: 44px; height: 44px; }
+  .cmd-chip { padding: 12px 14px; }
+  .post-back { padding: 12px 12px 12px 0; }
+}
