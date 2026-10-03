@@ -26,7 +26,7 @@
       catch (e) { return false; }
     },
     has(key) { try { return localStorage.getItem(PFX + key) != null; } catch (e) { return false; } },
-    remove(key) { localStorage.removeItem(PFX + key); },
+    remove(key) { try { localStorage.removeItem(PFX + key); } catch (e) {} },
   };
 
   /* Content getters: override (localStorage) merged-or-replaced by defaults */
