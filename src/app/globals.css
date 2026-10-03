@@ -2080,7 +2080,7 @@ html[data-fx="off"] .bg-comet { display: none; }
 
 /* light mode: dim the photographic layer. .photo-layer is the agreed
    convention for the fixed photo layer (z -1). */
-[data-mode="light"] .photo-layer img { filter: brightness(.7) saturate(.9); opacity: .5; }
+[data-mode="light"] .photo-layer img { filter: brightness(.7) saturate(.9); }
 [data-mode="light"][data-theme="matrix"] .photo-layer img { filter: brightness(.6) saturate(.9); }
 
 /* light mode: chips & ghost islands go SOLID white — separation via the
