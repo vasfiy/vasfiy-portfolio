@@ -41,6 +41,20 @@
   to { opacity: 1; }
 }
 
+/* Phones (≤768px — matches the JS layer's PHONE_Q): the calm compositing
+   budget. The JS layer never applies the Ken Burns transform here, so the
+   9s transform transition is dropped with it; the crossfade shrinks to a
+   650ms opacity fade (a swap costs a few frames of full-screen compositing,
+   not seconds), and will-change is released so no full-viewport layer stays
+   pinned between swaps. */
+@media (max-width: 768px) {
+  .motion .img {
+    transition: opacity 0.65s ease;
+    will-change: auto;
+  }
+  .motion { animation-duration: 0.6s; }
+}
+
 /* fx off / reduced motion: no transitions, no zoom, no entrance — a static
    photograph. Toggled live from JS via the .still class. */
 .still .img {

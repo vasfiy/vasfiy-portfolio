@@ -83,7 +83,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
             <h2 className="section-title">{T.lessonsTitle}</h2>
           </Reveal>
 
-          <div className="lx-progress">
+          <div className="lx-progress" style={{ flexWrap: "wrap", rowGap: 6 }}>
             <span>{T.progress}: <b>{completedCount}/{total}</b></span>
             <div className="lx-prog-bar"><i style={{ width: pctDone + "%" }} /></div>
             <span>{pctDone}%</span>

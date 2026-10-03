@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 /* The hero backdrop: a slow constellation of drifting nodes joined by hairlines.
    A few KB of 2D canvas — replaced the ~0.8 MB Three.js particle field. Tinted
    by the active theme accent, throttled to ~30fps, paused when the tab hides OR
-   the hero scrolls offscreen, and skipped entirely for reduced-motion users. */
+   the hero scrolls offscreen, and skipped entirely for reduced-motion users.
+   Phones (≤768px) are NOT skipped: they run a halved field with the backing
+   store capped at dpr 1.5 to keep the canvas cheap on mid-range GPUs. */
 export default function HeroCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -41,7 +43,10 @@ export default function HeroCanvas() {
     };
 
     const applyResize = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1); // re-read per resize: zoom / monitor changes must not leave a soft canvas
+      // re-read per resize: zoom / monitor changes must not leave a soft canvas.
+      // Phones (≤768px, the photo layer's breakpoint) cap at 1.5 — the field is
+      // hairlines and 1.3px dots; raster at dpr 2-3 is invisible GPU cost.
+      const dpr = Math.min(window.innerWidth <= 768 ? 1.5 : 2, window.devicePixelRatio || 1);
       const rect = canvas.parentElement?.getBoundingClientRect();
       w = Math.max(1, rect?.width || window.innerWidth);
       h = Math.max(1, rect?.height || window.innerHeight);

@@ -19,7 +19,7 @@ export default function CV({ data }: { data: SiteData }) {
 
   return (
     <section className="section cv-wrap">
-      <div className="cv-actions">
+      <div className="cv-actions" style={{ flexWrap: "wrap", rowGap: 10 }}>
         <button className="btn btn-primary" onClick={() => window.print()}>{T.print}</button>
         {cv && <a className="btn btn-ghost" href={cv} download target="_blank" rel="noopener">{T.download}</a>}
       </div>

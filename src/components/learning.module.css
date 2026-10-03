@@ -352,3 +352,26 @@
     transform: none;
   }
 }
+
+/* ---------- phone (mobile typography pass) ---------- */
+
+/* card titles land in the 18-19px phone band; the featured card keeps a
+   visible step up but stops short of its 23px clamp floor on small screens */
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.1875rem; /* 19px */
+  }
+  .featured .title {
+    font-size: 1.35rem; /* 21.6px — was clamped at 23.2px minimum */
+  }
+}
+
+/* simulator strip: links were ~22px tall — fatten the tap target on phones */
+@media (max-width: 560px) {
+  .sims {
+    row-gap: 0;
+  }
+  .simsLink {
+    padding: 8px 2px; /* ~38px tall tap target */
+  }
+}
