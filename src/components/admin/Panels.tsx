@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { SITE_GROUPS } from "@/lib/adminSchema";
 import * as A from "@/lib/admin";
 import CropModal from "./CropModal";
-import { uiConfirm } from "./Dialog";
+import { uiConfirm, showToast } from "./Dialog";
 
 /* ---------------- Site text + Profile/CV ---------------- */
 const EXPLORE_KEYS: { k: string; label: string }[] = [
@@ -18,9 +18,10 @@ export function SiteText() {
   const [profile, setProfile] = useState<string>("");
   const [cv, setCv] = useState<string>("");
   const [covers, setCovers] = useState<Record<string, string>>({});
-  const [msg, setMsg] = useState("");
   const [open, setOpen] = useState(0);
-  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(""), 2500); };
+  // Flash/status messages render in the fixed toast (Dialog.tsx) — success
+  // auto-clears, "Error:"/"⚠" persist until dismissed.
+  const flash = (m: string) => showToast(m);
 
   useEffect(() => { A.getSettings().then((s) => { setV(s.siteText || {}); setProfile(s.profilePhoto || ""); setCv(s.cvUrl || ""); setCovers(s.exploreCovers || {}); }); }, []);
   const saveCover = async (k: string, url: string) => { const next = { ...covers, [k]: url }; setCovers(next); await A.setSetting("exploreCovers", next); flash("Cover updated"); };
@@ -38,7 +39,7 @@ export function SiteText() {
 
   return (
     <div className="ad-section">
-      <div className="ad-head"><h2>📝 Site text</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
+      <div className="ad-head"><h2>📝 Site text</h2></div>
 
       <div className="ad-card">
         <h3>👤 Profile photo &amp; CV</h3>
@@ -220,13 +221,12 @@ export function Analytics() {
 export function MediaLib() {
   const [files, setFiles] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
   const ref = useRef<HTMLInputElement>(null);
   const load = () => A.listStorage().then(setFiles);
   useEffect(() => { load(); }, []);
   // Upload everything, then flash a summary — failures used to vanish into `catch {}`.
   const uploadAll = async (list: File[]) => {
-    setBusy(true); setErr("");
+    setBusy(true);
     let failed = 0, lastErr = "", uncompressed = 0;
     for (const f of list) {
       try {
@@ -236,8 +236,12 @@ export function MediaLib() {
       } catch (e: any) { failed++; lastErr = e?.message || String(e); }
     }
     setBusy(false); load();
-    if (failed) setErr(`${failed} file${failed === 1 ? "" : "s"} failed to upload — ${lastErr}`);
-    else if (uncompressed) setErr(`${uncompressed} file${uncompressed === 1 ? " was" : "s were"} uploaded uncompressed (original kept)`);
+    if (failed) showToast(`⚠ ${failed} file${failed === 1 ? "" : "s"} failed to upload — ${lastErr}`);
+    else if (uncompressed) showToast(`⚠ ${uncompressed} file${uncompressed === 1 ? " was" : "s were"} uploaded uncompressed (original kept)`);
+  };
+  const copyUrl = async (url: string) => {
+    try { await navigator.clipboard.writeText(url); showToast("✓ URL copied"); }
+    catch (e: any) { showToast("Error: couldn't copy — " + (e?.message || e)); }
   };
   return (
     <div className="ad-section">
@@ -247,13 +251,13 @@ export function MediaLib() {
           <input ref={ref} type="file" multiple hidden onChange={async (e) => { if (!e.target.files) return; await uploadAll(Array.from(e.target.files)); if (ref.current) ref.current.value = ""; }} />
           {busy ? "⏳ Uploading…" : "⬆ Drop files or click to upload"}
         </div>
-        {err && <p className="ad-up-err">⚠ {err}</p>}
+        {files.length > 0 && <p className="ad-hint">Showing newest {files.length} file{files.length > 1 ? "s" : ""} (storage list caps at 200).</p>}
         <div className="ad-media-grid">
           {files.map((f) => (
             <div className="ad-media" key={f.name}>
               {/^image|webp|png|jpg|jpeg|gif/.test(f.type + f.name) ? <img src={f.url} alt="" /> : <div className="ad-media-doc">📄</div>}
-              <button onClick={() => navigator.clipboard.writeText(f.url)} title="Copy URL">⧉</button>
-              <button className="danger" onClick={async () => { if (await uiConfirm("Delete file?")) { await A.removeStorage(f.name); load(); } }} title="Delete">🗑</button>
+              <button onClick={() => copyUrl(f.url)} title="Copy URL">⧉</button>
+              <button className="danger" onClick={async () => { if (await uiConfirm(`Delete "${f.name}"? This may break items still using it.`)) { await A.removeStorage(f.name); load(); } }} title="Delete">🗑</button>
             </div>
           ))}
         </div>

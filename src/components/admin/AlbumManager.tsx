@@ -1,14 +1,13 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import * as A from "@/lib/admin";
-import { uiPrompt, uiConfirm } from "./Dialog";
+import { uiPrompt, uiConfirm, showToast } from "./Dialog";
 
 interface Album { key: string; album: string | null; cat: string | null; photos: any[]; }
 
 export default function AlbumManager({ cats, onChange }: { cats: Record<string, any>; onChange: () => void }) {
   const [photos, setPhotos] = useState<any[]>([]);
   const [open, setOpen] = useState<string | null>(null);
-  const [busy, setBusy] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const target = useRef<{ album: string | null; cat: string | null }>({ album: null, cat: null });
 
@@ -28,9 +27,12 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
   const name = (a: Album) => a.album || (a.cat && (cats[a.cat]?.en || a.cat)) || "Gallery";
 
   const addPhotos = (a: Album) => { target.current = { album: a.album, cat: a.cat }; fileRef.current?.click(); };
+  // Status/errors show in the fixed toast (Dialog.tsx); sticky=true messages are
+  // cleared explicitly when the operation ends.
   const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files; if (!files || !files.length) return;
-    setBusy(`Uploading ${files.length}…`); let fail = 0; let lastErr = ""; let uncompressed = 0;
+    const total = files.length; let left = total; let fail = 0; let lastErr = ""; let uncompressed = 0;
+    showToast(`⏳ Uploading ${left}…`, true);
     for (const f of Array.from(files)) {
       try {
         const file: A.CompressedFile = f.type.startsWith("image") ? await A.compressImage(f) : f;
@@ -42,36 +44,36 @@ export default function AlbumManager({ cats, onChange }: { cats: Record<string, 
         if (target.current.cat) obj.cat = target.current.cat;
         await A.addItem("gallery", obj);
       } catch (err: any) { fail++; lastErr = err?.message || String(err); }
+      left--; if (left) showToast(`⏳ Uploading ${left}…`, true);
     }
     if (fileRef.current) fileRef.current.value = "";
-    if (fail) setBusy(`⚠ ${fail} upload(s) failed — ${lastErr}`);
-    else if (uncompressed) setBusy(`⚠ ${uncompressed} photo(s) uploaded uncompressed — original kept`);
-    else setBusy("");
+    if (fail) showToast(`⚠ ${fail} upload(s) failed — ${lastErr}`);
+    else if (uncompressed) showToast(`⚠ ${uncompressed} photo(s) uploaded uncompressed — original kept`);
+    else showToast("");
     refreshAll();
   };
   const rename = async (a: Album) => {
     const nn = await uiPrompt("New album name (blank = ungroup):", a.album || "");
-    if (nn == null) return; setBusy("Renaming…");
+    if (nn == null) return; showToast("Renaming…", true);
     try { for (const p of a.photos) await A.updateItem(p.__id, { ...p, album: nn || undefined, albumUz: nn || undefined }); }
-    catch (e: any) { setBusy("⚠ " + (e?.message || e)); return; }
-    setBusy(""); refreshAll();
+    catch (e: any) { showToast("⚠ " + (e?.message || e)); return; }
+    showToast(""); refreshAll();
   };
   const delAlbum = async (a: Album) => {
     if (!(await uiConfirm(`Delete album "${name(a)}" and its ${a.photos.length} photo(s)?`))) return;
-    setBusy("Deleting…");
+    showToast("Deleting…", true);
     try { for (const p of a.photos) await A.deleteItem(p.__id); }
-    catch (e: any) { setBusy("⚠ " + (e?.message || e)); return; }
-    setBusy(""); refreshAll();
+    catch (e: any) { showToast("⚠ " + (e?.message || e)); return; }
+    showToast(""); refreshAll();
   };
-  const delPhoto = async (p: any) => { if (!(await uiConfirm("Delete this photo?"))) return; try { await A.deleteItem(p.__id); refreshAll(); } catch (e: any) { setBusy("⚠ " + (e?.message || e)); } };
-  const setCover = async (a: Album, p: any) => { try { for (const x of a.photos) await A.setPinned(x.__id, x.__id === p.__id); refreshAll(); } catch (e: any) { setBusy("⚠ " + (e?.message || e)); } };
+  const delPhoto = async (p: any) => { if (!(await uiConfirm("Delete this photo?"))) return; try { await A.deleteItem(p.__id); refreshAll(); } catch (e: any) { showToast("⚠ " + (e?.message || e)); } };
+  const setCover = async (a: Album, p: any) => { try { for (const x of a.photos) await A.setPinned(x.__id, x.__id === p.__id); refreshAll(); } catch (e: any) { showToast("⚠ " + (e?.message || e)); } };
 
   return (
     <div className="ad-card">
       <h3>🗂 Albums — manage existing</h3>
       <p className="ad-hint">Add more photos to an album, rename it, set a cover, or delete photos / whole albums.</p>
       <input ref={fileRef} type="file" accept="image/*,video/*" multiple hidden onChange={onFiles} />
-      {busy && <p className="ad-msg">{busy}</p>}
       {albums.length === 0 && <p className="ad-hint">No albums yet — create one above.</p>}
       {albums.map((a) => {
         const cover = a.photos.find((x) => x.pinned) || a.photos[0];

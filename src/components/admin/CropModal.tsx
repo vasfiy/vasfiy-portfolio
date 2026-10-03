@@ -12,6 +12,15 @@ export default function CropModal({ file, onDone, onCancel }: { file: File; onDo
 
   useEffect(() => { const u = URL.createObjectURL(file); setUrl(u); return () => URL.revokeObjectURL(u); }, [file]);
 
+  // Escape returns to the form without applying. Deliberately NO overlay-click
+  // cancel: a stray tap used to wipe the drawn crop silently — leaving is an
+  // explicit Cancel button press or Escape.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCancel(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onCancel]);
+
   const onLoad = () => {
     const img = imgRef.current; if (!img) return;
     const w = img.clientWidth, h = img.clientHeight;
@@ -65,8 +74,8 @@ export default function CropModal({ file, onDone, onCancel }: { file: File; onDo
   };
 
   return (
-    <div className="crop-overlay" onClick={onCancel}>
-      <div className="crop-modal glass" onClick={(e) => e.stopPropagation()}>
+    <div className="crop-overlay">
+      <div className="crop-modal glass">
         <h3>Crop image</h3>
         <div className="crop-ratios">
           {([["Free", null], ["1:1", 1], ["4:3", 4 / 3], ["16:9", 16 / 9], ["3:4", 3 / 4]] as [string, number | null][]).map(([l, r]) => (

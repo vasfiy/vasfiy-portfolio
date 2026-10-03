@@ -51,3 +51,15 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
+
+# The admin is a live tool — a cached document here is a bug (a stale
+# prerendered shell once pointed at deleted build chunks for 4 days).
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
+
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"

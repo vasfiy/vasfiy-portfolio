@@ -8,7 +8,15 @@ import BlockEditor from "./BlockEditor";
 import { createPortal } from "react-dom";
 import CropModal from "./CropModal";
 import { sanitizeItem } from "@/lib/adminSchema";
-import { uiConfirm } from "./Dialog";
+import { uiConfirm, showToast } from "./Dialog";
+
+/* Unsaved-changes guard: the mounted ItemManager registers a dirty-check that
+   AdminApp consults via confirmLeave() before switching sidebar tabs. */
+let dirtyGuard: (() => boolean) | null = null;
+export async function confirmLeave(): Promise<boolean> {
+  if (!dirtyGuard || !dirtyGuard()) return true;
+  return uiConfirm("Discard unsaved changes?");
+}
 
 function FieldInput({ f, value, onChange, cats, onUpload }: { f: Field; value: any; onChange: (v: any) => void; cats: Record<string, any>; onUpload: (file: File, isImage: boolean) => Promise<string>; }) {
   const [busy, setBusy] = useState(false);
@@ -83,9 +91,9 @@ export default function ItemManager({ collection, initialEditId }: { collection:
   const [cats, setCats] = useState<Record<string, any>>({});
   const [form, setForm] = useState<any>({});
   const [editId, setEditId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [q, setQ] = useState("");
-  const [msg, setMsg] = useState("");
   const [catPick, setCatPick] = useState<any | null>(null);
   const [pickSel, setPickSel] = useState("");
   const [newEn, setNewEn] = useState("");
@@ -93,17 +101,37 @@ export default function ItemManager({ collection, initialEditId }: { collection:
   const [albumFiles, setAlbumFiles] = useState<{ url: string; type: string }[]>([]);
   const [albumMeta, setAlbumMeta] = useState({ album: "", cat: "", caption: "" });
   const [albumBusy, setAlbumBusy] = useState(false);
+  const [albumUp, setAlbumUp] = useState(0); // files left in the current upload batch
   const albumInput = useRef<HTMLInputElement>(null);
 
   // New items default the date field to today (YYYY-MM-DD).
   const freshForm = useCallback(() => (c.fields.some((f) => f.k === "date") ? { date: new Date().toISOString().slice(0, 10) } : {}), [c.fields]);
+  // Dirty tracking: every open (new or edit) snapshots the form; edits are the diff.
+  const baseline = useRef("{}");
+  const openForm = (f: any) => { setForm(f); baseline.current = JSON.stringify(f); };
   const load = useCallback(async () => {
     setItems(await A.listItems(c.kind));
     if (c.cats) setCats(await A.listCats(c.kind));
   }, [c.kind, c.cats]);
-  useEffect(() => { load(); setForm(freshForm()); setEditId(null); }, [load, freshForm]);
+  useEffect(() => { load(); openForm(freshForm()); setEditId(null); }, [load, freshForm]);
 
-  const flash = (m: string) => { setMsg(m); if (!/^(Error|⚠)/.test(m)) setTimeout(() => setMsg(""), 2500); };
+  // Flash/status messages render in the fixed toast (see Dialog.tsx): success
+  // auto-clears after ~2.5s, "Error:"/"⚠" persist until dismissed — same
+  // timing contract as the old in-head .ad-msg.
+  const flash = (m: string | React.ReactNode) => showToast(m);
+
+  const dirty = JSON.stringify(form) !== baseline.current;
+  useEffect(() => {
+    dirtyGuard = () => JSON.stringify(form) !== baseline.current;
+    return () => { dirtyGuard = null; };
+  }, [form]);
+  useEffect(() => {
+    if (!dirty) return;
+    const h = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [dirty]);
+
   const upload = async (file: File, isImage: boolean) => {
     const f: A.CompressedFile = isImage ? await A.compressImage(file) : file;
     const url = await A.uploadFile(f);
@@ -111,27 +139,57 @@ export default function ItemManager({ collection, initialEditId }: { collection:
     return url;
   };
 
+  // Public URL per kind for the "View ↗" links (no item → kind landing page).
+  const viewUrl = (it?: any): string => {
+    switch (c.kind) {
+      case "blog": return it?.__id ? "/blog/" + it.__id : "/blog";
+      case "gallery": return "/gallery";
+      case "page": return "/p/" + ((it && it.slug) || "");
+      case "product": return "/market";
+      case "project": return "/#projects";
+      case "experience": return "/#experience";
+      case "skill":
+      case "language": return "/#skills";
+      case "education":
+      case "cert": return "/#education";
+      case "course": return "/learning";
+      case "book": return "/library";
+      case "lesson":
+      case "challenge": return "/linux";
+      default: return "/";
+    }
+  };
+  const viewLink = (it: any) => <a className="ad-view" href={viewUrl(it)} target="_blank" rel="noopener">view ↗</a>;
+
   const save = async () => {
+    if (saving) return;
+    setSaving(true);
     try {
       const obj = sanitizeItem(c, form, items, editId);
+      const wasEdit = !!editId;
       if (editId) await A.updateItem(editId, obj); else await A.addItem(c.kind, obj);
-      setForm(freshForm()); setEditId(null); await load(); flash(editId ? "✓ Saved" : "✓ Added — live now");
+      openForm(freshForm()); setEditId(null); await load();
+      flash(wasEdit ? <>✓ Saved — {viewLink(obj)}</> : <>✓ Added — {viewLink(obj)}</>);
     } catch (e: any) { flash("Error: " + (e.message || e)); await load(); }
+    finally { setSaving(false); }
   };
-  const edit = (it: any) => {
+  const edit = async (it: any) => {
+    if (dirty && !(await uiConfirm("Discard unsaved changes?"))) return;
     const form: any = { ...it };
     // Migrate older blog posts (media + rich-text "full") into editable blocks once.
     if (c.kind === "blog" && !Array.isArray(it.blocks)) {
-      const toText = (h = "") => h.replace(/<\/(p|div|h[1-6]|li)>/gi, "\n\n").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n{3,}/g, "\n\n").trim();
+      // Decode entities WITHOUT decoding &amp; first (same order as CV.tsx) —
+      // "&amp;lt;" must become the literal text "&lt;", not a stray "<".
+      const toText = (h = "") => h.replace(/<\/(p|div|h[1-6]|li)>/gi, "\n\n").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/\n{3,}/g, "\n\n").trim();
       const blocks: any[] = [];
       if (it.media && /^https?:|^\//.test(it.media)) blocks.push({ type: it.type === "video" ? "video" : it.type === "youtube" ? "youtube" : "image", url: it.media });
       if (it.full || it.fullUz) blocks.push({ type: "text", text: toText(it.full), textUz: toText(it.fullUz) });
       if (blocks.length) form.blocks = blocks;
     }
-    setEditId(it.__id); setForm(form); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    openForm(form); setEditId(it.__id); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
   const remove = async (it: any) => {
-    if (!(await uiConfirm("Delete this item?"))) return;
+    if (!(await uiConfirm(`Delete "${c.title(it)}"?`))) return;
     try { await A.deleteItem(it.__id); await load(); flash("Deleted"); }
     catch (e: any) { flash("Error: " + (e?.message || e)); await load(); }
   };
@@ -186,27 +244,35 @@ export default function ItemManager({ collection, initialEditId }: { collection:
 
   // Gallery album multi-upload
   const addAlbumFiles = async (files: FileList) => {
-    setAlbumBusy(true); let fail = 0; let lastErr = ""; let uncompr = 0;
-    for (const f of Array.from(files)) {
+    const list = Array.from(files); setAlbumBusy(true); setAlbumUp(list.length);
+    let fail = 0; let lastErr = ""; let uncompr = 0;
+    for (const f of list) {
       try { const isVid = f.type.startsWith("video"); const file: A.CompressedFile = isVid ? f : await A.compressImage(f); const url = await A.uploadFile(file); if (file.uncompressedNote) uncompr++; setAlbumFiles((p) => [...p, { url, type: isVid ? "video" : "image" }]); } catch (e: any) { fail++; lastErr = e?.message || String(e); }
+      setAlbumUp((n) => n - 1);
     }
     if (fail) flash(`⚠ ${fail} upload(s) failed — ${lastErr}`);
     else if (uncompr) flash(`⚠ ${uncompr} photo(s) uploaded uncompressed — original file kept`);
-    setAlbumBusy(false);
+    setAlbumBusy(false); setAlbumUp(0);
   };
   const postAlbum = async () => {
-    if (!albumFiles.length) return; setAlbumBusy(true);
-    try {
-      for (const m of albumFiles) {
+    if (!albumFiles.length || albumBusy) return; setAlbumBusy(true);
+    let added = 0, fail = 0, lastErr = "";
+    for (const m of albumFiles.slice()) {
+      try {
         const obj: any = { src: m.url, caption: albumMeta.caption, captionUz: albumMeta.caption };
         if (albumMeta.album) { obj.album = albumMeta.album; obj.albumUz = albumMeta.album; }
         if (albumMeta.cat) obj.cat = albumMeta.cat;
         if (m.type === "video") obj.video = true;
         await A.addItem("gallery", obj);
-      }
-      const n = albumFiles.length; setAlbumFiles([]); setAlbumMeta({ album: "", cat: "", caption: "" }); await load();
-      flash(`✓ ${n} photo${n > 1 ? "s" : ""} posted`);
-    } catch (e: any) { flash("Error: " + (e.message || e)); } finally { setAlbumBusy(false); }
+        added++;
+        // Drop each posted file as we go — a mid-loop failure + retry must not repost successes.
+        setAlbumFiles((p) => p.filter((x) => x !== m));
+      } catch (e: any) { fail++; lastErr = e?.message || String(e); }
+    }
+    setAlbumBusy(false);
+    if (added) await load();
+    if (fail) flash(`⚠ Added ${added}, failed ${fail} — ${lastErr}`);
+    else { setAlbumMeta({ album: "", cat: "", caption: "" }); flash(<>✓ Added {added} — <a className="ad-view" href="/gallery" target="_blank" rel="noopener">view ↗</a></>); }
   };
 
   // One-click starter catalog for the marketplace (shown only while it's empty).
@@ -239,20 +305,22 @@ export default function ItemManager({ collection, initialEditId }: { collection:
   }, [c.kind]);
   const preparedTitle = prepared ? (prepared.titleUz || prepared.title || prepared.name || "") : "";
   const publishPrepared = async () => {
-    if (!prepared) return;
-    try { await A.addItem(c.kind, prepared); setPrepared(null); await load(); flash("✓ Added — live now"); }
+    if (!prepared || saving) return;
+    setSaving(true);
+    try { await A.addItem(c.kind, prepared); setPrepared(null); await load(); flash(<>✓ Added — {viewLink(prepared)}</>); }
     catch (e: any) { flash("Error: " + (e?.message || e)); }
+    finally { setSaving(false); }
   };
 
   return (
     <div className="ad-section">
-      <div className="ad-head"><h2>{c.icon} {c.label}</h2>{msg && <span className="ad-msg">{msg}</span>}</div>
+      <div className="ad-head"><h2>{c.icon} {c.label}</h2></div>
 
       {prepared && !items.some((it) => (it.title || it.name) === (prepared.title || prepared.name)) && (
         <div className="ad-card">
-          <h3>Tayyor yozuv</h3>
-          <p className="ad-hint"><b>{preparedTitle}</b>{prepared.date ? ` — ${prepared.date}` : ""} · bir bosishda qo'shiladi, keyin odatdagidek tahrirlaysiz.</p>
-          <button className="btn btn-primary" onClick={publishPrepared}>Qo'shish</button>
+          <h3>Prepared post</h3>
+          <p className="ad-hint"><b>{preparedTitle}</b>{prepared.date ? ` — ${prepared.date}` : ""} · added in one click, then edited like any other item.</p>
+          <button className="btn btn-primary" disabled={saving} onClick={publishPrepared}>Add</button>
         </div>
       )}
 
@@ -274,8 +342,8 @@ export default function ItemManager({ collection, initialEditId }: { collection:
           </div>
           <input placeholder="Caption for all (optional)" value={albumMeta.caption} onChange={(e) => setAlbumMeta({ ...albumMeta, caption: e.target.value })} />
           <div className="ad-dropzone" onClick={() => albumInput.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files.length) addAlbumFiles(e.dataTransfer.files); }}>
-            <input ref={albumInput} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files?.length) addAlbumFiles(e.target.files); }} />
-            {albumBusy ? "⏳ Uploading…" : "⬆ Drop photos or click — select 30+ at once"}
+            <input ref={albumInput} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => { if (e.target.files?.length) addAlbumFiles(e.target.files); }} />
+            {albumBusy ? `⏳ Uploading ${albumUp}…` : "⬆ Drop photos / videos or click — select 30+ at once"}
           </div>
           {albumFiles.length > 0 && <div className="ad-thumbs">{albumFiles.map((m, i) => <div className="ad-tn" key={i}>{m.type === "video" ? <video src={m.url} muted /> : <img src={m.url} alt="" />}<button onClick={() => setAlbumFiles((p) => p.filter((_, j) => j !== i))}>✕</button></div>)}</div>}
           {albumFiles.length > 0 && <button className="btn btn-primary" disabled={albumBusy} onClick={postAlbum}>Post album ({albumFiles.length})</button>}
@@ -298,15 +366,15 @@ export default function ItemManager({ collection, initialEditId }: { collection:
           <label className="ad-check"><input type="checkbox" checked={!!form.pinned} onChange={(e) => setForm((p: any) => ({ ...p, pinned: e.target.checked }))} /> 📌 Pinned</label>
         </div>
         <div className="ad-actions">
-          <button className="btn btn-primary" onClick={save}>{editId ? "Save changes" : "Add"}</button>
-          {editId && <button className="btn btn-ghost" onClick={() => { setForm({}); setEditId(null); }}>Cancel</button>}
+          <button className="btn btn-primary" disabled={saving} onClick={save}>{saving ? "Saving…" : editId ? "Save changes" : "Add"}</button>
+          {editId && <button className="btn btn-ghost" onClick={async () => { if (dirty && !(await uiConfirm("Discard unsaved changes?"))) return; openForm(freshForm()); setEditId(null); }}>Cancel</button>}
         </div>
       </div>
 
       <div className="ad-list">
         {items.length > 4 && <input className="ad-filter" placeholder={`Filter ${c.label.toLowerCase()}…`} value={q} onChange={(e) => setQ(e.target.value)} />}
         {items.length === 0 && <p className="ad-hint">No items yet.</p>}
-        {items.length > 1 && !q && <p className="ad-hint">Drag ⠿ to reorder.</p>}
+        {items.length > 1 && !q && <p className="ad-hint ad-drag-hint">Drag ⠿ to reorder.</p>}
         {items.filter((it) => !q || c.title(it).toLowerCase().includes(q.toLowerCase())).map((it, idx) => (
           <div className={"ad-item" + (editId === it.__id ? " active" : "") + (dragIdx === idx ? " dragging" : "") + (it.archived ? " archived" : "")} key={it.__id}
             draggable={!q} onDragStart={() => setDragIdx(idx)} onDragEnd={() => setDragIdx(null)}
@@ -319,6 +387,7 @@ export default function ItemManager({ collection, initialEditId }: { collection:
               </button>
             )}
             <span className="ad-item-actions">
+              <a className="ad-view" href={viewUrl(it)} target="_blank" rel="noopener" title="View on site">View ↗</a>
               <button title={it.archived ? "Unarchive (publish)" : "Archive (hide from site)"} className={it.archived ? "on" : ""} onClick={() => toggleArchive(it)}>🗄</button>
               <button title="Pin" className={it.pinned ? "on" : ""} onClick={() => togglePin(it)}>📌</button>
               <button title="Up" onClick={() => move(it, "up")}>↑</button>
@@ -343,7 +412,7 @@ export default function ItemManager({ collection, initialEditId }: { collection:
             <div className="ad-catpick-new">
               <span className="ad-catpick-or">Or create new:</span>
               <input placeholder="English name" value={newEn} onChange={(e) => { setNewEn(e.target.value); if (e.target.value.trim()) setPickSel(""); }} />
-              <input placeholder="O'zbekcha nomi" value={newUz} onChange={(e) => setNewUz(e.target.value)} />
+              <input placeholder="Uzbek name" value={newUz} onChange={(e) => setNewUz(e.target.value)} />
             </div>
             <div className="ui-dialog-actions">
               <button type="button" className="btn btn-ghost btn-sm" onClick={closeCatPick}>Cancel</button>
@@ -385,7 +454,7 @@ function CategoryManager({ kind, cats, onDelete, reload }: { kind: string; cats:
         <input className="ad-cat-key" placeholder="key" value={n.key} disabled={editing} onChange={(e) => setN({ ...n, key: e.target.value })} />
         <input className="ad-cat-icon" placeholder="🏷" value={n.icon} onChange={(e) => setN({ ...n, icon: e.target.value })} />
         <input placeholder="EN name" value={n.en} onChange={(e) => setN({ ...n, en: e.target.value })} />
-        <input placeholder="UZ nomi" value={n.uz} onChange={(e) => setN({ ...n, uz: e.target.value })} />
+        <input placeholder="UZ name" value={n.uz} onChange={(e) => setN({ ...n, uz: e.target.value })} />
         <button className="btn btn-primary btn-sm" onClick={save}>{editing ? "Save" : "Add"}</button>
         {editing && <button className="btn btn-ghost btn-sm" onClick={reset}>Cancel</button>}
       </div>

@@ -15,6 +15,39 @@ export function uiConfirm(message: string, opts: { danger?: boolean; okLabel?: s
   return new Promise((resolve) => { queue.push({ kind: "confirm", message, def: "", danger: opts.danger ?? true, okLabel: opts.okLabel ?? "Delete", resolve }); emit(); });
 }
 
+/* ---------- Toast ----------
+   Fixed bottom-center toast — the admin's single flash/status display (the old
+   per-card .ad-msg lines were easy to miss on a phone). Success/neutral
+   messages auto-clear after ~2.5s; "Error:"/"⚠" messages and in-flight
+   statuses (sticky=true) persist until dismissed or replaced. */
+type ToastMsg = { msg: React.ReactNode; sticky: boolean };
+let toastSubs: ((t: ToastMsg | null) => void)[] = [];
+let toastCur: ToastMsg | null = null;
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
+export function showToast(msg: React.ReactNode, sticky = typeof msg === "string" && /^(Error|⚠)/.test(msg)) {
+  clearTimeout(toastTimer);
+  if (msg == null || msg === "") toastCur = null;
+  else {
+    toastCur = { msg, sticky: !!sticky };
+    if (!toastCur.sticky) toastTimer = setTimeout(() => { toastCur = null; toastSubs.forEach((l) => l(null)); }, 2500);
+  }
+  toastSubs.forEach((l) => l(toastCur));
+}
+export function ToastHost() {
+  const [t, setT] = useState<ToastMsg | null>(toastCur);
+  useEffect(() => {
+    toastSubs.push(setT);
+    return () => { toastSubs = toastSubs.filter((l) => l !== setT); };
+  }, []);
+  if (!t) return null;
+  return (
+    <div className="ad-toast" role="status">
+      <span>{t.msg}</span>
+      {t.sticky && <button type="button" className="ad-toast-x" aria-label="Dismiss" onClick={() => showToast("")}>✕</button>}
+    </div>
+  );
+}
+
 export function DialogHost() {
   const [cur, setCur] = useState<Req | null>(null);
   const [val, setVal] = useState("");
