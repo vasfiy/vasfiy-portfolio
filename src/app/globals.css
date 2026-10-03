@@ -314,7 +314,7 @@ img { max-width: 100%; display: block; }
    index mark rather than a decorative badge. Gradient-filled jewellery,
    built on --ink-accent so light mode keeps its contrast. */
 .kicker-num {
-  background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, var(--violet) 82%, var(--ink-accent)));
+  background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, var(--violet) 18%, var(--ink-accent)));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--ink-accent);
   font-variant-numeric: tabular-nums;
 }
@@ -1912,7 +1912,7 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
 .hero-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; gap: 56px; align-items: center; }
 .hero-main { position: relative; z-index: 2; min-width: 0; }
 [data-mode="light"] .hero-name {
-  background: linear-gradient(120deg, #0d1424 25%, color-mix(in srgb, var(--violet) 72% 65%, #0d1424) 100%);
+  background: linear-gradient(120deg, #0d1424 25%, color-mix(in srgb, var(--violet) 65%, #0d1424) 100%);
   -webkit-background-clip: text; background-clip: text;
 }
 [data-mode="light"] .nav-links a.contact-cta { color: #07101a; }
