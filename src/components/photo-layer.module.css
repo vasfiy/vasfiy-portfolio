@@ -69,7 +69,7 @@
     color-mix(in srgb, var(--bg) 88%, transparent) 0%,
     color-mix(in srgb, var(--bg) 78%, transparent) 28%,
     color-mix(in srgb, var(--bg) 78%, transparent) 60%,
-    color-mix(in srgb, var(--bg) 74%, transparent) 100%); }
+    color-mix(in srgb, var(--bg) 78%, transparent) 100%); }
 }
 
 /* light mode: photos become a quiet texture — dark text on near-solid bg */

@@ -1112,7 +1112,9 @@ section.page-hero { padding-top: 124px; }
 article.post-page { max-width: 780px; padding-top: 120px; padding-bottom: 80px; }
 /* reading island over the photo layer — prose pages only; the album page
    keeps its frame-free full-bleed grid, but still needs navbar clearance */
-article.post-page:not(.album-page) { background: color-mix(in srgb, var(--panel) 88%, transparent); border-radius: var(--radius); padding: 120px clamp(22px, 3vw, 40px) 80px; box-shadow: var(--shadow-card); } /* 820px minus container padding left ~708px of text — a hair too wide */
+article.post-page:not(.album-page) { background: color-mix(in srgb, var(--panel) 88%, transparent); border-radius: var(--radius); padding: 120px clamp(22px, 3vw, 40px) 80px; box-shadow: var(--shadow-card); }
+/* the island owns the padding now — the legacy .post-text box padding would double it */
+article.post-page .post-text { padding: 0; } /* 820px minus container padding left ~708px of text — a hair too wide */
 /* Album pages reuse the post shell, but their body is a photo GRID, not prose —
    the 780px reading cap would strand ~70% of the row on desktop. */
 article.post-page.album-page { max-width: min(1240px, 100%); }
@@ -2262,7 +2264,7 @@ html[data-fx="off"] .bg-comet { display: none; }
 [data-mode="light"] .ctf-score, [data-mode="light"] .ip-zoom button { background: color-mix(in srgb, var(--panel) 84%, transparent); }
 
 /* the photo layer covers the page — stop the hidden bg-wrap from animating */
-html:has(.photo-layer) .bg-wrap { display: none; }
+html.has-photo-layer .bg-wrap, html:has(.photo-layer) .bg-wrap { display: none; }
 
 /* a11y round: cosmos accent readable on photos; hero name keeps a soft edge */
 [data-theme="cosmos"] { --ink-accent: #a89bff; }
