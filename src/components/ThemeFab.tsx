@@ -49,14 +49,14 @@ export default function ThemeFab() {
         <h4>{t("theme.title")}</h4>
         <div className="swatches">
           {THEMES.map((th) => (
-            <button key={th} className={"swatch" + (theme === th ? " active" : "")} onClick={() => applyTheme(th)}>
+            <button key={th} className={"swatch" + (theme === th ? " active" : "")} onClick={() => applyTheme(th)} aria-pressed={theme === th}>
               <span className={"swatch-bar sw-" + th} /><span className="swatch-name">{th[0].toUpperCase() + th.slice(1)}</span>
             </button>
           ))}
         </div>
         <div className="mode-row">
           <span>{t("theme.mode")}</span>
-          <button className="mode-toggle" aria-label={t("theme.toggleMode")} onClick={() => applyMode(mode === "light" ? "dark" : "light")}>
+          <button className="mode-toggle" aria-label={t("theme.toggleMode")} aria-pressed={mode === "dark"} onClick={() => applyMode(mode === "light" ? "dark" : "light")}>
             <span className={"mode-opt" + (mode === "dark" ? " active" : "")}>🌙</span>
             <span className={"mode-opt" + (mode === "light" ? " active" : "")}>☀️</span>
           </button>

@@ -297,11 +297,12 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       <div
         className="ip-lb-stage"
         ref={stageRef}
+        style={!vid && z.s > 1 ? { cursor: mouse.current ? "grabbing" : "grab" } : undefined}
         onClick={(e) => { if (e.target === e.currentTarget && !moved.current) onClose(); }}
         onDoubleClick={() => { if (vid || Date.now() - lastTouchEnd.current < 500) return; setZ((p) => (p.s > 1 ? { s: 1, x: 0, y: 0 } : { s: 2.5, x: 0, y: 0 })); }}
         onMouseDown={(e) => { if (vid || z.s <= 1) return; moved.current = false; mouse.current = { x: e.clientX, y: e.clientY, ox: z.x, oy: z.y }; }}
         onMouseMove={(e) => { if (!mouse.current) return; const m = mouse.current; if (Math.hypot(e.clientX - m.x, e.clientY - m.y) > 4) moved.current = true; setZ((p) => clampZ({ ...p, x: m.ox + e.clientX - m.x, y: m.oy + e.clientY - m.y })); }}
-        onMouseUp={() => { mouse.current = null; }}
+        onMouseUp={() => { if (mouse.current) { mouse.current = null; setZ((p) => clampZ({ ...p })); } }}
         onMouseLeave={() => { mouse.current = null; }}
       >
         {vid

@@ -22,8 +22,10 @@ export function mediaUrl(url: string | undefined, width: number): string | undef
   if (!u || i === -1 || isVideo(u) || PASSTHROUGH.test(u)) return url;
   const [bare, query] = (u.slice(0, i) + RENDER + u.slice(i + OBJECT.length)).split("?");
   const p = new URLSearchParams(query || "");
-  p.set("width", String(width));
-  p.set("quality", "70");
+  // the display bucket is a downscale CAP, never a quality loss: the largest
+  // bucket serves near-original 1920px at q88 so nothing looks dim or soft
+  p.set("width", String(width >= 1400 ? 1920 : width));
+  p.set("quality", width >= 1400 ? "88" : width >= 800 ? "80" : "75");
   p.set("format", "webp");
   return `${bare}?${p.toString()}`;
 }

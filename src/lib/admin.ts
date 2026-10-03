@@ -300,11 +300,15 @@ export async function exportAll() {
    `uncompressedNote` set so the caller can flash "original uploaded (uncompressed)". */
 export type CompressedFile = File & { uncompressedNote?: string };
 const UNCOMPRESSED = "original uploaded (uncompressed)";
-export async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<CompressedFile> {
+export async function compressImage(file: File, maxDim = 4096, quality = 0.92): Promise<CompressedFile> {
+  /* Highest-quality uploads: the ORIGINAL bytes win. Only oversized sources
+     (>4096px or >8MB) are gently downscaled/re-encoded at high quality —
+     nothing smaller is ever recompressed. */
   if (!/^image\//.test(file.type) || /gif|svg/.test(file.type)) return file;
   try {
     const bmp = await createImageBitmap(file);
     let { width, height } = bmp;
+    if (Math.max(width, height) <= maxDim && file.size <= 8 * 1024 * 1024) return file; // original, untouched
     if (Math.max(width, height) > maxDim) { const s = maxDim / Math.max(width, height); width = Math.round(width * s); height = Math.round(height * s); }
     const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext("2d"); if (!ctx) return Object.assign(file, { uncompressedNote: UNCOMPRESSED });

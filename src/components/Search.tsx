@@ -41,12 +41,12 @@ export default function Search() {
 
   return (
     <>
-      <button className="search-fab" aria-label={t("search.label")} onClick={() => setOpen(true)} title={t("search.label")}>
+      <button className="search-fab" aria-label={t("search.label")} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)} title={t("search.label")}>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
       </button>
       {open && (
         <div className="search-overlay" onClick={() => setOpen(false)}>
-          <div className="search-box glass" onClick={(e) => e.stopPropagation()}>
+          <div className="search-box glass" role="dialog" aria-modal="true" aria-label={t("search.label")} onClick={(e) => e.stopPropagation()}>
             <div className="search-inp">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
               <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search.placeholder")} />

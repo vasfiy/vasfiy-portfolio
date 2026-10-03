@@ -93,7 +93,7 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
               <span className="lang-sep">/</span>
               <button type="button" className={"lang-opt" + (lang === "uz" ? " active" : "")} onClick={() => setLang("uz")} aria-pressed={lang === "uz"}>UZ</button>
             </div>
-            <button className={"menu-btn" + (open ? " open" : "")} onClick={() => setOpen((o) => !o)} aria-label={t("nav.menu")} aria-expanded={open}>
+            <button className={"menu-btn" + (open ? " open" : "")} onClick={() => setOpen((o) => !o)} aria-label={t("nav.menu")} aria-expanded={open} aria-controls="navLinks">
               <span /><span /><span />
             </button>
           </div>

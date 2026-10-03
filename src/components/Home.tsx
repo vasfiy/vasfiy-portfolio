@@ -113,7 +113,7 @@ function About({ data, st }: { data: SiteData; st: any }) {
   return (
     <section className="section" id="about">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">01</span> <span>{t("about.kicker")}</span></span>
           <h2 className="section-title" data-edit="aboutTitle">{pick(st, "aboutTitle", lang) || "Defending systems, one alert at a time"}</h2>
         </Reveal>
@@ -156,7 +156,7 @@ function Skills({ data }: { data: SiteData }) {
   return (
     <section className="section" id="skills">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">02</span> <span>{t("skills.kicker")}</span></span>
           <h2 className="section-title">{pick(data.settings.siteText, "skillsTitle", lang) || t("skills.title")}</h2>
         </Reveal>
@@ -193,7 +193,7 @@ function Experience({ data }: { data: SiteData }) {
   return (
     <section className="section" id="experience">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">03</span> <span>{t("exp.kicker")}</span></span>
           <h2 className="section-title">{pick(data.settings.siteText, "expTitle", lang) || t("exp.title")}</h2>
         </Reveal>
@@ -230,7 +230,7 @@ function Projects({ data }: { data: SiteData }) {
   return (
     <section className="section" id="projects">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">04</span> <span>{t("proj.kicker")}</span></span>
           <h2 className="section-title">{pick(data.settings.siteText, "projTitle", lang) || t("proj.title")}</h2>
         </Reveal>
@@ -268,6 +268,9 @@ function Education({ data }: { data: SiteData }) {
   const viewerRef = useRef<HTMLDivElement>(null);
   const lastFocus = useRef<HTMLElement | null>(null);
   const [active, setActive] = useState(0);
+  // Drag-to-scroll gesture state (mouse only; touch scrolls natively). Kept
+  // with the other hooks, above the empty-section early return.
+  const drag = useRef({ down: false, moved: false, x: 0, left: 0 });
   const toggleFs = () => { const el = readerRef.current; if (!el) return; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else el.requestFullscreen?.().catch(() => {}); };
 
   useEffect(() => {
@@ -293,10 +296,26 @@ function Education({ data }: { data: SiteData }) {
   const nudge = (dir: number) => trackRef.current?.scrollBy({ left: dir * step(), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   const onTrackScroll = () => { const t = trackRef.current; if (!t) return; const w = step(); if (w) setActive(Math.min(Math.round(t.scrollLeft / w), slides.length - 1)); };
 
+  // Drag-to-scroll with the mouse (touch scrolls natively). A >5px move flags
+  // the gesture so the click after mouseup doesn't open the cert viewer.
+  const onTrackPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    const t = trackRef.current; if (!t) return;
+    drag.current = { down: true, moved: false, x: e.clientX, left: t.scrollLeft };
+  };
+  const onTrackPointerMove = (e: React.PointerEvent) => {
+    const t = trackRef.current;
+    if (!drag.current.down || !t) return;
+    const dx = e.clientX - drag.current.x;
+    if (!drag.current.moved && Math.abs(dx) > 5) { drag.current.moved = true; t.classList.add("dragging"); }
+    if (drag.current.moved) t.scrollLeft = drag.current.left - dx;
+  };
+  const onTrackPointerEnd = () => { drag.current.down = false; trackRef.current?.classList.remove("dragging"); };
+
   return (
     <section className="section" id="education">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">07</span> <span>{t("edu.kicker")}</span></span>
           <h2 className="section-title">{pick(data.settings.siteText, "eduTitle", lang) || t("edu.title")}</h2>
         </Reveal>
@@ -316,7 +335,7 @@ function Education({ data }: { data: SiteData }) {
           <h3 className="edu-col-title">{t("edu.certTitle")}</h3>
           <div className="cert-carousel">
             <button className="cert-nav cert-prev" type="button" aria-label={lang === "uz" ? "Oldingi" : "Previous"} onClick={() => nudge(-1)}>‹</button>
-            <div className="cert-track" ref={trackRef} onScroll={onTrackScroll}>
+            <div className="cert-track" ref={trackRef} onScroll={onTrackScroll} onPointerDown={onTrackPointerDown} onPointerMove={onTrackPointerMove} onPointerUp={onTrackPointerEnd} onPointerLeave={onTrackPointerEnd} onPointerCancel={onTrackPointerEnd}>
               {slides.map((c, i) => {
                 const name = pick(c, "name", lang);
                 const img = imgSrc(c);
@@ -324,10 +343,10 @@ function Education({ data }: { data: SiteData }) {
                 return (
                   <figure
                     className="cert-slide glass cert-clickable" key={c.__id || i}
-                    onClick={open} role="button" tabIndex={0}
+                    onClick={() => { if (drag.current.moved) return; open(); }} role="button" tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }}
                   >
-                    <img src={mediaUrl(img, 800)} data-original={img} onError={onMediaError} alt={name} loading="lazy" decoding="async" />
+                    <img src={mediaUrl(img, 800)} data-original={img} onError={onMediaError} alt={name} loading="lazy" decoding="async" draggable={false} />
                     <figcaption>
                       <h4>{name}</h4>
                       {c.badge ? <span className="cert-badge">{c.badge}</span> : null}
@@ -391,11 +410,11 @@ function JournalPreview({ data }: { data: SiteData }) {
   return (
     <section className="section" id="journal">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">05</span> <span>{t("nav.journal")}</span></span>
           <h2 className="section-title">{t("explore.journalDesc")}</h2>
         </Reveal>
-        <Reveal className="bl-grid">
+        <Reveal className="bl-grid bl-grid-3">
           {posts.map((p, i) => {
             const title = pick(p, "title", lang), body = pick(p, "body", lang);
             const full = pick(p, "full", lang) || body;
@@ -427,7 +446,7 @@ function GalleryPreview({ data }: { data: SiteData }) {
   return (
     <section className="section" id="gallery-preview">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">06</span> <span>{t("nav.gallery")}</span></span>
           <h2 className="section-title">{t("explore.galleryDesc")}</h2>
         </Reveal>
@@ -462,7 +481,7 @@ function Explore({ data }: { data: SiteData }) {
   return (
     <section className="section" id="explore">
       <div className="container">
-        <Reveal className="section-head">
+        <Reveal className="section-head masthead">
           <span className="section-kicker"><span className="kicker-num">08</span> <span>{t("explore.kicker")}</span></span>
           <h2 className="section-title">{t("explore.title")}</h2>
         </Reveal>
@@ -542,7 +561,7 @@ function Contact({ st }: { st: any }) {
             <textarea name="message" rows={4} placeholder={t("contact.message")} />
             <VoiceRecorder label={t("contact.voice")} onChange={setVoice} />
             <button type="submit" className="btn btn-primary" disabled={status.kind === "send"}>{status.kind === "send" ? t("contact.sending") : t("contact.send")}</button>
-            <p className={"cf-status " + status.kind}>{status.msg}</p>
+            <p className={"cf-status " + status.kind} role="status">{status.msg}</p>
           </form>
           <div className="contact-actions">
             {mail && <a href={"mailto:" + mail} className="btn btn-ghost">✉️ {mail}</a>}

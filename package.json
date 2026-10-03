@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.108.2",
     "dompurify": "^3.4.16",
     "next": "16.2.9",
+    "pdfjs-dist": "^6.3.289",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"

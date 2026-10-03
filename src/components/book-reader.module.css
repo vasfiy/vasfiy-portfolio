@@ -1,0 +1,311 @@
+/* ============================================================
+   BookReader — full-screen book/PDF reading experience.
+   Everything lives here (globals.css untouched); the shell is styled
+   from the site's design tokens. The reading surface (stage) stays
+   dark in BOTH color modes — like GitHub's PDF preview — so the white
+   page carries all the contrast (theater rule).
+   ============================================================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 360; /* the layer the old iframe modal used — above search, below dialogs */
+  background: rgba(3, 5, 10, 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.16s ease;
+}
+
+.shell {
+  position: absolute;
+  inset: clamp(12px, 3vh, 30px) clamp(12px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lift);
+  animation: rise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* fullscreen: class from fullscreenchange + the pseudo-class for the first frame */
+.shell:fullscreen,
+.fs {
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* ---------- toolbar ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel-2) 88%, transparent);
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.sep { width: 1px; align-self: stretch; margin: 3px 2px; background: var(--border-strong); flex-shrink: 0; }
+.spacer { flex: 1 1 auto; min-width: 8px; }
+
+.toolBtn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.toolBtn:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+.toolBtn:disabled { opacity: 0.35; cursor: default; }
+.toolBtnOn { background: color-mix(in srgb, var(--ink-accent) 14%, transparent); color: var(--ink-accent); }
+
+.pageBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.pageInput {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  text-align: center;
+  border-radius: 7px;
+  padding: 5px 2px;
+  transition: border-color 0.15s ease;
+}
+.pageInput:focus { outline: none; border-color: color-mix(in srgb, var(--ink-accent) 55%, var(--border)); }
+
+.zoomLabel {
+  min-width: 3.4rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- stage (the dark theater) ---------- */
+
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* Fixed dark in both color modes — same hue family as the site's --bg
+     (#04060d) — so the white page is the only bright thing on screen. */
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(96, 130, 210, 0.09), transparent 55%),
+    linear-gradient(180deg, #080d1a, #04060d);
+}
+.dragging { cursor: grabbing; user-select: none; }
+
+/* one layer sized to the ACTIVE page: keeps the stage scrollable while the
+   ±1 neighbours (absolutely centred inside it) wait invisibly, pre-painted */
+.pageLayer { position: relative; margin: 24px auto; } /* 24px = STAGE_PAD in BookReader.tsx */
+
+.pageWrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+}
+.pageWrap.active { opacity: 1; pointer-events: auto; }
+
+.canvas {
+  display: block;
+  background: #fff;
+  border-radius: 3px;
+  opacity: 0; /* first paint fades in; re-renders blit over an already-painted canvas */
+  transition: opacity 0.3s ease;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 30px 70px -18px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.canvas.painted { opacity: 1; }
+
+/* ---------- overlays inside the stage ---------- */
+
+.center {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.skeleton { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+.pageSkeleton {
+  width: min(300px, 62vw);
+  aspect-ratio: 1 / 1.414; /* A-series paper silhouette */
+  border-radius: 10px;
+  background: linear-gradient(115deg, #0e1626 32%, #17233c 47%, #0e1626 62%);
+  background-size: 220% 100%;
+  animation: shimmer 1.5s linear infinite;
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+}
+
+.progressTrack {
+  width: 210px;
+  max-width: 60vw;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(148, 170, 220, 0.14);
+  overflow: hidden;
+}
+.progressFill { height: 100%; border-radius: inherit; background: var(--grad); transition: width 0.35s ease; }
+.progressText { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); letter-spacing: 0.02em; }
+
+.notice {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 28px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.noticeIcon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--grad-soft);
+  color: var(--ink-accent);
+  margin-bottom: 2px;
+}
+.noticeTitle { font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem; color: var(--text); }
+.noticeText { font-size: 0.875rem; line-height: 1.55; color: var(--text-dim); }
+.noticeActions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; }
+
+.actBtn,
+.actBtnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.actBtn { background: var(--grad); color: #fff; }
+.actBtn:hover { transform: translateY(-1px); box-shadow: var(--glow); }
+.actBtnGhost { background: var(--surface-2); color: var(--text); }
+.actBtnGhost:hover { color: var(--ink-accent); background: var(--surface); }
+
+.resumeChip {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  animation: chipIn 0.25s ease;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.toolBtn:focus-visible,
+.pageInput:focus-visible,
+.actBtn:focus-visible,
+.actBtnGhost:focus-visible {
+  outline: 2px solid var(--ink-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
+@keyframes shimmer { from { background-position: 130% 0; } to { background-position: -90% 0; } }
+@keyframes chipIn { from { opacity: 0; transform: translate(-50%, -6px); } }
+
+/* ---------- mobile: full-bleed reader, essentials-only toolbar ---------- */
+
+@media (max-width: 720px) {
+  .shell { inset: 0; border: 0; border-radius: 0; }
+  .hideSm { display: none; }
+  .toolbar { gap: 8px; padding: 7px 8px; }
+  .title { font-size: 0.8125rem; }
+  .pageLayer { margin: 14px auto; }
+  .pageSkeleton { width: min(230px, 58vw); }
+  .resumeChip { top: 10px; font-size: 0.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .shell,
+  .pageWrap,
+  .canvas,
+  .pageSkeleton,
+  .resumeChip,
+  .progressFill {
+    animation: none;
+    transition: none;
+  }
+}

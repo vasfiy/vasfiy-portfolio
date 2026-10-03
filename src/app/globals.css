@@ -377,11 +377,14 @@ img { max-width: 100%; display: block; }
 
 /* ---------- About ---------- */
 .about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items: start; }
-.about-text { padding: 42px; font-size: 1.05rem; }
+.about-text { padding: 42px; font-size: clamp(1.05rem, 1rem + 0.25vw, 1.15rem); }
 .about-text p { color: var(--text-dim); margin-bottom: 16px; max-width: 72ch; } /* readable line length at the 1600px container */
 .about-text p:last-child { margin-bottom: 0; }
 .about-text strong { color: var(--text); }
 .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* Wide screens: one full-width row of figures instead of two ~730px-wide
+   cards at 1920; auto-fit adapts when fewer stats are filled in. */
+@media (min-width: 1200px) { .about-stats { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); } }
 .stat-card { padding: 24px 20px; display: flex; flex-direction: column; gap: 7px; transition: transform .25s, box-shadow .25s, background .25s; }
 .stat-card:hover { transform: translateY(-4px); background: var(--surface-2); box-shadow: var(--shadow-lift); }
 .stat-num { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 3.6vw, 2.9rem); color: var(--ink-accent); }
@@ -415,14 +418,17 @@ img { max-width: 100%; display: block; }
 .tl-item { position: relative; margin-bottom: 26px; }
 .tl-item:last-child { margin-bottom: 0; }
 .tl-dot { position: absolute; left: -34px; top: 26px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-2); border: 3px solid var(--cyan); box-shadow: 0 0 0 4px color-mix(in srgb, var(--cyan) 12%, transparent); }
-.tl-card { max-width: 880px; padding: 26px 28px; transition: transform .25s, box-shadow .25s, background .25s; } /* full container width ran ~150 chars/line */
+/* Cards ride the full content column: the ~1300px cap keeps the card on the
+   rail and visually centred at 1440–1920 (880px stranded ~40% of the row at
+   1920). Bullets hold a ~70ch measure inside the wider surface. */
+.tl-card { max-width: min(1300px, 100%); padding: clamp(26px, 2.4vw, 40px) clamp(28px, 3.2vw, 56px); transition: transform .25s, box-shadow .25s, background .25s; }
 .tl-card:hover { transform: translateX(4px); background: var(--surface-2); box-shadow: var(--shadow-lift); }
 .tl-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; margin-bottom: 4px; }
-.tl-card h3 { font-family: var(--font-display); font-size: 1.4rem; }
-.tl-date { font-family: var(--font-mono); font-size: .8125rem; letter-spacing: .02em; color: var(--ink-accent); white-space: nowrap; }
-.tl-company { color: var(--text-faint); font-size: .875rem; margin-bottom: 14px; }
-.tl-card ul { display: flex; flex-direction: column; gap: 9px; }
-.tl-card li { position: relative; padding-left: 20px; color: var(--text-dim); font-size: 1rem; }
+.tl-card h3 { font-family: var(--font-display); font-size: clamp(1.4rem, 1.2rem + 0.9vw, 1.75rem); }
+.tl-date { font-family: var(--font-mono); font-size: .875rem; letter-spacing: .02em; color: var(--ink-accent); white-space: nowrap; }
+.tl-company { color: var(--text-faint); font-size: .95rem; margin-bottom: 16px; }
+.tl-card ul { display: flex; flex-direction: column; gap: 10px; max-width: 70ch; } /* readable measure inside the wide card */
+.tl-card li { position: relative; padding-left: 20px; color: var(--text-dim); font-size: clamp(1rem, 0.95rem + 0.25vw, 1.09rem); }
 .tl-card li::before { content: "▹"; position: absolute; left: 0; color: var(--ink-accent); }
 .tl-card strong { color: var(--text); }
 
@@ -442,9 +448,11 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Education & Certs ---------- */
 .edu-grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
-.edu-col-title { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 18px; }
-.edu-card { max-width: 780px; padding: 24px 26px; } /* a full-width card is a 1400px text band on wide screens */
-.edu-card h4 { font-family: var(--font-display); font-size: 1.22rem; }
+.edu-col-title { font-family: var(--font-display); font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.4rem); margin-bottom: 18px; }
+/* A wide entry bar: degree left + date right use the full card width (no prose
+   inside, so no long-measure risk). Was capped 780px — barely half the row at 1920. */
+.edu-card { max-width: min(1100px, 100%); padding: 26px clamp(26px, 2.6vw, 40px); }
+.edu-card h4 { font-family: var(--font-display); font-size: clamp(1.22rem, 1.1rem + 0.55vw, 1.5rem); }
 .cert-meta { font-size: .8125rem; line-height: 1.5; color: var(--text-faint); font-family: var(--font-mono); }
 
 /* ---------- Certificate carousel ---------- */
@@ -1137,6 +1145,9 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 
 /* Blog list grid (blog.html) */
 .bl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 22px; }
+/* Home journal preview renders exactly 3 posts — pin 3 tracks so wide screens
+   don't strand a dead 4th column (auto-fit opens one above ~1380px). */
+@media (min-width: 1240px) { .bl-grid.bl-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .bl-card { display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; position: relative; transition: transform .2s, box-shadow .2s; }
 .bl-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
 .bl-thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; background: var(--surface); }
@@ -1209,19 +1220,23 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .caret { display: inline-block; width: 2px; margin-left: 1px; color: var(--cyan); animation: blink 1s steps(2) infinite; }
 @keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
 
-/* Explore digests */
-.digest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+/* Explore digests — 4 fixed cards: 2×2 below 1440, one 4-across row at the
+   full container (auto-fill's 5th track left ~20% dead at 1440–1920). */
+.digest-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (min-width: 1440px) { .digest-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .digest-wrap { display: block; }
 .digest-card { display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; height: 100%; transition: transform .25s, box-shadow .25s, background .25s; }
 .digest-card:hover { transform: translateY(-6px); background: var(--surface-2); box-shadow: var(--shadow-lift); }
-.digest-cover { width: 100%; height: 150px; object-fit: cover; display: block; }
+.digest-cover { width: 100%; height: clamp(150px, 12vw, 200px); object-fit: cover; display: block; }
 .digest-cover.ph { display: grid; place-items: center; color: var(--text-faint); background: var(--panel-2); }
 .digest-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 7px; flex: 1; position: relative; }
 .digest-icon { position: absolute; top: -26px; right: 18px; width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; color: var(--ink-accent); background: var(--panel-2); box-shadow: var(--shadow-card); }
 .digest-body h3 { font-size: 1.35rem; }
-.digest-body p { color: var(--text-dim); font-size: 1rem; line-height: 1.5; flex: 1; }
+.digest-body p { color: var(--text-dim); font-size: 1rem; line-height: 1.5; flex: 1; max-width: 60ch; } /* 2-col cards reach ~650px wide mid-range */
 .digest-meta { font-size: .8125rem; line-height: 1.5; color: var(--text-faint); font-family: var(--font-mono); }
 .digest-open { color: var(--ink-accent); font-weight: 600; font-size: .9rem; margin-top: 4px; }
+/* after the base rule so it wins the cascade (the legacy ≤680 rule above is earlier in source) */
+@media (max-width: 680px) { .digest-grid { grid-template-columns: 1fr; } }
 
 /* Hero title entrance (CSS — robust against StrictMode) */
 .hero-title span { opacity: 0; animation: heroUp .9s cubic-bezier(.2,.7,.2,1) forwards; }
@@ -1351,7 +1366,10 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .gprev-tile img, .gprev-tile video { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
 .gprev-tile:hover img, .gprev-tile:hover video { transform: scale(1.07); }
 .gprev-tile .vid-badge { width: 40px; height: 40px; }
-@media (max-width: 760px) { .gprev-grid { grid-template-columns: repeat(2, 1fr); } }
+/* 8 preview tiles: 4-across from 900px keeps every row full (auto-fit's 5-6
+   tracks left the last row 60%+ empty at wide sizes); 2-across below. */
+@media (max-width: 899px) { .gprev-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .gprev-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 /* Lesson attachments (admin list + public display) */
 .ad-files { display: flex; flex-direction: column; gap: 8px; }
@@ -2285,3 +2303,80 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
 /* linux verifier: progress meter island (was raw veil-only) */
 .lx-progress { background: color-mix(in srgb, var(--panel) 72%, transparent); border-radius: 10px; padding: 8px 12px; }
 [data-mode="light"] .lx-progress { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+
+/* ============================================================
+   Controls round 2 — micro-interactions, open-state cues, focus
+   rings, drag cursors, floating to-top (buttons/controls UX agent).
+   Append-only: every rule above is untouched; anything re-declared
+   here intentionally overrides by cascade order only.
+   ============================================================ */
+
+/* 1 — primary CTA: gradient shifts across its stops on hover;
+       pressed feedback for the main control families (all pointers) */
+.btn-primary { background-size: 180% 180%; background-position: 0% 0%; }
+.btn-primary:hover { background-position: 92% 92%; }
+.btn:active:not(:disabled) { transform: translateY(0) scale(.98); }
+.filter-chip:active, .seg:active, .cmd-chip:active, .swatch:active,
+.lesson-done:active { transform: translateY(0) scale(.97); }
+.social-link:active { transform: translateY(-1px) scale(.96); }
+/* navbar Contact CTA lifts like the hero buttons (transform added to its transition) */
+.nav-links a.contact-cta { transition: color .2s, background .2s, box-shadow .2s, transform .2s; }
+.nav-links a.contact-cta:hover { transform: translateY(-1px); }
+/* cert carousel arrows: accent tint on hover, press on active */
+.cert-nav:hover { background: color-mix(in srgb, var(--ink-accent) 12%, var(--panel)); }
+.cert-nav:active { transform: translateY(-50%) scale(.94); }
+/* course card arrow nudges toward the exit on hover */
+.course-go { transition: transform .2s; }
+.course-card:hover .course-go { transform: translateX(3px); }
+/* journal TOC: the summary tints while its drawer is open */
+.post-toc[open] summary { color: var(--ink-accent); }
+
+/* 2 — open-state cue: the theme FAB holds its lift/tilt while the panel is open */
+.theme-fab[aria-expanded="true"] { transform: rotate(25deg) scale(1.08); }
+
+/* 3 — keyboard focus ring: 2px ink-accent, offset 2. :where() keeps
+       specificity 0, so any component rule that opts out (outline: none,
+       .reader-modal:focus, .term-input, …) still wins. */
+:where(a, button, [role="button"], [role="switch"], summary, input, select, textarea):focus-visible {
+  outline: 2px solid var(--ink-accent);
+  outline-offset: 2px;
+}
+/* icon-only stragglers below 40px */
+.ip-lb-zoom button { min-width: 40px; min-height: 40px; }
+.bl-search-x { width: 34px; height: 34px; margin: -4px -8px -4px 0; display: grid; place-items: center; border-radius: 50%; transition: color .15s, background .15s; }
+.bl-search-x:hover { background: var(--surface-2); }
+.voice-x { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
+.voice-x:hover { background: rgba(255, 107, 107, .12); }
+
+/* 4 — drag surfaces: the cert carousel is now mouse-draggable (Home.tsx
+       adds .dragging); cursor only where a real mouse can drag */
+@media (hover: hover) and (pointer: fine) {
+  .cert-track { cursor: grab; }
+  .cert-track.dragging { cursor: grabbing; scroll-behavior: auto; scroll-snap-type: none; user-select: none; }
+}
+
+/* 5 — floating back-to-top (Footer renders it; appears past ~600px) */
+.to-top-fab {
+  position: fixed; left: 22px; bottom: max(22px, env(safe-area-inset-bottom)); z-index: 85;
+  width: 46px; height: 46px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--panel) 84%, transparent); color: var(--text);
+  box-shadow: var(--shadow-card);
+  opacity: 0; transform: translateY(10px); pointer-events: none;
+  transition: opacity .25s, transform .25s, background .2s, color .2s;
+}
+.to-top-fab.show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top-fab:hover { background: var(--surface-2); color: var(--ink-accent); }
+@media print { .to-top-fab { display: none !important; } }
+
+/* 7 — theme panel: unmistakable selection — double accent ring + corner check */
+.swatch { position: relative; }
+.swatch.active { box-shadow: 0 0 0 2px var(--ink-accent), 0 0 0 5px color-mix(in srgb, var(--ink-accent) 22%, transparent); }
+.swatch.active::after {
+  content: "✓"; position: absolute; top: 6px; right: 7px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--ink-accent); color: #04101c;
+  font-size: 10px; line-height: 16px; text-align: center; font-weight: 700;
+}
+[data-mode="light"] .swatch.active::after { color: #fff; }
+.mode-opt { transition: opacity .2s, background .2s, transform .2s; }
+.mode-opt.active { transform: scale(1.05); }
