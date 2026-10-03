@@ -1,4 +1,5 @@
 "use client";
+import { loadManifest } from "@/lib/worlds";
 import { useEffect, useState } from "react";
 import { useLang } from "./Providers";
 
@@ -44,7 +45,7 @@ export default function ThemeFab() {
 
   return (
     <>
-      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} aria-expanded={open} aria-controls="themePanel" onClick={(e) => { e.stopPropagation(); if (!open) THEMES.forEach((th) => fetch(`/worlds/${th}.json`)); setOpen((o) => !o); }}>🎨</button>
+      <button className="theme-fab" id="themeFab" aria-label={t("theme.change")} aria-expanded={open} aria-controls="themePanel" onClick={(e) => { e.stopPropagation(); if (!open) THEMES.forEach((th) => loadManifest(th)); setOpen((o) => !o); }}>🎨</button>
       <div className={"theme-panel glass" + (open ? " open" : "")} id="themePanel" role="dialog" aria-label={t("theme.title")}>
         <h4>{t("theme.title")}</h4>
         <div className="swatches">

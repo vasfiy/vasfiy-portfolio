@@ -510,23 +510,6 @@ img { max-width: 100%; display: block; }
 @media (max-width: 720px) { .cert-slide { flex-basis: 92%; } .cert-nav { display: none; } }
 
 /* ---------- Learning hub ---------- */
-.course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 20px; }
-.course-card {
-  display: flex; flex-direction: column; gap: 12px; padding: 26px 28px;
-  text-decoration: none; color: inherit; position: relative;
-  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
-}
-.course-card:hover { transform: translateY(-6px); background: var(--surface-2); box-shadow: var(--shadow-lift); }
-.course-icon { font-size: 2.2rem; line-height: 1; }
-.course-tag {
-  display: inline-block; align-self: flex-start; font-family: var(--font-mono); font-size: 0.72rem;
-  letter-spacing: .1em; text-transform: uppercase; line-height: 1.5; color: var(--ink-accent);
-  background: var(--grad-soft); border-radius: 999px; padding: 3px 11px;
-}
-.course-body h3 { font-family: var(--font-display); font-size: 1.22rem; font-weight: 600; margin: 10px 0 8px; }
-.course-body p { color: var(--text-dim); font-size: .97rem; line-height: 1.6; margin-bottom: 10px; }
-.course-meta { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: .08em; text-transform: uppercase; line-height: 1.5; color: var(--text-faint); }
-.course-go { font-family: var(--font-mono); font-size: 13.5px; color: var(--ink-accent); margin-top: auto; }
 
 /* ---------- Contact ---------- */
 .contact-box { padding: 76px clamp(24px, 6vw, 96px); text-align: center; display: flex; flex-direction: column; align-items: center; }
@@ -2178,8 +2161,6 @@ html { overflow-x: clip; }
 
 /* --- lab fixer needs --- */
 .term-error { padding: 16px 18px; color: #f87171; font-size: .9rem; }
-.course-card:not(a) { cursor: default; }
-.course-card:not(a):hover { transform: none; box-shadow: var(--shadow-card); background: var(--surface); }
 
 /* --- theme worlds (WorldLayer scenes; sits above bg-wrap, below content) --- */
 
@@ -2351,8 +2332,6 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
 .cert-nav:hover { background: color-mix(in srgb, var(--ink-accent) 12%, var(--panel)); }
 .cert-nav:active { transform: translateY(-50%) scale(.94); }
 /* course card arrow nudges toward the exit on hover */
-.course-go { transition: transform .2s; }
-.course-card:hover .course-go { transform: translateX(3px); }
 /* journal TOC: the summary tints while its drawer is open */
 .post-toc[open] summary { color: var(--ink-accent); }
 
