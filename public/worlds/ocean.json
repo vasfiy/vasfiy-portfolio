@@ -1,12 +1,13 @@
 {
   "theme": "ocean",
   "photos": [
-    { "src": "/worlds/ocean/1.jpg", "pos": "50% 55%" },
-    { "src": "/worlds/ocean/2.jpg", "pos": "50% 50%" },
-    { "src": "/worlds/ocean/3.jpg", "pos": "50% 45%" },
-    { "src": "/worlds/ocean/4.jpg", "pos": "50% 55%" },
-    { "src": "/worlds/ocean/5.jpg", "pos": "50% 58%" },
     { "src": "/worlds/ocean/6.jpg", "pos": "50% 55%" },
-    { "src": "/worlds/ocean/7.jpg", "pos": "50% 42%" }
+    { "src": "/worlds/ocean/1.jpg", "pos": "50% 40%" },
+    { "src": "/worlds/ocean/2.jpg", "pos": "50% 50%" },
+    { "src": "/worlds/ocean/4.jpg", "pos": "50% 45%" },
+    { "src": "/worlds/ocean/8.jpg", "pos": "50% 45%" },
+    { "src": "/worlds/ocean/5.jpg", "pos": "50% 55%" },
+    { "src": "/worlds/ocean/7.jpg", "pos": "50% 40%" },
+    { "src": "/worlds/ocean/3.jpg", "pos": "50% 45%" }
   ]
 }

@@ -10,7 +10,6 @@ import { pinSort, blogSort, fmtDate, ytId, isVideo, readingTime } from "@/lib/fo
 import { mediaUrl, onMediaError } from "@/lib/media";
 import VoiceRecorder from "./VoiceRecorder";
 import Icon from "./Icon";
-import WorldBreak from "./WorldBreak";
 import type { SiteData, Lang } from "@/lib/types";
 
 const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
@@ -35,17 +34,14 @@ export default function Home({ data }: { data: SiteData }) {
   return (
     <>
       <Hero data={data} st={st} />
-      <WorldBreak slot={0} />
       <About data={data} st={st} />
       <Skills data={data} />
       <Experience data={data} />
       <Projects data={data} />
-      <WorldBreak slot={1} />
       <JournalPreview data={data} />
       <GalleryPreview data={data} />
       <Education data={data} />
       <Explore data={data} />
-      <WorldBreak slot={2} />
       <Contact st={st} />
     </>
   );

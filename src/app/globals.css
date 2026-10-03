@@ -1927,8 +1927,8 @@ body.edit-on [data-edit]:hover, body.edit-on [data-edit]:focus { outline-style: 
 .mkt-arch-box .btn { margin-top: 22px; }
 
 /* ============================================================
-   Cosmos theme — deep-space palette, twinkling stars, comets,
-   floating astronaut. Scoped to dark mode; accents apply to both.
+   Cosmos theme — deep-space palette, twinkling stars, comets.
+   Scoped to dark mode; accents apply to both.
    ============================================================ */
 [data-theme="cosmos"] { --cyan: #8f7bff; --violet: #4f6df5; --pink: #22d3ee; }
 
@@ -2188,61 +2188,17 @@ html { overflow-x: clip; }
 html[data-fx="off"] .blob { animation: none; }
 html[data-fx="off"] .bg-comet { display: none; }
 
-/* --- hero: cinematic scene — the world photo IS the section (no panel) --- */
+/* --- hero grid (the photo backdrop is the fixed PhotoLayer — no section panel) --- */
 .hero-grid { grid-template-columns: 1.08fr 0.92fr; gap: clamp(32px, 5vw, 72px); align-items: center; }
 .hero-main { max-width: 760px; }
 
-/* melt into the page: top fades from --bg (navbar side), bottom fades into it
-   (next-section side), plus a left scrim so the text column stays readable.
-   Coverage is wide (32-40%) on purpose: the photo's start/end must be
-   undetectable — the band should never read as a framed strip. */
-/* matrix glyph wallpaper is dense and bright: dim it and widen every scrim */
-/* phones: the text column spans the full width — swap the side scrim for a
-   vertical veil so the headline stays readable over the photo */
-
-/* --- world-break: full-bleed themed band — the photo IS the page here too --- */
-.world-break { position: relative; height: clamp(380px, 68svh, 760px); overflow: hidden; }
-/* the media layer bleeds 64px above/below so the scroll drift can never show
-   an edge (CSS zoom lives on the img; the JS parallax lives on this wrapper) */
-.world-break-media { position: absolute; inset: -64px 0; }
-.world-break-media img {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; filter: saturate(1.06);
-  animation: wbIn .9s ease-out both, wbZoom 36s ease-in-out infinite alternate;
-  will-change: transform, opacity;
-}
-@keyframes wbIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes wbZoom { from { transform: scale(1); } to { transform: scale(1.08); } }
-/* strongest melt yet: --bg solid at 0% -> transparent at 38% on BOTH ends, so
-   you cannot tell where the photo begins or ends — no edge, no strip, no frame */
-.world-break::after {
-  content: ""; position: absolute; inset: 0;
-  background:
-    linear-gradient(180deg, var(--bg) 0%, transparent 38%),
-    linear-gradient(0deg, var(--bg) 0%, transparent 38%);
-}
-.world-break-cap { position: absolute; z-index: 2; left: max(var(--pad), 20px); right: max(var(--pad), 20px); bottom: clamp(24px, 6vh, 56px); max-width: 760px; }
-/* localized scrim behind the caption only — a soft pool of dark, never a box */
-.world-break-cap::before {
-  content: ""; position: absolute; z-index: -1; inset: -30px -44px -22px -32px;
-  background: radial-gradient(130% 115% at 24% 80%, rgba(3, 5, 10, .78), rgba(3, 5, 10, .52) 62%, rgba(3, 5, 10, .12) 100%);
-}
-/* unified on-photo shadow recipe (same as the .on-photo utility below):
-   0 1px 2px rgba(0,0,0,.5), 0 4px 18px rgba(0,0,0,.35) */
-.world-break-cap h2 { font-family: var(--font-display); font-size: clamp(1.9rem, 4.6vw, 3.6rem); line-height: 1.05; letter-spacing: -0.03em; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 18px rgba(0, 0, 0, .35); }
-.world-break-cap p { margin-top: 10px; color: rgba(255, 255, 255, .88); font-size: 1.05rem; text-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 18px rgba(0, 0, 0, .35); max-width: 60ch; }
-html[data-fx="off"] .world-break-media img { animation: none; }
-@media (prefers-reduced-motion: reduce) {
-  .world-break-media img { animation: none; }
-}
-
 /* ============================================================
    Photo legibility system — text + surfaces over the photographic
-   layers (hero scene, world-break bands, fixed photo/world layers)
+   layers (the fixed PhotoLayer)
    ------------------------------------------------------------
-   VEIL   melts above (--bg solid 0% -> transparent 32-46%) plus the
-          caption scrim pool carry dark mode. In LIGHT mode the photos
-          themselves dim to brightness(.7) saturate(.9) (matrix hero:
+   VEIL   the PhotoLayer's own --bg veil (photo-layer.module.css)
+          carries both modes. In LIGHT mode the photos
+          themselves dim to brightness(.7) saturate(.9) (matrix:
           brightness(.6)) so they never glare against the pale page.
    CARDS  page-level chips/ghost surfaces sit on
           color-mix(in srgb, var(--panel) 72%, transparent)
@@ -2256,12 +2212,10 @@ html[data-fx="off"] .world-break-media img { animation: none; }
    would only muddy it, so the shadow is light-mode-off there */
 [data-mode="light"] .hero-main { text-shadow: none; }
 
-/* light mode: dim every photographic layer. .photo-layer is the agreed
-   convention for the fixed photo layer (z -1); bands dim too. */
-[data-mode="light"] .photo-layer img,
-[data-mode="light"] .world-break img { filter: brightness(.7) saturate(.9); }
-[data-mode="light"][data-theme="matrix"] .photo-layer img,
-[data-mode="light"][data-theme="matrix"] .world-break img { filter: brightness(.6) saturate(.9); }
+/* light mode: dim the photographic layer. .photo-layer is the agreed
+   convention for the fixed photo layer (z -1). */
+[data-mode="light"] .photo-layer img { filter: brightness(.7) saturate(.9); }
+[data-mode="light"][data-theme="matrix"] .photo-layer img { filter: brightness(.6) saturate(.9); }
 
 /* light mode: chips & ghost surfaces get MORE opacity — photos stay
    brighter there, and dark text needs a whiter island (84% panel).
@@ -2292,3 +2246,29 @@ html:has(.photo-layer) .bg-wrap { display: none; }
 /* a11y round: cosmos accent readable on photos; hero name keeps a soft edge */
 [data-theme="cosmos"] { --ink-accent: #a89bff; }
 [data-mode="dark"] .hero-name { text-shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 6px 24px rgba(0, 0, 0, .3); }
+
+/* ============================================================
+   Eye comfort — the calm-mode contract (ko'zga qulay)
+   ------------------------------------------------------------
+   1. PHOTOS NEVER GLARE  light mode dims every photographic layer
+      (rules above): brightness(.7) saturate(.9), and brightness(.6)
+      on the matrix theme — on top of the PhotoLayer's --bg veil
+      (photo-layer.module.css, mid-stop 62% dark / 86% light). Do not
+      weaken either side without re-running the 4.5:1 contrast audit.
+   2. FX OFF = NOTHING MOVES  ThemeFab sets html[data-fx="off"].
+      The point gates above (blobs, comets) stay for clarity; this
+      blanket rule collapses every animation to one instant run so
+      elements land in their END state — deliberately NOT
+      `animation: none`, which would freeze entrance animations
+      (.hero-title span) at their invisible `from` state. JS systems
+      gate themselves: reveal (Reveal.tsx transitions), typewriter
+      (Home.tsx), PhotoLayer (.still class).
+   3. SCROLL  html is `scroll-behavior: smooth`; the global
+      prefers-reduced-motion block above flips it to `auto !important`
+      so anchor jumps are instant for motion-sensitive users.
+   ============================================================ */
+html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::after {
+  animation-duration: .001ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+}
