@@ -311,8 +311,8 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
             : <video key={index} src={cur.src} controls playsInline autoPlay muted preload="metadata" onError={(e) => { onVideoError(e); if (e.currentTarget.dataset.failed) setVidFail(true); }} />
           : <img ref={imgRef} src={mediaUrl(cur.src, 1400)} data-original={cur.src} onError={onMediaError} alt={cap} draggable={false} style={{ transform: `translate(${z.x}px, ${z.y}px) scale(${z.s})`, transition: drag.current || pinchRef.current || mouse.current ? "none" : "transform .25s" }} />}
       </div>
-      <button className="ip-lb-nav ip-lb-prev" aria-label="Previous" onClick={(e) => { e.stopPropagation(); onStep(-1); }}>‹</button>
-      <button className="ip-lb-nav ip-lb-next" aria-label="Next" onClick={(e) => { e.stopPropagation(); onStep(1); }}>›</button>
+      <button className="ip-lb-nav ip-lb-prev" aria-label={lang === "uz" ? "Oldingi" : "Previous"} onClick={(e) => { e.stopPropagation(); onStep(-1); }}>‹</button>
+      <button className="ip-lb-nav ip-lb-next" aria-label={lang === "uz" ? "Keyingi" : "Next"} onClick={(e) => { e.stopPropagation(); onStep(1); }}>›</button>
       <div className="lightbox-cap">{cap} <span className="lb-count">{index + 1} / {photos.length}</span></div>
     </div>
   );
