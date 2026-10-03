@@ -59,7 +59,7 @@ const STR = {
   },
   uz: {
     courses: "ta kurs", labs: "ta laboratoriya", exams: "ta imtihon",
-    soon: "So'nda",
+    soon: "Tez orada",
     simsLabel: "Imtihon simulyatorlari:",
     simA: "A+", simAI11y: "CompTIA A+ imtihon simulyatorini ochish",
     simI: "IELTS", simII11y: "IELTS imtihon simulyatorini ochish",

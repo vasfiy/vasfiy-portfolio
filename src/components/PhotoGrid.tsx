@@ -292,7 +292,7 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <button ref={closeRef} className="lightbox-close" aria-label="Close" onClick={onClose}>×</button>
+      <button ref={closeRef} className="lightbox-close" aria-label={lang === "uz" ? "Yopish" : "Close"} onClick={onClose}>×</button>
       {!vid && (
         <div className="ip-lb-zoom">
           <button type="button" aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} onClick={(e) => { e.stopPropagation(); zoomBy(1.3); }}>&#xff0b;</button>
