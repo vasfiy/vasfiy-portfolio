@@ -4,6 +4,7 @@ import { useLang } from "./Providers";
 import { isVideo } from "@/lib/format";
 import { mediaUrl, onMediaError, onVideoError } from "@/lib/media";
 import { pick } from "@/lib/i18n";
+import styles from "./gallery.module.css";
 import type { Photo, Lang } from "@/lib/types";
 
 const MIN_COLS = 2, MAX_COLS = 8, CHUNK = 36;
@@ -78,32 +79,36 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
 
   return (
     <>
-      <div className="ip-toolbar">
-        <span className="ip-count" aria-label={`${photos.length} ${lang === "uz" ? "ta rasm" : "photos"}`}>{photos.length} <span aria-hidden="true">📷</span></span>
-        <div className="ip-zoom" role="group" aria-label={lang === "uz" ? "Rasm oʼlchami" : "Photo size"}>
-          <button type="button" onClick={() => changeCols(cols - 1)} disabled={cols <= MIN_COLS} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"}>&#xff0b;</button>
-          <span className="ip-zoom-level" aria-live="polite" title={lang === "uz" ? "Ustunlar" : "Columns"}>{cols}</span>
-          <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"}>&#8722;</button>
+      <div className={styles.desktopGrid}>
+        {/* Desktop presentation wrapper (gallery.module.css):
+            restyles the grid at >=900px; phone stays immersive. */}
+        <div className={"ip-toolbar " + styles.bar}>
+          <span className="ip-count" aria-label={`${photos.length} ${lang === "uz" ? "ta rasm" : "photos"}`}>{photos.length} <span aria-hidden="true">📷</span></span>
+          <div className="ip-zoom" role="group" aria-label={lang === "uz" ? "Rasm oʼlchami" : "Photo size"}>
+            <button type="button" onClick={() => changeCols(cols - 1)} disabled={cols <= MIN_COLS} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"}>&#xff0b;</button>
+            <span className="ip-zoom-level" aria-live="polite" title={lang === "uz" ? "Ustunlar" : "Columns"}>{cols}</span>
+            <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"}>&#8722;</button>
+          </div>
         </div>
-      </div>
 
-      <div className="ip-grid" ref={gridRef} style={{ ["--cols" as any]: cols }}>
-        {visible.map((g, i) => {
-          const vid = g.video || isVideo(g.src);
-          const cap = pick(g, "caption", lang);
-          return (
-            <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
-              {vid
-                ? <div className="video-ph">
-                    <VideoTile src={g.src!} />
-                    <span className="vid-badge">▶</span>
-                  </div>
-                : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={cap} loading="lazy" decoding="async" />}
-            </figure>
-          );
-        })}
+        <div className="ip-grid" ref={gridRef} style={{ ["--cols" as any]: cols }}>
+          {visible.map((g, i) => {
+            const vid = g.video || isVideo(g.src);
+            const cap = pick(g, "caption", lang);
+            return (
+              <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
+                {vid
+                  ? <div className="video-ph">
+                      <VideoTile src={g.src!} />
+                      <span className="vid-badge">▶</span>
+                    </div>
+                  : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={cap} loading="lazy" decoding="async" />}
+              </figure>
+            );
+          })}
+        </div>
+        {shown < photos.length && <div ref={sentinelRef} className="ip-sentinel"><span className="ip-spin" /></div>}
       </div>
-      {shown < photos.length && <div ref={sentinelRef} className="ip-sentinel"><span className="ip-spin" /></div>}
 
       {lb >= 0 && <Lightbox photos={photos} index={lb} onClose={close} onStep={step} lang={lang} />}
     </>

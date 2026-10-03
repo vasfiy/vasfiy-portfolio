@@ -1,0 +1,134 @@
+/* Gallery — desktop presentation layer (>=900px only).
+   ------------------------------------------------------------
+   Phones (<=899px) keep the immersive iPhone-Photos density from
+   globals.css completely untouched: every rule in this file lives
+   inside one min-width: 900px media query.
+
+   What changes on desktop:
+   - "All photos" and album grids become contained, breathing walls
+     (1400px / 1240px, 14-18px gaps, 12px tile radius) instead of a raw
+     4px edge-to-edge photo dump.
+   - The ip-toolbar becomes a compact floating chip (auto width,
+     right-aligned above the grid) instead of a full-width bar.
+   - Album covers turn larger and more editorial (340px columns, 22px
+     gap, radius + resting/hover elevation matching the grid language).
+
+   Functionality is untouched: the zoom --cols mechanism, pinch
+   density and the lightbox are pure PhotoGrid state; this file only
+   restyles presentation.
+
+   Scope note: globals.css classes are reached through local wrappers
+   with :global(); the chip rules carry (0,3,0)+ specificity so they
+   win over globals — including the [data-mode="light"] toolbar
+   overrides — regardless of CSS bundle order. Islands use
+   color-mix(var(--panel)) so ONE declaration works in both themes.
+   The chip is display:flex + width:max-content (not inline-flex):
+   auto margins only right-align a block-level box. */
+
+@media (min-width: 900px) {
+  /* ---------- /gallery page scope (GalleryGrid) ---------- */
+
+  /* Contain the whole gallery column, so the head, the control rows and
+     every grid share one 1400px axis on ultra-wide screens (--maxw is
+     1600px, so this genuinely bites past ~1500px viewports). */
+  .gallery {
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+
+  /* Tighten the head -> controls -> grid rhythm. */
+  .gallery :global(.section-head.masthead) {
+    margin-bottom: 30px;
+  }
+  .gallery :global(.gallery-controls) {
+    gap: 12px 16px;
+    margin-bottom: 18px;
+  }
+  .gallery :global(.filter-bar) {
+    /* its 26px global margin doubles the controls' bottom gap in a flex row */
+    margin-bottom: 0;
+  }
+
+  /* Control rows join the chip family: hairline + resting elevation so
+     the seg-toggle and filter chips read as part of the page. */
+  .gallery :global(.seg-toggle) {
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+  }
+  .gallery :global(.filter-chip:not(.active)) {
+    border: 1px solid var(--border);
+  }
+
+  /* Album covers: larger, editorial — wider columns on the same
+     contained axis, radius + elevation ladder matching the grid. */
+  .gallery :global(.album-grid) {
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 22px;
+  }
+  .gallery :global(.album-card) {
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+  }
+  .gallery :global(.album-card:hover) {
+    box-shadow: var(--shadow-lift);
+  }
+  .gallery :global(.album-overlay) {
+    padding: 22px 24px;
+  }
+  .gallery :global(.album-overlay h3) {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+  .gallery :global(.album-count) {
+    font-size: 0.88rem;
+  }
+
+  /* ---------- PhotoGrid (used by /gallery AND album pages) ---------- */
+
+  /* Contained, breathing wall for "All photos"; keeps the --cols zoom
+     mechanism — only the presentation is eased. */
+  .desktopGrid {
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+  .desktopGrid :global(.ip-grid) {
+    gap: 18px;
+  }
+  .desktopGrid :global(.ip-tile) {
+    border-radius: 12px;
+  }
+
+  /* Toolbar -> compact floating chip: auto width, right-aligned above
+     the grid; panel island + hairline + soft shadow in both themes.
+     Zoom buttons keep their global sizing/styles. */
+  .desktopGrid .bar:global(.ip-toolbar) {
+    display: flex;
+    width: max-content;
+    max-width: 100%;
+    justify-content: flex-start;
+    gap: 16px;
+    margin: 0 0 16px auto;
+    padding: 5px 6px 5px 16px;
+    background: color-mix(in srgb, var(--panel) 80%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-card);
+  }
+  .desktopGrid .bar :global(.ip-zoom button) {
+    border-radius: 999px;
+  }
+
+  /* ---------- Album page (/gallery/<key>) ---------- */
+
+  /* article.post-page.album-page already caps the column at 1240px —
+     keep that cap; ease the wall a step under the All-photos density
+     and keep the chip tight under the album title. */
+  :global(.album-page) .desktopGrid :global(.ip-grid) {
+    gap: 14px;
+  }
+  :global(.album-page) .desktopGrid .bar:global(.ip-toolbar) {
+    margin-bottom: 14px;
+  }
+}

@@ -64,18 +64,23 @@
 [data-mode="light"] {
   --bg: #eef1f9;
   --bg-2: #e3e8f4;
-  --surface: rgba(255, 255, 255, 0.62);
-  --surface-2: rgba(255, 255, 255, 0.85);
+  /* Solid tinted fills, NOT translucent white — translucent islands over the
+     pale photo veil are what made light mode read washed-out. */
+  --surface: #f4f6fb;
+  --surface-2: #e9edf6;
   --panel: #ffffff;
   --panel-2: #f6f8fd;
-  --border: rgba(20, 30, 60, 0.09);
-  --border-strong: rgba(20, 30, 60, 0.16);
+  --border: rgba(15, 23, 42, 0.08); /* hairline */
+  --border-strong: rgba(15, 23, 42, 0.16);
   --text: #131a30;
   --text-dim: #41506e;
   --text-faint: #4c5878; /* 4.15:1 -> 5.25:1 vs the light page bg (WCAG AA body text) */
-  --shadow: 0 1px 2px rgba(20, 30, 60, 0.06), 0 8px 24px -16px rgba(20, 30, 60, 0.18);
-  --shadow-card: 0 1px 2px rgba(20, 30, 60, 0.05), 0 10px 28px -18px rgba(20, 30, 60, 0.16);
-  --shadow-lift: 0 2px 4px rgba(20, 30, 60, 0.06), 0 20px 44px -22px rgba(20, 30, 60, 0.28);
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lift: 0 2px 4px rgba(15, 23, 42, 0.07), 0 16px 40px rgba(15, 23, 42, 0.14);
+  /* Controls/chips: hairline ring + tight elevation in one shadow stack
+     (control islands have border: 0, so the ring adds no geometry). */
+  --shadow-chip: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 14px -4px rgba(15, 23, 42, 0.1);
   /* darker, theme-tinted accent so accent text stays readable on light bg */
   --ink-accent: color-mix(in srgb, var(--violet) 48%, #0a0a18); /* 55% keeps every theme's accent text >= 4.5:1 on light bg */
 }
@@ -93,9 +98,18 @@
     linear-gradient(90deg, rgba(20,30,60,0.05) 1px, transparent 1px);
 }
 [data-mode="light"] .blob { opacity: 0.3; }
-[data-mode="light"] .navbar.scrolled { background: rgba(255, 255, 255, 0.85); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-[data-mode="light"] .nav-links { background: rgba(255, 255, 255, 0.92); }
-[data-mode="light"] .admin-header { background: rgba(255, 255, 255, 0.78); }
+/* Light navbar: one solid white bar — never a floating pill that merges
+   with the content below. Separation = bottom hairline + flat soft shadow. */
+[data-mode="light"] .navbar {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+[data-mode="light"] .navbar.scrolled { background: rgba(255, 255, 255, 0.96); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.12); }
+[data-mode="light"] .nav-links { background: transparent; } /* links sit on the bar itself — no inner pill */
+[data-mode="light"] .admin-header { background: rgba(255, 255, 255, 0.92); }
 [data-mode="light"] .btn-primary,
 [data-mode="light"] .filter-chip.active,
 [data-mode="light"] .lesson-done.is-done .check,
@@ -315,11 +329,11 @@ img { max-width: 100%; display: block; }
    built on --ink-accent so light mode keeps its contrast. */
 .kicker-num {
   background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, var(--violet) 18%, var(--ink-accent)));
-[data-mode="light"] .kicker-num {
-  background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, #0a0a18 12%, var(--ink-accent)));
-}
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--ink-accent);
   font-variant-numeric: tabular-nums;
+}
+[data-mode="light"] .kicker-num {
+  background: linear-gradient(120deg, var(--ink-accent), color-mix(in srgb, #0a0a18 12%, var(--ink-accent)));
 }
 .section-kicker::after {
   content: ""; width: 48px; height: 1px; display: inline-block;
@@ -2227,8 +2241,9 @@ html[data-fx="off"] .bg-comet { display: none; }
           themselves dim to brightness(.7) saturate(.9) (matrix:
           brightness(.6)) so they never glare against the pale page.
    CARDS  page-level chips/ghost surfaces sit on
-          color-mix(in srgb, var(--panel) 72%, transparent)
-          (84% in light mode) — calm reading islands, never raw photo.
+          color-mix(in srgb, var(--panel) 72%, transparent) in dark mode;
+          in LIGHT mode they are solid white with a hairline ring
+          (--shadow-chip) — translucent islands read washed-out there.
    TEXT   one unified shadow wherever light text sits on a photo:
           0 1px 2px rgba(0,0,0,.5), 0 4px 18px rgba(0,0,0,.35)
           — the .on-photo utility below; dark light-mode text opts out.
@@ -2240,20 +2255,19 @@ html[data-fx="off"] .bg-comet { display: none; }
 
 /* light mode: dim the photographic layer. .photo-layer is the agreed
    convention for the fixed photo layer (z -1). */
-[data-mode="light"] .photo-layer img { filter: brightness(.7) saturate(.9); }
+[data-mode="light"] .photo-layer img { filter: brightness(.7) saturate(.9); opacity: .5; }
 [data-mode="light"][data-theme="matrix"] .photo-layer img { filter: brightness(.6) saturate(.9); }
 
-/* light mode: chips & ghost surfaces get MORE opacity — photos stay
-   brighter there, and dark text needs a whiter island (84% panel).
-   :not() guards keep .filter-chip.active's gradient and .share-btn.ok's
-   green tint in charge. */
+/* light mode: chips & ghost islands go SOLID white — separation via the
+   --shadow-chip hairline ring, not translucency. :not() guards keep
+   .filter-chip.active's gradient and .share-btn.ok's green tint in charge.
+   (.btn-ghost and .lang-bars have dedicated rules in the light surface
+   system at the end of this file.) */
 [data-mode="light"] .hero-badge,
-[data-mode="light"] .btn-ghost,
 [data-mode="light"] .social-link,
 [data-mode="light"] .lang-toggle,
-[data-mode="light"] .lang-bars,
 [data-mode="light"] .filter-chip:not(.active),
-[data-mode="light"] .share-btn:not(.ok) { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+[data-mode="light"] .share-btn:not(.ok) { background: #ffffff; box-shadow: var(--shadow-chip); }
 
 /* photo-round caveats: hover must not dissolve the reading island; the
    gradient-filled hero name must not inherit the on-photo text shadow */
@@ -2263,8 +2277,10 @@ html[data-fx="off"] .bg-comet { display: none; }
 /* subpages verifier: controls become reading islands over photos */
 .seg-toggle, .bl-search, .lx-search, .ctf-score { background: color-mix(in srgb, var(--panel) 72%, transparent); }
 .ip-zoom button { background: color-mix(in srgb, var(--panel) 72%, transparent); }
-[data-mode="light"] .seg-toggle, [data-mode="light"] .bl-search, [data-mode="light"] .lx-search,
-[data-mode="light"] .ctf-score, [data-mode="light"] .ip-zoom button { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+[data-mode="light"] .lx-search { background: #ffffff; border-color: var(--border-strong); }
+[data-mode="light"] .seg-toggle, [data-mode="light"] .bl-search,
+[data-mode="light"] .ip-zoom button { background: #ffffff; box-shadow: var(--shadow-chip); }
+[data-mode="light"] .ctf-score { background: #ffffff; box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
 
 /* the photo layer covers the page — stop the hidden bg-wrap from animating */
 html.has-photo-layer .bg-wrap, html:has(.photo-layer) .bg-wrap { display: none; }
@@ -2302,12 +2318,17 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
 /* 404: mid-veil zone needs the unified photo shadow (no island there) */
 .nf-page .section-title, .nf-page .nf-code, .nf-inner .hero-desc { text-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 18px rgba(0, 0, 0, .35); }
 
-/* gallery verifier: the toolbar counters are veil-only — island them */
-.ip-toolbar { background: color-mix(in srgb, var(--panel) 72%, transparent); border-radius: 10px; padding: 6px 10px; }
-[data-mode="light"] .ip-toolbar { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+/* gallery toolbar: a compact chip group anchored above the grid start —
+   never a full-width bar that reads as a stray search field */
+.ip-toolbar {
+  display: inline-flex; align-items: center; gap: 10px; width: fit-content;
+  margin: 0 0 16px auto; border-radius: 999px; padding: 6px 8px;
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+}
+[data-mode="light"] .ip-toolbar { background: #ffffff; box-shadow: var(--shadow-chip); }
 /* linux verifier: progress meter island (was raw veil-only) */
 .lx-progress { background: color-mix(in srgb, var(--panel) 72%, transparent); border-radius: 10px; padding: 8px 12px; }
-[data-mode="light"] .lx-progress { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+[data-mode="light"] .lx-progress { background: #ffffff; box-shadow: var(--shadow-chip); }
 
 /* ============================================================
    Controls round 2 — micro-interactions, open-state cues, focus
@@ -2388,3 +2409,93 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
 
 /* phone verifier: --text-dim dips under AA over bright photo zones mid-viewport */
 @media (max-width: 760px) { .hero-desc { color: var(--text); } }
+
+/* ============================================================
+   LIGHT MODE — premium surface system
+   ------------------------------------------------------------
+   Direction: Linear/Stripe/Apple light pages. Opaque surfaces,
+   hairline separation, layered soft shadows, alternating section
+   bands — no translucent white islands over the photo veil.
+   Dark mode untouched: every rule here is [data-mode="light"].
+   Elevation ladder (light):
+     chips/controls  --shadow-chip  (1px ring + tight shadow)
+     cards (.glass)  --shadow-card  (0 1px 2px @.06 + 0 8px 24px @.08)
+     hover           --shadow-lift  (0 2px 4px @.07 + 0 16px 40px @.14)
+   ============================================================ */
+
+/* 1 — cards: the reserved border slot takes the hairline; the panel is
+   already solid #fff via --panel. Hover steps the tint via the solid
+   --surface-2 + --shadow-lift (token block up top). */
+[data-mode="light"] .glass { background: #ffffff; border-color: var(--border); }
+[data-mode="light"] .lang-bars { background: #ffffff; box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
+
+/* reading sheet on post pages (was an 88% translucent island) */
+[data-mode="light"] article.post-page:not(.album-page) {
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--border), var(--shadow-card);
+}
+/* CV paper sheet */
+[data-mode="light"] .cv-page { box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
+/* dialogs read as cards, not tinted panels */
+[data-mode="light"] .ui-dialog { background-color: #ffffff; background-image: none; }
+
+/* 2 — section rhythm: alternating solid bands. The photo layer lives in
+   the hero (and the veil-only 404); every .section is an opaque band so
+   the page reads as distinct stripes instead of one washed field. */
+[data-mode="light"] .section { background: #ffffff; }
+[data-mode="light"] .section:nth-of-type(even) { background: color-mix(in srgb, var(--bg) 55%, #ffffff); }
+[data-mode="light"] .section.nf-page { background: transparent; }
+[data-mode="light"] .nf-page .section-title,
+[data-mode="light"] .nf-page .nf-code,
+[data-mode="light"] .nf-inner .hero-desc { text-shadow: none; }
+
+/* 3 — buttons: every button gets a soft shadow; ghost goes solid white
+   + hairline (translucent ghost read as disabled over the pale veil). */
+[data-mode="light"] .btn { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08); }
+[data-mode="light"] .btn-ghost { background: #ffffff; border-color: var(--border-strong); }
+[data-mode="light"] .btn-primary { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), 0 10px 28px -10px color-mix(in srgb, var(--cyan) 55%, transparent); }
+[data-mode="light"] .nav-links a.contact-cta { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1), 0 6px 18px -6px color-mix(in srgb, var(--cyan) 45%, transparent); }
+[data-mode="light"] .filter-chip.active { box-shadow: 0 2px 10px -2px color-mix(in srgb, var(--violet) 40%, transparent); }
+
+/* hover: the photo-system caveat rule above forces 84% islands on hover
+   for BOTH modes — in light, hover steps to the solid tint instead. */
+[data-mode="light"] .btn-ghost:hover,
+[data-mode="light"] .social-link:hover,
+[data-mode="light"] .lang-toggle:hover,
+[data-mode="light"] .filter-chip:hover { background: var(--surface-2); }
+[data-mode="light"] .share-btn:not(.ok):hover { background: var(--surface-2); }
+[data-mode="light"] .to-top-fab { background: #ffffff; box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
+[data-mode="light"] .to-top-fab:hover { background: var(--surface-2); }
+[data-mode="light"] .cert-nav { box-shadow: 0 0 0 1px var(--border), 0 10px 26px -12px rgba(15, 23, 42, 0.3); }
+[data-mode="light"] .search-fab { box-shadow: 0 0 0 1px var(--border), var(--shadow-card); }
+[data-mode="light"] .theme-fab { box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.35); }
+
+/* 4 — form inputs: opaque white fields with a visible hairline (inputs
+   over the veil used to be translucent and illegible). Per-form focus
+   borders + the global :focus-visible ring stay in charge. */
+[data-mode="light"] .contact-form input,
+[data-mode="light"] .contact-form textarea,
+[data-mode="light"] .lock-card input,
+[data-mode="light"] .composer input,
+[data-mode="light"] .composer textarea,
+[data-mode="light"] .admin-field input,
+[data-mode="light"] .admin-field select,
+[data-mode="light"] .admin-field textarea,
+[data-mode="light"] .cat-row input,
+[data-mode="light"] .cat-add input,
+[data-mode="light"] .ctf-answer input,
+[data-mode="light"] .tool-in,
+[data-mode="light"] .tool-area,
+[data-mode="light"] .ui-dialog-input,
+[data-mode="light"] .mkt-order input,
+[data-mode="light"] .mkt-order textarea,
+[data-mode="light"] .ad-app input:not([type=checkbox]):not([type=file]),
+[data-mode="light"] .ad-app textarea,
+[data-mode="light"] .ad-app select { background: #ffffff; border-color: var(--border-strong); }
+
+/* 5 — sticky bar over the bands (market header) */
+[data-mode="light"] .mkt-header {
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}

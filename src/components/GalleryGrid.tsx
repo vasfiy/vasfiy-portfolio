@@ -6,6 +6,7 @@ import Reveal from "./Reveal";
 import { pinSort, groupAlbums } from "@/lib/format";
 import { mediaUrl, onMediaError } from "@/lib/media";
 import PhotoGrid from "./PhotoGrid";
+import styles from "./gallery.module.css";
 import type { Photo, Category, Album } from "@/lib/types";
 
 export default function GalleryGrid({ photos, cats }: { photos: Photo[]; cats: Record<string, Category> }) {
@@ -26,40 +27,44 @@ export default function GalleryGrid({ photos, cats }: { photos: Photo[]; cats: R
   return (
     <section className="section page-hero">
       <div className="container">
-        <Reveal className="section-head masthead">
-          <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("gallery.sub")}</span></span>
-          <h1 className="section-title">{t("gallery.title")}</h1>
-        </Reveal>
-        {items.length > 0 && (
-          <div className="gallery-controls">
-            <div className="seg-toggle">
-              <button className={"seg" + (view === "albums" ? " active" : "")} aria-pressed={view === "albums"} onClick={() => setView("albums")}>{t("gallery.albums")}</button>
-              <button className={"seg" + (view === "all" ? " active" : "")} aria-pressed={view === "all"} onClick={() => setView("all")}>{t("gallery.allPhotos")}</button>
-            </div>
-            {present.length > 0 && (
-              <div className="filter-bar">
-                <button className={"filter-chip" + (filter === "all" ? " active" : "")} aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{t("gallery.all")}</button>
-                {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} aria-pressed={filter === c} onClick={() => setFilter(c)}>{(cats[c] && (cats[c][lang] || cats[c].en)) || c}</button>)}
+        {/* Desktop scope (gallery.module.css): contains head, controls
+            and grids on one 1400px axis at >=900px. */}
+        <div className={styles.gallery}>
+          <Reveal className="section-head masthead">
+            <span className="section-kicker"><span className="kicker-num">✶</span> <span>{t("gallery.sub")}</span></span>
+            <h1 className="section-title">{t("gallery.title")}</h1>
+          </Reveal>
+          {items.length > 0 && (
+            <div className="gallery-controls">
+              <div className="seg-toggle">
+                <button className={"seg" + (view === "albums" ? " active" : "")} aria-pressed={view === "albums"} onClick={() => setView("albums")}>{t("gallery.albums")}</button>
+                <button className={"seg" + (view === "all" ? " active" : "")} aria-pressed={view === "all"} onClick={() => setView("all")}>{t("gallery.allPhotos")}</button>
               </div>
-            )}
-          </div>
-        )}
-        {items.length === 0 ? <p className="empty-note">{t("gallery.empty")}</p> : view === "all" ? (
-          <PhotoGrid photos={pinSort(items)} />
-        ) : (
-          <div className="album-grid">
-            {albums.map((a) => {
-              const cover = a.photos.find((x) => x.pinned) || a.photos[0];
-              const nm = albumName(a);
-              return (
-                <Link className="album-card" href={`/gallery/${encodeURIComponent(a.key)}`} key={a.key}>
-                  {cover?.src ? <img src={mediaUrl(cover.src, 480)} data-original={cover.src} onError={onMediaError} alt={nm} loading="lazy" decoding="async" /> : <div className="ph">🖼️</div>}
-                  <div className="album-overlay"><h3>{nm}</h3><span className="album-count">{a.photos.length} {a.photos.length === 1 ? t("gallery.photo") : t("gallery.photos")}</span></div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+              {present.length > 0 && (
+                <div className="filter-bar">
+                  <button className={"filter-chip" + (filter === "all" ? " active" : "")} aria-pressed={filter === "all"} onClick={() => setFilter("all")}>{t("gallery.all")}</button>
+                  {present.map((c) => <button key={c} className={"filter-chip" + (filter === c ? " active" : "")} aria-pressed={filter === c} onClick={() => setFilter(c)}>{(cats[c] && (cats[c][lang] || cats[c].en)) || c}</button>)}
+                </div>
+              )}
+            </div>
+          )}
+          {items.length === 0 ? <p className="empty-note">{t("gallery.empty")}</p> : view === "all" ? (
+            <PhotoGrid photos={pinSort(items)} />
+          ) : (
+            <div className="album-grid">
+              {albums.map((a) => {
+                const cover = a.photos.find((x) => x.pinned) || a.photos[0];
+                const nm = albumName(a);
+                return (
+                  <Link className="album-card" href={`/gallery/${encodeURIComponent(a.key)}`} key={a.key}>
+                    {cover?.src ? <img src={mediaUrl(cover.src, 480)} data-original={cover.src} onError={onMediaError} alt={nm} loading="lazy" decoding="async" /> : <div className="ph">🖼️</div>}
+                    <div className="album-overlay"><h3>{nm}</h3><span className="album-count">{a.photos.length} {a.photos.length === 1 ? t("gallery.photo") : t("gallery.photos")}</span></div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

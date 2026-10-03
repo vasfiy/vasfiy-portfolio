@@ -121,7 +121,7 @@ export default function PhotoLayer() {
         setPhotos(list);
         const warm = new Image();
         warm.onload = warm.onerror = () => { if (!dead) setShow(initialShow(list, i0)); };
-        warm.src = list[0]?.src ?? "";
+        warm.src = list[i0]?.src ?? "";
       })
       .catch(() => {});
     return () => {
