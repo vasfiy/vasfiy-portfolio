@@ -83,7 +83,7 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
         <div className="ip-zoom" role="group" aria-label={lang === "uz" ? "Rasm oʼlchami" : "Photo size"}>
           <button type="button" onClick={() => changeCols(cols - 1)} disabled={cols <= MIN_COLS} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"}>&#xff0b;</button>
           <span className="ip-zoom-level" aria-live="polite" title={lang === "uz" ? "Ustunlar" : "Columns"}>{cols}</span>
-          <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"}>&#2212;</button>
+          <button type="button" onClick={() => changeCols(cols + 1)} disabled={cols >= MAX_COLS} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"}>&#8722;</button>
         </div>
       </div>
 
@@ -291,7 +291,7 @@ function Lightbox({ photos, index, onClose, onStep, lang }: { photos: Photo[]; i
       {!vid && (
         <div className="ip-lb-zoom">
           <button type="button" aria-label={lang === "uz" ? "Kattalashtirish" : "Zoom in"} title={lang === "uz" ? "Kattalashtirish" : "Zoom in"} onClick={(e) => { e.stopPropagation(); zoomBy(1.3); }}>&#xff0b;</button>
-          <button type="button" aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.3); }}>&#2212;</button>
+          <button type="button" aria-label={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} title={lang === "uz" ? "Kichiklashtirish" : "Zoom out"} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.3); }}>&#8722;</button>
         </div>
       )}
       <div

@@ -25,7 +25,7 @@
       try { localStorage.setItem(PFX + key, JSON.stringify(val)); return true; }
       catch (e) { return false; }
     },
-    has(key) { return localStorage.getItem(PFX + key) != null; },
+    has(key) { try { return localStorage.getItem(PFX + key) != null; } catch (e) { return false; } },
     remove(key) { localStorage.removeItem(PFX + key); },
   };
 

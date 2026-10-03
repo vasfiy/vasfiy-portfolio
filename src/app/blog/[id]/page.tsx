@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { post } = await findPost(id);
   if (!post) return { title: "Post — Kamoliddin Tilonboyev" };
   const title = post.title || post.titleUz || "Post";
-  const desc = (post.body || post.bodyUz || postText(post, "en")).slice(0, 160);
+  const desc = (post.body || post.bodyUz || postText(post, "en")) || title;
   const cover = (post.blocks || []).find((b) => b.type === "image" && b.url)?.url;
   const img = cover || (post.type === "image" && post.media ? post.media : "/og-image.jpg");
   return {

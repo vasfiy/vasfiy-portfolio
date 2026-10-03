@@ -10,7 +10,7 @@ export async function GET() {
   const posts = blogSort(data.blog).slice(0, 30);
   const items = posts.map((p) => {
     const title = p.title || p.titleUz || "";
-    const desc = p.body || p.bodyUz || postText(p, "en").slice(0, 160);
+    const desc = p.body || p.bodyUz || postText(p, "en").slice(0, 160) || title;
     const link = `${BASE}/blog/${p.__id}`;
     const dt = p.date ? new Date(p.date) : null;
     const pub = dt && !Number.isNaN(dt.getTime()) ? `<pubDate>${dt.toUTCString()}</pubDate>` : "";

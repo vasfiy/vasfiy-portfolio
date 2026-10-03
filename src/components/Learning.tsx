@@ -1,14 +1,10 @@
 "use client";
+import { pinSort } from "@/lib/format";
 import { useLang } from "./Providers";
 import { pick } from "@/lib/i18n";
 import Reveal from "./Reveal";
 import type { Course } from "@/lib/types";
 
-function pinSort<T extends { pinned?: boolean }>(arr: T[]): T[] {
-  return arr.map((x, i) => [x, i] as const)
-    .sort((a, b) => (b[0].pinned ? 1 : 0) - (a[0].pinned ? 1 : 0) || a[1] - b[1])
-    .map(([x]) => x);
-}
 
 export default function Learning({ courses }: { courses: Course[] }) {
   const { lang, t } = useLang();

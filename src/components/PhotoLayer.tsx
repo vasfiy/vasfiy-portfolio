@@ -52,6 +52,7 @@ export default function PhotoLayer() {
   const [theme, setTheme] = useState("cosmos");
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [show, setShow] = useState<Show | null>(null);
+  const advanced = useRef(false);
   const [fxOn, setFxOn] = useState(true);
   const [rm, setRm] = useState(false);
   // false -> true (just after a slide becomes front) starts the Ken Burns zoom
@@ -94,6 +95,11 @@ export default function PhotoLayer() {
     };
   }, []);
 
+  useEffect(() => {
+    document.documentElement.classList.add("has-photo-layer");
+    return () => document.documentElement.classList.remove("has-photo-layer");
+  }, []);
+
   /* One manifest per theme. Null while loading or missing -> render nothing
      (the page keeps its plain --bg backdrop, nothing breaks). On a theme
      change mid-scroll the new theme's photo matching the CURRENT scroll
@@ -113,7 +119,9 @@ export default function PhotoLayer() {
         const i0 = indexFor(list.length, progressRef.current);
         curRef.current = i0;
         setPhotos(list);
-        setShow(initialShow(list, i0));
+        const warm = new Image();
+        warm.onload = warm.onerror = () => { if (!dead) setShow(initialShow(list, i0)); };
+        warm.src = list[0]?.src ?? "";
       })
       .catch(() => {});
     return () => {
@@ -128,6 +136,7 @@ export default function PhotoLayer() {
      there is never a blank flash. */
   const goTo = useCallback(
     (target: number) => {
+      advanced.current = true;
       const len = photos?.length ?? 0;
       if (len < 2) return;
       const t = Math.min(Math.max(target, 0), len - 1);
@@ -187,7 +196,7 @@ export default function PhotoLayer() {
   useEffect(() => {
     const len = photos?.length ?? 0;
     if (len < 2 || !show) return;
-    for (const i of [(show.cur + 1) % len, (show.cur - 1 + len) % len]) {
+    for (const i of [(show.cur + 1) % len, ...(advanced.current ? [(show.cur - 1 + len) % len] : [])]) {
       const img = new Image();
       img.src = photos![i].src;
     }

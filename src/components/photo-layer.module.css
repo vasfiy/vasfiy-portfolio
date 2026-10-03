@@ -57,8 +57,8 @@
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--bg) 72%, transparent) 0%,
-    color-mix(in srgb, var(--bg) 62%, transparent) 32%,
-    color-mix(in srgb, var(--bg) 62%, transparent) 70%,
+    color-mix(in srgb, var(--bg) 75%, transparent) 32%,
+    color-mix(in srgb, var(--bg) 75%, transparent) 70%,
     color-mix(in srgb, var(--bg) 74%, transparent) 100%
   );
 }
@@ -67,8 +67,8 @@
 @media (max-width: 760px) {
   .veil { background: linear-gradient(180deg,
     color-mix(in srgb, var(--bg) 88%, transparent) 0%,
-    color-mix(in srgb, var(--bg) 70%, transparent) 28%,
-    color-mix(in srgb, var(--bg) 62%, transparent) 60%,
+    color-mix(in srgb, var(--bg) 78%, transparent) 28%,
+    color-mix(in srgb, var(--bg) 78%, transparent) 60%,
     color-mix(in srgb, var(--bg) 74%, transparent) 100%); }
 }
 
@@ -78,3 +78,11 @@
   color-mix(in srgb, var(--bg) 86%, transparent) 32%,
   color-mix(in srgb, var(--bg) 86%, transparent) 70%,
   color-mix(in srgb, var(--bg) 94%, transparent) 100%); }
+
+/* light matrix/sunset: the darkest photos need a stronger ghost for dark text */
+:global([data-mode="light"][data-theme="matrix"]) .veil,
+:global([data-mode="light"][data-theme="sunset"]) .veil { background: linear-gradient(180deg,
+  color-mix(in srgb, var(--bg) 93%, transparent) 0%,
+  color-mix(in srgb, var(--bg) 90%, transparent) 32%,
+  color-mix(in srgb, var(--bg) 90%, transparent) 70%,
+  color-mix(in srgb, var(--bg) 95%, transparent) 100%); }

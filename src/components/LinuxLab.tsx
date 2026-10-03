@@ -42,9 +42,10 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
   const runCmd = (cmd: string) => {
     const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("terminal")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    if (!window.WebTerm) setTermErr(true);
+    let fired = false;
     let settled = false;
-    const fire = () => { if (settled) return; settled = true; window.removeEventListener("scrollend", fire); if (window.WebTerm) window.WebTerm.run(cmd); };
+    const fire = () => { if (settled) return; settled = true; window.removeEventListener("scrollend", fire);
+      if (window.WebTerm) { window.WebTerm.run(cmd); } else if (!fired) { fired = true; setTermErr(true); } };
     window.addEventListener("scrollend", fire);
     setTimeout(fire, reduce ? 120 : 800);
   };
@@ -59,7 +60,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
 
   return (
     <>
-      <Script src="/js/terminal.js" strategy="lazyOnload" onReady={initTerm} onError={() => setTermErr(true)} />
+      <Script src="/js/terminal.js" strategy="lazyOnload" onReady={() => { initTerm(); setTermErr(false); }} onError={() => setTermErr(true)} />
 
       <section className="section page-hero" id="lab-hero">
         <div className="container">

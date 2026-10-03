@@ -14,7 +14,7 @@ export default function CV({ data }: { data: SiteData }) {
 
   const jobs = pinSort(data.experience), skills = pinSort(data.skills), langs = pinSort(data.languages);
   const edu = pinSort(data.education), certs = pinSort(data.certs), projects = pinSort(data.projects);
-  const summary = [pick(st, "aboutP1", lang), pick(st, "aboutP3", lang)].filter(Boolean).join(" ").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&rsquo;/g, "\u2019").replace(/&quot;/g, '"');
+  const summary = [pick(st, "aboutP1", lang), pick(st, "aboutP3", lang)].filter(Boolean).join(" ").replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&rsquo;/g, "\u2019").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
   const email = st.socialEmail, li = st.socialLinkedin, loc = pick(st, "contactLocation", lang);
 
   return (
