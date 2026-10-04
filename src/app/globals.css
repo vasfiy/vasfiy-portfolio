@@ -1283,7 +1283,7 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .cv-certs li { color: #2a3650; font-size: .88rem; margin-bottom: 3px; }
 @media (max-width: 620px) { .cv-page { padding: 28px 22px; } .cv-head { flex-direction: column; } .cv-contact { text-align: left; } .cv-cols { grid-template-columns: 1fr; } }
 @media print {
-  .navbar, .theme-fab, .theme-panel, .footer, .bg-wrap, .photo-layer, .scroll-progress, .cv-actions, .edit-fab, .edit-hint, .edit-toast { display: none !important; }
+  .navbar, .theme-fab, .theme-panel, .search-fab, .search-overlay, .footer, .bg-wrap, .photo-layer, .scroll-progress, .cv-actions, .edit-fab, .edit-hint, .edit-toast { display: none !important; }
   body { background: #fff !important; }
   .cv-wrap { padding: 0; max-width: none; }
   .cv-page { box-shadow: none; border-radius: 0; padding: 0; }
