@@ -44,6 +44,7 @@ const PHONE_Q = "(max-width: 768px)";
 /* A scroll flick is "active" while scroll events arrive within this window;
    on phones, index changes during that window are held until it goes quiet. */
 const SETTLE_MS = 150;
+const srcFor = (src: string, phone: boolean) => (phone ? src.replace(/\.jpg$/, "-sm.webp") : src); // phones: lighter webp re-encodes, same pixels
 
 /* scroll progress (0..1) -> photo index, clamped inside the list */
 function indexFor(len: number, progress: number): number {
@@ -158,7 +159,7 @@ export default function PhotoLayer() {
         setPhotos(list);
         const warm = new Image();
         warm.onload = warm.onerror = () => { if (!dead) setShow(initialShow(list, i0)); };
-        warm.src = list[i0]?.src ?? "";
+        warm.src = srcFor(list[i0]?.src ?? "", phoneRef.current);
       })
       .catch(() => {});
     return () => {
@@ -271,10 +272,15 @@ export default function PhotoLayer() {
   useEffect(() => {
     const len = photos?.length ?? 0;
     if (len < 2 || !show) return;
-    for (const i of [(show.cur + 1) % len, ...(advanced.current ? [(show.cur - 1 + len) % len] : [])]) {
-      const img = new Image();
-      img.src = photos![i].src;
-    }
+    // warm AFTER the first-load critical window — the neighbour only matters
+    // once the visitor starts scrolling, and on slow links it was stealing ~80KB
+    const t = window.setTimeout(() => {
+      for (const i of [(show.cur + 1) % len, ...(advanced.current ? [(show.cur - 1 + len) % len] : [])]) {
+        const img = new Image();
+        img.src = srcFor(photos![i].src, phoneRef.current);
+      }
+    }, 2200);
+    return () => window.clearTimeout(t);
   }, [show, photos]);
 
   /* Phones: ask the browser to decode the newly-front image before its first
@@ -310,7 +316,7 @@ export default function PhotoLayer() {
             ref={k === "a" ? aImg : bImg}
             className={front ? `${s.img} ${s.front}` : s.img}
             fetchPriority={slot.idx === 0 ? "high" : undefined}
-            src={slot.photo.src}
+            src={srcFor(slot.photo.src, phone)}
             alt=""
             style={{
               objectPosition: slot.photo.pos,

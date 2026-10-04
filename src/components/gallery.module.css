@@ -47,6 +47,7 @@
   .gallery :global(.filter-bar) {
     /* its 26px global margin doubles the controls' bottom gap in a flex row */
     margin-bottom: 0;
+    margin-left: auto; /* chip row rides the right edge, above the grid like the old toolbar */
   }
 
   /* Control rows join the chip family: hairline + resting elevation so
@@ -58,7 +59,9 @@
   /* Album covers: larger, editorial — wider columns on the same
      contained axis, radius + elevation ladder matching the grid. */
   .gallery :global(.album-grid) {
-    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    /* auto-fill (not auto-fit): empty tracks stay, so 1-2 albums keep cover size
+       instead of one stretching across the whole 1328px axis */
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 22px;
   }
   .gallery :global(.album-card) {

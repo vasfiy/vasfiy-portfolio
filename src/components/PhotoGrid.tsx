@@ -8,16 +8,39 @@ import styles from "./gallery.module.css";
 import type { Photo, Lang } from "@/lib/types";
 
 const MIN_COLS = 2, MAX_COLS = 8, CHUNK = 36;
+const phoneChunk = () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches ? 10 : CHUNK; // phones: a smaller first batch keeps the request burst low
 /** Upper bound on columns for the current viewport, so phones never get 33px tiles. */
 const colCap = () => Math.min(MAX_COLS, Math.max(MIN_COLS, Math.floor(window.innerWidth / 48)));
 
 /** iPhone-Photos-style grid: dense square tiles, pinch-to-change-density,
     progressive (infinite) loading, and a swipe/zoom fullscreen lightbox.
     Reused by the album page and the gallery "All photos" view. */
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+/* Tile image gated by IntersectionObserver: native loading=lazy starts inside
+   Chrome's ~1250px margin, which pulled the whole first batch at once on slow
+   links. 250px keeps below-fold tiles unfetched until they are close. */
+function TileImg({ src, alt }: { src: string; alt: string }) {
+  const ref = useRef<HTMLImageElement>(null);
+  const [real, setReal] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!("IntersectionObserver" in window)) { setReal(true); return; }
+    const io = new IntersectionObserver(
+      (es) => { if (es[0].isIntersecting) { setReal(true); io.disconnect(); } },
+      { rootMargin: "250px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <img ref={ref} src={real ? src : BLANK} data-original={src} onError={onMediaError} alt={alt} decoding="async" />;
+}
+
 export default function PhotoGrid({ photos }: { photos: Photo[] }) {
   const { lang } = useLang();
   const [cols, setCols] = useState(3);
-  const [shown, setShown] = useState(CHUNK);
+  const [shown, setShown] = useState(phoneChunk);
   const [lb, setLb] = useState(-1);
   const gridRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -60,7 +83,7 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
   // Progressive load: reveal more tiles as the sentinel nears the viewport.
   useEffect(() => {
     const el = sentinelRef.current; if (!el) return;
-    const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) setShown((s) => Math.min(s + CHUNK, photos.length)); }, { rootMargin: "800px" });
+    const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) setShown((s) => Math.min(s + phoneChunk(), photos.length)); }, { rootMargin: "800px" });
     io.observe(el);
     return () => io.disconnect();
   }, [photos.length, shown]);
@@ -96,13 +119,13 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
             const vid = g.video || isVideo(g.src);
             const cap = pick(g, "caption", lang);
             return (
-              <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
+              <figure className="ip-tile" key={i} role="button" tabIndex={0} aria-label={cap || (vid ? "Video" : lang === "uz" ? "Rasm" : "Photo")} onClick={() => setLb(i)} onMouseEnter={() => { const u = mediaUrl(g.src!, 1400); if (u) { const pre = new Image(); pre.src = u; } }} onFocus={() => { const u = mediaUrl(g.src!, 1400); if (u) { const pre = new Image(); pre.src = u; } }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLb(i); } }}>
                 {vid
                   ? <div className="video-ph">
                       <VideoTile src={g.src!} />
                       <span className="vid-badge">▶</span>
                     </div>
-                  : <img src={mediaUrl(g.src, 480)} data-original={g.src} onError={onMediaError} alt={cap} loading="lazy" decoding="async" />}
+                  : <TileImg src={mediaUrl(g.src, 480) || ""} alt={cap} />}
               </figure>
             );
           })}
@@ -154,7 +177,7 @@ function VideoTile({ src }: { src: string }) {
   }, [poster, live, dead, src]);
 
   if (dead) return null;
-  if (poster) return <img src={poster} alt="" />;
+  if (poster) return <img src={poster} alt="" loading="lazy" decoding="async" />;
   return (
     <video
       ref={vidRef}

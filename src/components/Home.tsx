@@ -430,7 +430,7 @@ function JournalPreview({ data }: { data: SiteData }) {
             );
           })}
         </Reveal>
-        <Link className="btn btn-ghost blog-viewall" href="/blog">{t("blog.viewall")}</Link>
+        <Link className="btn btn-ghost blog-viewall" href="/blog" prefetch={false}>{t("blog.viewall")}</Link>
       </div>
     </section>
   );
@@ -460,7 +460,7 @@ function GalleryPreview({ data }: { data: SiteData }) {
             );
           })}
         </Reveal>
-        <Link className="btn btn-ghost blog-viewall" href="/gallery">{t("gallery.viewall")}</Link>
+        <Link className="btn btn-ghost blog-viewall" href="/gallery" prefetch={false}>{t("gallery.viewall")}</Link>
       </div>
     </section>
   );

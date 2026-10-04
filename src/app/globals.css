@@ -746,7 +746,7 @@ img { max-width: 100%; display: block; }
   border-radius: 999px; background: color-mix(in srgb, var(--panel) 72%, transparent); border: 0; /* island over photos */
   color: var(--text-dim); transition: color .2s, background .2s, transform .2s;
 }
-.filter-chip:hover { color: var(--text); background: var(--surface-2); transform: translateY(-2px); }
+.filter-chip:hover:not(.active) { color: var(--text); background: var(--surface-2); transform: translateY(-2px); }
 .filter-chip.active { color: #06101a; background: var(--grad); border-color: transparent; font-weight: 600; }
 
 /* ============================================================
@@ -1025,7 +1025,7 @@ article.post-page.album-page { max-width: min(1240px, 100%); }
 .album-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
 .album-card:hover img { transform: scale(1.05); }
 .album-card .ph { width: 100%; height: 100%; display: grid; place-items: center; font-size: 2.6rem; background: var(--grad-soft); }
-.album-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 18px; background: linear-gradient(to top, rgba(0,0,0,.78), transparent 65%); }
+.album-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 18px; background: linear-gradient(to top, rgba(0,0,0,.82), transparent 65%); } /* .82: count line clears 4.5:1 even over a pure-white cover */
 .album-overlay h3 { color: #fff; font-size: 1.1rem; }
 .album-count { color: rgba(255,255,255,.8); font-size: .82rem; margin-top: 2px; }
 .album-photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; }
@@ -2097,7 +2097,7 @@ html[data-fx="off"] .bg-comet { display: none; }
 
 /* photo-round caveats: hover must not dissolve the reading island; the
    gradient-filled hero name must not inherit the on-photo text shadow */
-.btn-ghost:hover, .social-link:hover, .lang-toggle:hover, .filter-chip:hover { background: color-mix(in srgb, var(--panel) 84%, transparent); }
+.btn-ghost:hover, .social-link:hover, .lang-toggle:hover { background: color-mix(in srgb, var(--panel) 84%, transparent); } /* .filter-chip removed: its hover must never dissolve the .active gradient */
 .hero-name { text-shadow: none; }
 
 /* subpages verifier: controls become reading islands over photos */
@@ -2525,7 +2525,7 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
 .cert-dots button {
   width: 12px; height: 12px; padding: 0; position: relative; background-clip: content-box; box-sizing: content-box;
 }
-.cert-dots button::after { content: ""; position: absolute; inset: -16px; }
+.cert-dots button::after { content: ""; position: absolute; inset: -6px; } /* 24x24 exclusive zone: pitch is 24px, a bigger skirt overlaps the next dot's own box */
 @media (max-width: 760px) {
   .ip-zoom button { width: 44px; height: 44px; }
   .lightbox-close { width: 44px; height: 44px; }
@@ -2620,4 +2620,10 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   .album-card { aspect-ratio: 16 / 10; border-radius: 14px; }
   .album-overlay { padding: 16px; }
   .album-overlay h3 { font-size: 1.15rem; }
+}
+
+/* ===== FAB gate: phones keep the floating cluster off the hero CTAs until the hero scrolls away ===== */
+@media (max-width: 768px) {
+  .search-fab, .theme-fab { transition: opacity .3s ease, transform .3s ease; }
+  body.fab-gate .search-fab, body.fab-gate .theme-fab { opacity: 0; pointer-events: none; transform: translateY(14px); }
 }

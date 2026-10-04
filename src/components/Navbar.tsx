@@ -48,8 +48,29 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+    // keep keyboard/touch focus OUT of the page behind the drawer (WCAG 2.4.3 / 1.3.2)
+    const outside = Array.from(document.querySelectorAll<HTMLElement>("main, footer"));
+    outside.forEach((el) => el.setAttribute("inert", ""));
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+      outside.forEach((el) => el.removeAttribute("inert"));
+    };
   }, [open]);
+
+  // FAB gate (phones): the floating search/theme cluster stays out of the hero CTA
+  // zone while any part of the hero occupies the viewport's bottom band.
+  useEffect(() => {
+    if (!home) { document.body.classList.remove("fab-gate"); return; }
+    const hero = document.getElementById("hero");
+    if (!hero) return;
+    const io = new IntersectionObserver(
+      (es) => es.forEach((e) => document.body.classList.toggle("fab-gate", e.isIntersecting)),
+      { rootMargin: "0px 0px -90px 0px" }
+    );
+    io.observe(hero);
+    return () => { io.disconnect(); document.body.classList.remove("fab-gate"); };
+  }, [home]);
 
   // Scrollspy: on the home page the section crossing the viewport band drives .active
   useEffect(() => {

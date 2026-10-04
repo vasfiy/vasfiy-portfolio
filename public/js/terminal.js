@@ -673,7 +673,16 @@
     const logo = ["      .--.     ", "     |o_o |    ", "     |:_/ |    ", "    //   \\ \\   ", "   (|     | )  ", "  /'\\_   _/`\\  ", "  \\___)=(___/  "];
     const info = [`<span class="term-cmd">${USER}@${HOST}</span>`, "-----------------", "OS: WebTerm Linux (simulated)", "Shell: bash 5.2", "Terminal: portfolio-webterm", "CPU: Browser JS Engine", "Uptime: this session", "Role: SOC Analyst in training 🛡️"];
     let html = "";
-    for (let i = 0; i < Math.max(logo.length, info.length); i++) html += `<span class="term-logo">${esc(logo[i] || "               ")}</span>  ${info[i] || ""}<br>`;
+    // narrow terminals: art and info columns would force mid-value wraps — stack them instead
+    const narrow = window.matchMedia("(max-width: 480px)").matches;
+    if (narrow) {
+      const shortInfo = [`<span class="term-cmd">${USER}@${HOST}</span>`, "-----------------", "OS: WebTerm Linux", "Shell: bash 5.2", "Terminal: webterm", "CPU: Browser JS", "Uptime: this session", "Role: SOC Analyst"];
+      html += logo.map((l) => `<span class="term-logo">${esc(l)}</span><br>`).join("");
+      html += "<br>";
+      html += shortInfo.map((l) => l + "<br>").join("");
+    } else {
+      for (let i = 0; i < Math.max(logo.length, info.length); i++) html += `<span class="term-logo">${esc(logo[i] || "               ")}</span>  ${info[i] || ""}<br>`;
+    }
     return R("neofetch", html);
   };
 
