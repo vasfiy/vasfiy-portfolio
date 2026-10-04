@@ -2586,3 +2586,38 @@ html[data-fx="off"] *, html[data-fx="off"] *::before, html[data-fx="off"] *::aft
   .footer-top { padding: 10px 0; }
   .lang-opt { min-width: 44px; }
 }
+
+/* ===== owner round: quiet © ending + gallery one-scroll structure ===== */
+.footer-bottom { justify-content: center; text-align: center; padding-left: 20px; padding-right: 20px; }
+.footer-bottom span {
+  font-family: var(--font-mono); font-size: .78rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+@media (max-width: 760px) {
+  .footer-bottom { padding-bottom: 86px; } /* clear the fixed FAB band below the single © line */
+}
+.gallery-subhead {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--font-mono); font-size: .74rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--text-faint);
+  font-weight: 500; margin: 0 0 16px;
+}
+.gallery-subhead::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+.album-section { margin-top: 6px; }
+.allphotos-section { margin-top: 44px; }
+.album-card .album-go {
+  position: absolute; top: 14px; right: 16px; width: 34px; height: 34px;
+  display: grid; place-items: center; border-radius: 50%;
+  background: rgba(8, 12, 24, .55); color: #fff; font-size: 1.05rem;
+  opacity: 0; transform: translateX(-6px); transition: opacity .25s, transform .25s;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.album-card:hover .album-go, .album-card:focus-visible .album-go { opacity: 1; transform: none; }
+@media (pointer: coarse) {
+  .album-card .album-go { opacity: 1; transform: none; background: rgba(8, 12, 24, .45); width: 30px; height: 30px; font-size: .95rem; }
+}
+@media (max-width: 640px) {
+  .album-card { aspect-ratio: 16 / 10; border-radius: 14px; }
+  .album-overlay { padding: 16px; }
+  .album-overlay h3 { font-size: 1.15rem; }
+}

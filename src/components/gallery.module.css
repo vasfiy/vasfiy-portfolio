@@ -51,10 +51,6 @@
 
   /* Control rows join the chip family: hairline + resting elevation so
      the seg-toggle and filter chips read as part of the page. */
-  .gallery :global(.seg-toggle) {
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-card);
-  }
   .gallery :global(.filter-chip:not(.active)) {
     border: 1px solid var(--border);
   }

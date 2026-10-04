@@ -70,8 +70,6 @@ export default function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>© {year} Kamoliddin Tilonboyev</span>
-        <span>{t("footer.built")}</span>
-        <button className="footer-top" onClick={toTop}>{t("footer.top")}</button>
       </div>
       <button
         className={"to-top-fab" + (showTop ? " show" : "")}

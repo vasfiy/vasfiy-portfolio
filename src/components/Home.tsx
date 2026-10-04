@@ -57,7 +57,7 @@ function Hero({ data, st }: { data: SiteData; st: any }) {
 
   useEffect(() => {
     const word = roles[ri % roles.length] || "";
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(max-width: 768px)").matches) { setTyped(word); return; } // reduced motion + phones: static full word (typing is unreadable on small screens)
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setTyped(word); return; } // reduced motion: static full word (translate="no" guards the typed span from translation plugins)
     let i = 0, del = false, to: any;
     const run = () => {
       if (!del) { setTyped(word.slice(0, i + 1)); i++; if (i === word.length) { del = true; to = setTimeout(run, 1600); return; } }
