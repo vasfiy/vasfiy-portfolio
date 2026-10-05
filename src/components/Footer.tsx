@@ -18,6 +18,7 @@ export default function Footer() {
   // Floating back-to-top — appears only after the page is scrolled (~600px).
   // rAF-throttled like the Navbar scroll bar; setState bails out on same value.
   const [showTop, setShowTop] = useState(false);
+  const [footerSeen, setFooterSeen] = useState(false);
   useEffect(() => {
     let raf = 0;
     const onScroll = () => {
@@ -27,6 +28,14 @@ export default function Footer() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+  // while the © band is on screen the FAB has nowhere useful to sit — step aside
+  useEffect(() => {
+    const band = document.querySelector(".footer-bottom");
+    if (!band || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((es) => setFooterSeen(es[0].isIntersecting), { threshold: 0.15 });
+    io.observe(band);
+    return () => io.disconnect();
   }, []);
   const toTop = () => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 
@@ -72,9 +81,9 @@ export default function Footer() {
         <span>© {year} Kamoliddin Tilonboyev</span>
       </div>
       <button
-        className={"to-top-fab" + (showTop ? " show" : "")}
+        className={"to-top-fab" + (showTop && !footerSeen ? " show" : "")}
         aria-label={t("footer.top")}
-        tabIndex={showTop ? 0 : -1}
+        tabIndex={showTop && !footerSeen ? 0 : -1}
         onClick={toTop}
       >
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6" /></svg>
