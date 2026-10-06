@@ -40,7 +40,8 @@ function TileImg({ src, alt }: { src: string; alt: string }) {
 export default function PhotoGrid({ photos }: { photos: Photo[] }) {
   const { lang } = useLang();
   const [cols, setCols] = useState(3);
-  const [shown, setShown] = useState(phoneChunk);
+  const [shown, setShown] = useState(CHUNK); // SSR count; phone batch size lands after hydration (avoids hydration mismatch)
+  useEffect(() => { setShown(phoneChunk()); }, []);
   const [lb, setLb] = useState(-1);
   const gridRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
