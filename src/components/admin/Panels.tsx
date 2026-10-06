@@ -193,6 +193,7 @@ function TelegramReport() {
         else setSt({ kind: "err", msg: String(j.error || "failed") });
       } else {
         const r = await fetch("/api/report?days=7&send=false", { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        if (!r.ok) throw new Error("HTTP " + r.status);
         const blob = await r.blob();
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);

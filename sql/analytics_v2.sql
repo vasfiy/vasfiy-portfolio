@@ -38,17 +38,38 @@ create index if not exists visits_last_seen_idx on public.visits (last_seen_at d
 alter table public.visits enable row level security;
 alter table public.events enable row level security;
 
+-- Analytics rows are written ONLY by the server route through the service role
+-- (touch_visit + events insert). The anon role gets NO direct access, so the
+-- public anon key cannot pollute or tamper with analytics data.
 drop policy if exists "anon insert visits" on public.visits;
-create policy "anon insert visits" on public.visits for insert to anon with check (true);
 drop policy if exists "anon update visits" on public.visits;
-create policy "anon update visits" on public.visits for update to anon using (true) with check (true);
-drop policy if exists "auth read visits" on public.visits;
-create policy "auth read visits" on public.visits for select to authenticated using (true);
-
 drop policy if exists "anon insert events" on public.events;
-create policy "anon insert events" on public.events for insert to anon with check (true);
+drop policy if exists "auth read visits" on public.visits;
 drop policy if exists "auth read events" on public.events;
-create policy "auth read events" on public.events for select to authenticated using (true);
+create policy "owner read visits" on public.visits for select to authenticated using ((select auth.jwt()->>'sub') = 'c09f0e1c-2320-4746-b7dd-e0029f64b369');
+create policy "owner read events" on public.events for select to authenticated using ((select auth.jwt()->>'sub') = 'c09f0e1c-2320-4746-b7dd-e0029f64b369');
+
+-- Durable per-IP quota for the track endpoint (60-second buckets).
+create table if not exists public.track_quota (
+  ip text not null,
+  bucket bigint not null,
+  n int not null default 0,
+  primary key (ip, bucket)
+);
+
+create or replace function public.check_track_quota(p_ip text, p_max int default 240) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare
+  b bigint := floor(extract(epoch from now()) / 60);
+  n int;
+begin
+  if p_ip is null or p_ip = '' or p_ip = '?' then return true; end if;
+  insert into public.track_quota (ip, bucket, n) values (p_ip, b, 1)
+    on conflict (ip, bucket) do update set n = public.track_quota.n + 1
+    returning n into n;
+  delete from public.track_quota where bucket < b - 5;
+  return n <= p_max;
+end $$;
 
 -- Atomic session upsert: insert on first sight, add counters on repeat hits.
 create or replace function public.touch_visit(payload jsonb) returns void
@@ -74,4 +95,5 @@ begin
     city       = coalesce(v->>'city', public.visits.city);
 end $$;
 
-grant execute on function public.touch_visit(jsonb) to anon, authenticated;
+grant execute on function public.touch_visit(jsonb) to service_role;
+grant execute on function public.check_track_quota(text, int) to service_role;

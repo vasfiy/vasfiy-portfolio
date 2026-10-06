@@ -83,7 +83,9 @@ export default function Tracker() {
     const onPagehide = () => send.current(true);
     window.addEventListener("pagehide", onPagehide);
 
-    push({ t: Date.now(), type: "page", path: window.location.pathname, ...(document.referrer ? { name: "ref:" + hostOf(document.referrer) } : {}) });
+    const utm: Record<string, string> = {};
+    try { const sp = new URLSearchParams(window.location.search); for (const k of ["utm_source", "utm_medium", "utm_campaign"]) { const v = sp.get(k); if (v) utm[k] = v.slice(0, 60); } } catch {}
+    push({ t: Date.now(), type: "page", path: window.location.pathname, ...(Object.keys(utm).length ? { meta: utm } : {}), ...(document.referrer ? { name: "ref:" + hostOf(document.referrer) } : {}) });
 
     return () => {
       document.removeEventListener("click", onClick, { capture: true } as never);

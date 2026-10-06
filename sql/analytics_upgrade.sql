@@ -1,5 +1,6 @@
 -- Analytics upgrade: enrich pageviews with coarse, privacy-friendly signals.
--- Run once in Supabase → SQL Editor. No IP address or cookie is stored.
+-- Run once in Supabase -> SQL Editor. No cookie is stored; this v1 table keeps
+-- only coarse signals (the v2 visits table in analytics_v2.sql stores the IP).
 
 alter table public.pageviews
   add column if not exists referrer text,

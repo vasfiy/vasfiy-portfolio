@@ -9,7 +9,7 @@ export const runtime = "nodejs";
    GET  -> download the current report as a Markdown file.
    POST -> build + send it to Telegram when TELEGRAM_* env is configured. */
 
-function sbFor(req: Request) {
+async function sbFor(req: Request) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anon) return null;
@@ -20,20 +20,23 @@ function sbFor(req: Request) {
   }
   const auth = req.headers.get("authorization");
   if (auth?.startsWith("Bearer ")) {
-    return createClient(url, anon, { global: { headers: { Authorization: auth } } });
+    const client = createClient(url, anon, { global: { headers: { Authorization: auth } } });
+    // validate the JWT before trusting it for reads
+    return client.auth.getUser(auth.slice(7)).then(({ data }) => (data?.user ? client : null)).catch(() => null);
   }
   return null;
 }
 
 async function handle(req: Request, send: boolean) {
-  const sb = sbFor(req);
+  const sb = await sbFor(req);
   if (!sb) return Response.json({ ok: false, error: "unauthorized" }, { status: 401 });
   const days = Math.max(1, Math.min(90, Number(new URL(req.url).searchParams.get("days") || 7)));
   let report;
   try {
     report = await buildWeeklyReport(sb, days);
   } catch (e: any) {
-    return Response.json({ ok: false, error: String(e?.message || e) }, { status: 200 });
+    console.error("report build failed:", String(e?.message || e));
+    return Response.json({ ok: false, error: "report-failed" }, { status: 200 });
   }
   const stamp = dayStamp();
   const filename = `vasfiy-analytics-${days}d-${stamp}.md`;

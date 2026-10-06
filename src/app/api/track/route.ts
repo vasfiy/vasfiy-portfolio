@@ -36,8 +36,9 @@ function detectGeo(req: Request) {
       if (typeof g?.longitude === "number") lon = g.longitude;
     } catch {}
   }
-  if (!country) country = req.headers.get("x-country") || req.headers.get("x-nf-country") || req.headers.get("cf-ipcountry") || "";
-  if (!city) city = req.headers.get("x-nf-city") || req.headers.get("x-vercel-ip-city") || "";
+  // trust ONLY Netlify-controlled headers — client-supplied geo headers are ignored
+  if (!country) country = req.headers.get("x-nf-country") || "";
+  if (!city) city = req.headers.get("x-nf-city") || "";
   return {
     country: decodeURIComponent(country).toUpperCase().slice(0, 60),
     city: decodeURIComponent(city).slice(0, 80),
@@ -46,11 +47,12 @@ function detectGeo(req: Request) {
   };
 }
 
+const ALLOWED_HOSTS = new Set(["vasfiy.com", "www.vasfiy.com", "admin.vasfiy.com", "market.vasfiy.com"]);
 function sameOrigin(req: Request) {
   const norm = (h: string) => h.replace(/^www\./, "").toLowerCase();
   const target = norm(req.headers.get("x-forwarded-host") || req.headers.get("host") || "vasfiy.com");
   const hostOf = (u: string) => { try { return norm(new URL(u).host); } catch { return ""; } };
-  const ok = (h: string) => h === target || h.endsWith(".vasfiy.com");
+  const ok = (h: string) => ALLOWED_HOSTS.has(h);
   const origin = req.headers.get("origin");
   if (origin) return ok(hostOf(origin));
   const referer = req.headers.get("referer");
@@ -80,13 +82,22 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({} as any));
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !anon) return Response.json({ ok: true, skipped: "no-env" });
-    const sb = createClient(url, anon);
+    // analytics writes go through the service role on the server; the public
+    // anon role has no access to the analytics tables at all
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return Response.json({ ok: true, skipped: "no-env" });
+    const sb = createClient(url, key);
+    // durable per-IP quota (60s buckets in Supabase) — the in-function limiter is per-instance only
+    const ipHeader = (req.headers.get("x-nf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0] || "").trim().slice(0, 64);
+    const { data: quotaOk } = await sb.rpc("check_track_quota", { p_ip: ipHeader, p_max: 240 }).then(
+      (r: any) => ({ data: r.data }),
+      () => ({ data: true as boolean | null }),
+    );
+    if (quotaOk === false) return Response.json({ ok: false }, { status: 429 });
 
     const { os, osVersion, browser, browserVersion, device } = parseUA(ua);
     const geo = detectGeo(req);
-    const ip = (req.headers.get("x-nf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0] || "").trim().slice(0, 64);
+    const ip = ipHeader;
     const clean = (v: unknown, n: number) => String(v ?? "").slice(0, n).trim();
 
     // ---- v1 legacy payload: single page view ----
@@ -121,10 +132,6 @@ export async function POST(req: Request) {
 
     const firstPage = events.find((e) => e.type === "page");
     const refName = firstPage?.name?.startsWith("ref:") ? firstPage.name.slice(4) : "";
-    const utmFromMeta = (() => {
-      try { const m = firstPage?.metaRaw && typeof firstPage.metaRaw === "object" ? (firstPage.metaRaw as any) : {}; return clean(m.utm_source, 60); } catch { return ""; }
-    })();
-
     const pages = events.filter((e) => e.type === "page").length;
     const visit = {
       sid, vid: vid || null,
@@ -138,14 +145,14 @@ export async function POST(req: Request) {
       pages, events: events.length,
     };
     const { error: visitErr } = await sb.rpc("touch_visit", { payload: visit });
-    if (visitErr) return Response.json({ ok: true, skipped: "visits" });
+    if (visitErr) { console.error("touch_visit:", JSON.stringify(visitErr)); return Response.json({ ok: true, skipped: "visits" }); }
 
     const { error: evErr } = await sb.from("events").insert(events.map((e) => {
       let meta: Record<string, unknown> | null = null;
       if (e.metaRaw && typeof e.metaRaw === "object") { try { meta = JSON.parse(JSON.stringify(e.metaRaw).slice(0, 1000)); } catch { meta = null; } }
       return { session_id: sid, visitor_id: vid || null, created_at: e.t, type: e.type, path: e.path, name: e.name || null, meta };
     }));
-    if (evErr) return Response.json({ ok: true, skipped: "events" });
+    if (evErr) { console.error("events insert:", JSON.stringify(evErr)); return Response.json({ ok: true, skipped: "events" }); }
 
     // legacy aggregate row per page view keeps the existing widgets working
     for (const e of events.filter((e) => e.type === "page")) {
