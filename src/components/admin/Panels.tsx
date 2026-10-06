@@ -411,7 +411,7 @@ export function Analytics() {
                         <tr key={sid} onClick={() => toggleSession(sid)} style={{ cursor: "pointer" }} title="Show/hide this session's event timeline">
                           <td style={{ ...cell, color: "var(--text-faint)" }}>{isOpen ? "▾" : "▸"}</td>
                           <td style={cell}>{tkFmt(tkStampFmt, v.last_seen_at) || "—"}</td>
-                          <td style={cell}>{flag(v.country || "")} {v.city || COUNTRY_NAMES[v.country || ""] || v.country || "—"}</td>
+                          <td style={cell}>{flag(v.country || "")} {v.city || COUNTRY_NAMES[v.country || ""] || v.country || "—"}{v.address ? <div style={{ fontSize: ".72rem", opacity: .7 }}>{v.address}</div> : null}</td>
                           <td style={cell}>{v.device || "—"}{v.model ? ` · ${v.model}` : ""}</td>
                           <td style={cell}>{v.browser || "—"}{v.browser_version ? ` ${v.browser_version}` : ""} / {v.os || "—"}</td>
                           <td style={{ ...cell, whiteSpace: "normal", maxWidth: 180, overflowWrap: "anywhere" }}>{v.landing || "/"}</td>

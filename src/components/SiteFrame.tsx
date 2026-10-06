@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import ThemeFab from "./ThemeFab";
 import Search from "./Search";
 import Tracker from "./Tracker";
+import CookieConsent from "./CookieConsent";
 import EditMode from "./EditMode";
 import WorldLayer from "./WorldLayer";
 import type { Page } from "@/lib/types";
@@ -33,6 +34,7 @@ export default function SiteFrame({ children, navPages = [] }: { children: React
       <ThemeFab />
       <Search />
       <Tracker />
+      <CookieConsent />
       <EditMode />
     </>
   );

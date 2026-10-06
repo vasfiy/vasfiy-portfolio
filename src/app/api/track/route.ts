@@ -131,13 +131,18 @@ export async function POST(req: Request) {
       .filter((e) => e.path || e.name);
 
     const firstPage = events.find((e) => e.type === "page");
+    const geoEv = events.find((e) => e.type === "event" && e.name === "geo_precise");
+    let gps: Record<string, unknown> | null = null;
+    if (geoEv?.metaRaw && typeof geoEv.metaRaw === "object") { try { gps = geoEv.metaRaw as Record<string, unknown>; } catch { gps = null; } }
     const refName = firstPage?.name?.startsWith("ref:") ? firstPage.name.slice(4) : "";
     const pages = events.filter((e) => e.type === "page").length;
     const visit = {
       sid, vid: vid || null,
       ip: ip || null, country: geo.country || null, city: geo.city || null, region: geo.region || null,
-      lat: geo.lat, lon: geo.lon,
       device, model: clean(body.model, 40), os, os_version: clean(body.osv || osVersion, 24),
+      address: clean((gps as any)?.address, 160) || null, geo_source: gps ? "gps" : "ip",
+      lat: typeof (gps as any)?.lat === "number" ? (gps as any).lat : geo.lat,
+      lon: typeof (gps as any)?.lon === "number" ? (gps as any).lon : geo.lon,
       browser, browser_version: clean(body.brv || browserVersion, 24),
       screen: clean(body.screen, 16), lang: clean(body.lang, 12), tz: clean(body.tz, 40),
       utc_offset: Number.isFinite(body.utc_offset) ? Math.max(-840, Math.min(840, Math.round(body.utc_offset))) : null,

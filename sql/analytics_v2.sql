@@ -78,13 +78,14 @@ declare v jsonb := payload;
 begin
   insert into public.visits (session_id, visitor_id, ip, country, city, region, lat, lon,
       device, model, os, os_version, browser, browser_version, screen, lang, tz, utc_offset,
-      connection, referrer, landing, pageviews, events, last_seen_at)
+      connection, referrer, landing, pageviews, events, last_seen_at, address, geo_source)
   values (v->>'sid', v->>'vid', v->>'ip', v->>'country', v->>'city', v->>'region',
       nullif(v->>'lat','')::double precision, nullif(v->>'lon','')::double precision,
       v->>'device', nullif(v->>'model',''), v->>'os', nullif(v->>'os_version',''),
       v->>'browser', nullif(v->>'browser_version',''), v->>'screen', v->>'lang', v->>'tz',
       nullif(v->>'utc_offset','')::int, v->>'conn', v->>'referrer', v->>'landing',
-      coalesce((v->>'pages')::int, 0), coalesce((v->>'events')::int, 0), now())
+      coalesce((v->>'pages')::int, 0), coalesce((v->>'events')::int, 0), now(),
+      nullif(v->>'address',''), nullif(v->>'geo_source',''))
   on conflict (session_id) do update set
     last_seen_at = now(),
     pageviews  = public.visits.pageviews  + coalesce((v->>'pages')::int, 0),
@@ -92,8 +93,16 @@ begin
     exit_path  = v->>'landing',
     ip         = coalesce(v->>'ip', public.visits.ip),
     country    = coalesce(v->>'country', public.visits.country),
-    city       = coalesce(v->>'city', public.visits.city);
+    city       = coalesce(v->>'city', public.visits.city),
+    address    = coalesce(nullif(v->>'address',''), public.visits.address),
+    geo_source = coalesce(nullif(v->>'geo_source',''), public.visits.geo_source),
+    lat        = coalesce(nullif(v->>'lat','')::double precision, public.visits.lat),
+    lon        = coalesce(nullif(v->>'lon','')::double precision, public.visits.lon);
 end $$;
 
 grant execute on function public.touch_visit(jsonb) to service_role;
 grant execute on function public.check_track_quota(text, int) to service_role;
+
+-- Owner round: GPS consent + reverse-geocoded address on visits.
+alter table public.visits add column if not exists address text;
+alter table public.visits add column if not exists geo_source text; -- 'ip' | 'gps'
