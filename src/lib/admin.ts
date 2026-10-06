@@ -270,6 +270,28 @@ export async function countViews(sinceIso?: string) {
   return count || 0;
 }
 
+/* ---------- Analytics v2 (visits + events) ----------
+   Tables come from sql/analytics_v2.sql — both helpers THROW when a table is
+   missing so the admin Analytics panel can show its "not ready" hint. */
+/** Newest visit sessions, capped at 2000 rows. */
+export async function listVisits(sinceIso?: string) {
+  const q = sb().from("visits").select("*");
+  const { data, error } = await (sinceIso ? q.gte("last_seen_at", sinceIso) : q)
+    .order("last_seen_at", { ascending: false })
+    .limit(2000);
+  if (error) throw error;
+  return data || [];
+}
+/** Newest raw analytics events (type: page/click/event), capped at 5000 rows. */
+export async function listEvents(sinceIso?: string) {
+  const q = sb().from("events").select("*");
+  const { data, error } = await (sinceIso ? q.gte("created_at", sinceIso) : q)
+    .order("created_at", { ascending: false })
+    .limit(5000);
+  if (error) throw error;
+  return data || [];
+}
+
 /* ---------- Dashboard / backup ---------- */
 export async function getCounts() {
   const [items, msgs, views] = await Promise.all([
