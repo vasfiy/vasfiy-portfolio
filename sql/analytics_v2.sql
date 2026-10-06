@@ -61,14 +61,14 @@ create or replace function public.check_track_quota(p_ip text, p_max int default
 language plpgsql security definer set search_path = public as $$
 declare
   b bigint := floor(extract(epoch from now()) / 60);
-  n int;
+  v_n int;
 begin
   if p_ip is null or p_ip = '' or p_ip = '?' then return true; end if;
   insert into public.track_quota (ip, bucket, n) values (p_ip, b, 1)
     on conflict (ip, bucket) do update set n = public.track_quota.n + 1
-    returning n into n;
+    returning n into v_n;
   delete from public.track_quota where bucket < b - 5;
-  return n <= p_max;
+  return v_n <= p_max;
 end $$;
 
 -- Atomic session upsert: insert on first sight, add counters on repeat hits.
