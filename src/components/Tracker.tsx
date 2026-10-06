@@ -70,13 +70,13 @@ export default function Tracker() {
         enrich.current.lon = String(Math.round(longitude * 1e4) / 1e4);
         let address = "";
         try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=uz`, { headers: { Accept: "application/json" } });
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=uz`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(6000) });
           const j = await r.json();
           const a = j.address || {};
           address = [a.road, a.house_number ? "uy " + a.house_number : "", a.suburb || a.city_district, a.city || a.town || a.village].filter(Boolean).join(", ").slice(0, 160);
         } catch {
           try {
-            const r2 = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=uz`);
+            const r2 = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=uz`, { signal: AbortSignal.timeout(6000) });
             const j2 = await r2.json();
             address = [j2.principalSubdivision, j2.locality, j2.countryName].filter(Boolean).join(", ").slice(0, 160);
           } catch {}
