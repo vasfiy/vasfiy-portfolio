@@ -40,7 +40,7 @@ export default function ThemeFab() {
     return () => { document.removeEventListener("click", onDoc); window.removeEventListener("keydown", onKey); };
   }, []);
 
-  const applyTheme = (th: string) => { setTheme(th); document.documentElement.setAttribute("data-theme", th); localStorage.setItem("theme", th); };
+  const applyTheme = (th: string) => { setTheme(th); document.documentElement.setAttribute("data-theme", th); localStorage.setItem("theme", th); window.vtrack?.("theme_change", { theme: th }); };
   const applyMode = (m: string) => { setMode(m); document.documentElement.setAttribute("data-mode", m); localStorage.setItem("mode", m); };
 
   return (

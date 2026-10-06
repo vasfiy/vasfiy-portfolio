@@ -40,6 +40,7 @@ export default function LinuxLab({ lessons, challenges = [], cats, challengeCats
   useEffect(() => { initTerm(); }, [initTerm]);
 
   const runCmd = (cmd: string) => {
+    window.vtrack?.("terminal:" + String(cmd).slice(0, 40));
     const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("terminal")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     let fired = false;
