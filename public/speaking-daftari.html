@@ -1,0 +1,1855 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Speaking Daftari</title>
+<meta name="theme-color" content="#F6F8F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101619" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* reset */
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+</style>
+<style>
+/* Speaking Daftari — "Quiet Ledger": a precision study ledger.
+   Near-monochrome cool surfaces ruled by 1px hairlines, everything left-set
+   on a 4px grid. One petrol accent rationed to actions and spoken forms.
+   Three voices: Schibsted Grotesk (structure) · IBM Plex Sans (content) · IBM Plex Mono (data). */
+:root{
+  --bg:#F6F8F8; --surface:#FFFFFF; --sunk:#EDF1F1; --ink:#1B2528; --muted:#5A6B6E; --faint:#7C8E90; --line:#E3E9E9;
+  --accent:#0D7266; --accent-soft:#E2EFEC; --accent-ink:#FFFFFF;
+  --ok:#1E744C; --ok-soft:#E3F1E8; --bad:#AE3B32; --bad-soft:#F8EAE7;
+  --content-max:1120px; --bar-h:0px;
+  --head:"Schibsted Grotesk","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){
+  --bg:#101619; --surface:#182024; --sunk:#0C1113; --ink:#E7ECEC; --muted:#98A8AC; --faint:#63757A; --line:#253236;
+  --accent:#4FBFCC; --accent-soft:#0F3138; --accent-ink:#07222A;
+  --ok:#62C896; --ok-soft:#14291F; --bad:#E88A80; --bad-soft:#331C18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101619; --surface:#182024; --sunk:#0C1113; --ink:#E7ECEC; --muted:#98A8AC; --faint:#63757A; --line:#253236;
+  --accent:#4FBFCC; --accent-soft:#0F3138; --accent-ink:#07222A;
+  --ok:#62C896; --ok-soft:#14291F; --bad:#E88A80; --bad-soft:#331C18; color-scheme:dark}
+:root[data-theme="sepia"]{
+  --bg:#F6F1E4; --surface:#FCFAF1; --sunk:#EFE7D3; --ink:#33291E; --muted:#6E6250; --faint:#928467; --line:#E3D9C2;
+  --accent:#17685C; --accent-soft:#E4E9DE; --accent-ink:#FBF7ED;
+  --ok:#3F7048; --ok-soft:#E7EDD9; --bad:#A43D2A; --bad-soft:#F4E3D5; color-scheme:light}
+@media (min-width:1600px){:root{--content-max:1200px}}
+*{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+b,strong{font-weight:600}
+button,input,textarea{font-family:inherit;-webkit-appearance:none;appearance:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::selection{background:var(--accent-soft)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;top:-60px;left:16px;z-index:99;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:10px 16px}
+.skip:focus{top:calc(8px + env(safe-area-inset-top,0px))}
+.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+kbd{font:500 12px var(--mono);padding:3px 7px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--sunk);color:var(--ink);white-space:nowrap}
+
+/* ---------- shell ---------- */
+.wrap{max-width:var(--content-max);margin-inline:auto;padding-block:24px calc(88px + env(safe-area-inset-bottom,0px));padding-inline:clamp(16px,4vw,32px)}
+
+/* ---------- header / brand ---------- */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.brand{display:grid;gap:6px;min-width:0}
+.eyebrow{display:flex;flex-wrap:wrap;font:500 11.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.eyebrow span+span::before{content:"·";margin-right:8px}
+h1{font-family:var(--head);font-weight:600;font-size:26px;line-height:1.2;letter-spacing:-.02em;margin:0;text-wrap:balance}
+@media (min-width:768px){h1{font-size:30px}}
+.lede{color:var(--muted);margin:0;max-width:62ch;font-size:16.5px;line-height:1.6}
+@media (max-width:767px){.lede{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
+.stats{display:flex;flex-wrap:wrap;gap:6px 0;font-size:13.5px;color:var(--muted);margin-top:4px}
+.stats b{font:500 13.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.stats span:not(:last-child)::after{content:"";display:inline-block;width:1px;height:11px;background:var(--line);margin:0 16px;vertical-align:-2px}
+.theme button{width:40px;height:40px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:color 120ms linear,border-color 120ms linear}
+@media (max-width:767px){.theme button{width:44px;height:44px}}
+@media (hover:hover){.theme button:hover{color:var(--ink);border-color:var(--muted)}}
+
+/* ---------- nav: bottom bar ≤767, top tabs ≥768 ---------- */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav a{position:relative;flex:1;min-width:0;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;color:var(--muted);text-decoration:none;touch-action:manipulation;transition:color 120ms linear}
+.bnav a .icw{display:grid;place-items:center;width:40px;height:28px;border-radius:4px;background:none}
+.bnav a .lb{font:500 11px/1.2 var(--head);letter-spacing:.01em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bnav a[aria-current="page"]{color:var(--ink)}
+.bnav a[aria-current="page"]::after{content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--accent)}
+.nbadge{position:absolute;top:6px;right:max(10px,calc(50% - 26px));min-width:16px;height:16px;padding:0 5px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:500 11px/16px var(--mono);text-align:center;font-variant-numeric:tabular-nums}
+@media (min-width:768px){
+  .bnav{position:static;border-top:0;border-bottom:1px solid var(--line);padding:0;gap:4px;margin-bottom:28px}
+  .bnav a{flex:0 0 auto;flex-direction:row;min-height:46px;padding:12px 16px;gap:8px;font:500 14px var(--head);color:var(--muted)}
+  .bnav a .icw{display:none}
+  .bnav a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+  .bnav a[aria-current="page"]::after{display:none}
+  .bnav a .nbadge{position:static;margin-left:8px;padding:1px 7px;line-height:1.4}
+  .wrap{padding-block:32px 72px}
+}
+@media (max-width:767px){
+  body{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px))}
+  .switch,.chip{min-height:44px}
+  .today .goalrow .chip{min-height:44px}
+  .fbtn-hint{display:none}
+  body.kb .bnav,body.in-session .bnav{display:none}
+}
+
+/* ---------- toolbar: sticky search; chips row below ---------- */
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;display:grid;gap:10px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search]{flex:1 1 200px;min-width:0;font:inherit;font-size:16px;min-height:44px;padding:9px 14px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);transition:border-color 120ms linear}
+input[type=search]::placeholder{color:var(--faint)}
+input[type=search]:focus{border-color:var(--accent)}
+.lbl{font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.switch{font:500 15.5px/1 var(--head);letter-spacing:.01em;min-height:40px;padding:8px 14px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:background-color 120ms linear,border-color 120ms linear,color 120ms linear}
+.switch[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+select.vsel{font:inherit;font-size:16px;min-height:44px;max-width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);color-scheme:inherit}
+.subbar{display:flex;gap:8px;align-items:center;overflow-x:auto;overscroll-behavior-x:contain;touch-action:pan-x;padding-block:8px;scrollbar-width:none;margin-bottom:8px;mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+.subbar::-webkit-scrollbar{display:none}
+.subbar .lbl{flex:none}
+.chip{flex:none;font:500 14px/1.2 var(--body);min-height:40px;padding:8px 14px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;touch-action:manipulation;transition:background-color 120ms linear,border-color 120ms linear,color 120ms linear}
+.chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+@media (min-width:768px){
+  .bar .row:first-child{flex-wrap:nowrap}
+  .bar input[type=search]{flex:1 1 240px;max-width:420px}
+  .switch,.chip{min-height:36px;padding:7px 12px}
+  .narrow .row .switch{min-height:44px}
+}
+@media (min-width:768px) and (max-width:1023px){.narrow .subbar{margin-inline:-28px;width:calc(100% + 56px)}}
+@media (hover:hover){
+  .switch:hover,.chip:hover{color:var(--ink)}
+}
+@media (min-width:1024px){
+  .subbar{overflow:visible;flex-wrap:wrap;margin-bottom:12px;mask-image:none}
+}
+
+/* ---------- sections & tables ---------- */
+section{margin-block:0 40px}
+.sh{display:flex;align-items:baseline;gap:12px}
+.sh::after{content:"";order:2;flex:1;border-bottom:1px solid var(--line);transform:translateY(-4px)}
+.sh h2{font-family:var(--head);font-weight:600;font-size:18px;line-height:1.3;letter-spacing:-.005em;margin:0;order:0}
+.sh span{order:3;font:400 13px var(--mono);font-variant-numeric:tabular-nums;color:var(--faint)}
+.hint{color:var(--muted);font-size:14.5px;line-height:1.55;margin:0 0 14px;text-wrap:pretty}
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+@media (max-width:767px){.tbl{display:none}}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th{text-align:left;font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:12px 20px;border-bottom:1px solid var(--line)}
+td{padding:13px 20px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14.5px;line-height:1.5}
+tr:last-child td{border-bottom:0}
+td.en{font-family:var(--head);font-weight:600;font-size:15.5px;line-height:1.35;width:28%}
+td.en .to{color:var(--faint);font-weight:400}
+td.en .src{display:block;font:400 13px/1.45 var(--body);color:var(--muted);margin-top:2px}
+td.form,td.pron{font:400 13.5px/1.5 var(--mono);font-variant-numeric:tabular-nums;color:var(--accent);white-space:nowrap}
+td.red{font:400 13.5px/1.5 var(--mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+td.mean{width:30%}
+td.mean .uz{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.no-uz td.mean .uz{display:none}
+.no-uz .vcard .uz{display:none}
+td.ex{color:var(--muted);font-style:italic}
+.hide-mean .mw{filter:blur(6px);cursor:pointer;user-select:none}
+.hide-mean .mw.show{filter:none}
+td.tt-col,th.tt-col{width:44px}
+.tts{width:36px;height:36px;border:0;border-radius:4px;background:none;color:var(--accent);cursor:pointer;display:grid;place-items:center;touch-action:manipulation;transition:color 120ms linear,background-color 120ms linear,opacity 120ms linear}
+.tts .i{width:20px;height:20px}
+@media (min-width:1024px){
+  .tts{width:28px;height:28px;opacity:.35;color:var(--muted)}
+  tr:hover .tts,tr:focus-within .tts,.tts:focus-visible{opacity:1;color:var(--accent)}
+  .tts:hover{background:var(--accent-soft)}
+}
+.tts.speaking{color:var(--accent);opacity:1}
+@media (min-width:1024px){
+  .tbl{overflow:visible}
+  table{min-width:0;border-collapse:separate;border-spacing:0}
+  thead th{position:sticky;top:var(--bar-h);z-index:2;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+  th,td{padding:10px 16px}
+  section{margin-bottom:32px}
+}
+@media (hover:hover){
+  .bnav a:hover{color:var(--ink)}
+  tbody tr:hover td{background:var(--sunk)}
+}
+.empty{color:var(--muted);font-size:14.5px;line-height:1.55;padding:24px 0}
+
+/* ---------- vocabulary cards (phones): ruled ledger rows ---------- */
+.vcards{display:none}
+@media (max-width:767px){
+  .vcards{display:grid;gap:0}
+  .vcard{position:relative;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 44px 14px 0;display:grid;gap:4px;align-content:start}
+  .vcard .t{font-family:var(--head);font-weight:600;font-size:16.5px;line-height:1.35;overflow-wrap:anywhere;padding-right:2px}  .vcard .t .to{color:var(--faint);font-weight:400}
+  .vcard .blank{color:var(--accent);font-family:var(--mono);font-size:14px}
+  .vcard .src{font:400 13px/1.45 var(--body);color:var(--muted)}
+  .vcard .mw{font-size:15.5px;color:var(--ink)}
+  .vcard .uz{display:block;font-size:14px;color:var(--muted)}
+  .vcard .ex{font-size:14.5px;color:var(--muted);font-style:italic}
+  .mono-chip{justify-self:start;font:500 13px/1.3 var(--mono);color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:4px;border:0;cursor:pointer;min-height:36px;transition:background-color 120ms linear,color 120ms linear}
+  .vcard>.spk,.vcard>.tts{position:absolute;top:8px;right:0;width:44px;height:44px}
+}
+
+/* speak buttons */
+.spk{width:44px;height:44px;border:0;background:none;color:var(--accent);display:grid;place-items:center;cursor:pointer;touch-action:manipulation;padding:0;transition:color 120ms linear}
+
+/* ---------- quotes ---------- */
+.quotes{display:grid;gap:12px}
+@media (min-width:768px){.quotes{grid-template-columns:repeat(auto-fill,minmax(420px,1fr));align-items:start}}
+.quote{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px 24px;display:grid;gap:8px}
+.quote p{font-family:var(--head);font-weight:500;font-size:18.5px;line-height:1.5;margin:0;text-wrap:balance}
+.quote .note{font-size:14.5px;line-height:1.55;color:var(--muted)}
+.uzq{display:block;font:400 13px/1.45 var(--body);color:var(--muted);margin-top:2px}
+
+/* ---------- view heads ---------- */
+.vhead{margin:4px 0 24px}
+.vhead h2{font-family:var(--head);font-weight:600;font-size:20px;line-height:1.35;letter-spacing:-.01em;margin:0 0 4px}
+.vhead p{margin:0;color:var(--muted);max-width:72ch;font-size:17px;line-height:1.6}
+.narrow{max-width:640px}
+.seg{display:flex;gap:6px;margin-bottom:24px}
+.seg .chip{min-height:40px;padding:8px 18px}
+@media (min-width:768px){.seg .chip{min-height:36px}}
+
+/* ---------- full-screen study sessions ---------- */
+.session{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;
+  height:100vh;height:100dvh;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));
+  overscroll-behavior:none;max-width:none}
+.s-top{display:flex;align-items:center;gap:12px;min-height:44px}
+.s-close{width:44px;height:44px;border:0;border-radius:4px;background:none;color:var(--muted);font-size:22px;cursor:pointer;display:grid;place-items:center}
+@media (hover:hover){.s-close:hover{background:var(--sunk);color:var(--ink)}}
+.s-prog{font:500 14px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.s-info{margin-left:auto;font:400 13px/1.45 var(--body);font-variant-numeric:tabular-nums;color:var(--muted)}
+.s-track{height:2px;border-radius:1px;background:var(--line);overflow:hidden;margin:6px 0 20px}
+.s-track i{display:block;height:100%;background:var(--accent);width:0}
+.s-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;overflow-y:auto}
+
+/* flashcards */
+.fc-scene{perspective:1200px;width:100%;max-width:480px;margin-inline:auto}
+.fc-inner{display:grid;position:relative;transform-style:preserve-3d;transition:transform 240ms cubic-bezier(.2,.7,.2,1);min-height:320px}
+.fc.flip .fc-inner{transform:rotateY(180deg)}
+.fc-face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px 24px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;text-align:left;overflow-wrap:anywhere;position:relative}
+.fc-back{transform:rotateY(180deg)}
+.fc-face::before,.fc-face::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none}
+.fc-face::before{top:10px;left:10px;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.fc-face::after{bottom:10px;right:10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.fc-back::before,.fc-back::after{border-color:var(--accent)}
+.fmeta{font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.fen{font-family:var(--head);font-weight:600;font-size:30px;line-height:1.15;letter-spacing:-.01em}
+.fhint{font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.fpast{font:500 17px/1.3 var(--mono);color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:4px}
+.fmean{font-size:17.5px;color:var(--ink)}
+.fuz{font-size:14.5px;color:var(--muted)}
+.fex{font-size:14.5px;color:var(--muted);font-style:italic}
+.fc-btns{display:flex;gap:10px;padding-top:16px;max-width:480px;margin-inline:auto;width:100%}
+@media (max-width:420px){#fcDue{flex-basis:100%}}
+.fc-btn,.cta{flex:1;min-height:48px;border-radius:4px;font:500 15.5px/1 var(--head);letter-spacing:.01em;border:1px solid transparent;cursor:pointer;touch-action:manipulation;display:grid;place-items:center;padding-inline:18px;white-space:nowrap;transition:background-color 120ms linear,border-color 120ms linear,color 120ms linear}
+.fc-again{background:var(--bad-soft);color:var(--bad)}
+.fc-got{background:var(--ok-soft);color:var(--ok)}
+.fc-btn[disabled]{opacity:.4;pointer-events:none}
+.cta{background:var(--accent);color:var(--accent-ink);border:0}
+@media (hover:hover){.cta:hover{box-shadow:inset 0 0 0 100px rgb(0 0 0/.08)}}
+.cta.quiet{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.cta[disabled]{opacity:.4;pointer-events:none}
+@media (min-width:768px){.fc-scene{max-width:560px}.fc-inner{min-height:340px}.fen{font-size:34px;line-height:1.2}.fc-btns{max-width:560px}.cta{min-height:44px}}
+.fbtn-hint{font:400 13px/1.45 var(--body);color:var(--muted);text-align:center;padding-top:10px}
+
+/* quiz */
+.qz-word{font-family:var(--head);font-weight:600;font-size:24px;line-height:1.25;letter-spacing:-.01em;margin:6px 0 2px;display:flex;align-items:center;gap:6px;justify-content:flex-start;overflow-wrap:anywhere}
+.qz-src{font:400 13px/1.45 var(--body);color:var(--muted);margin-bottom:14px}
+.qz-prompt{font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.opts{display:grid;gap:10px;max-width:560px;margin-inline:auto;width:100%}
+.qopt{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 16px;border-radius:4px;text-align:left;font:400 15.5px/1.4 var(--body);background:var(--surface);border:1px solid var(--line);color:var(--ink);cursor:pointer;touch-action:manipulation;transition:border-color 120ms linear,background-color 120ms linear,color 120ms linear}
+.qopt .qkey{flex:none;width:22px;height:22px;border-radius:4px;border:0;background:var(--sunk);display:grid;place-items:center;font:400 12.5px var(--mono);color:var(--muted)}
+.qopt.is-ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.qopt.is-bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.opts.done .qopt{pointer-events:none}
+.opts.done .qopt:not(.is-ok):not(.is-bad){opacity:.5}
+@media (min-width:768px){.qopt:hover{border-color:var(--accent)}}
+.typebox{display:flex;gap:10px;max-width:560px;margin-inline:auto;width:100%}
+.typebox input{flex:1;min-width:0;font-size:17px;min-height:52px;padding:10px 16px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);transition:border-color 120ms linear}
+.typebox input:focus{border-color:var(--accent)}
+.typebox input.is-ok{border-color:var(--ok)}
+.typebox input.is-bad{border-color:var(--bad)}
+.typebox .cta{flex:0 0 auto}
+.feed{max-width:560px;margin:14px auto 0;padding:14px 16px;border-radius:4px;font-size:14.5px;width:100%}
+.feed.good{background:var(--ok-soft);color:var(--ok)}
+.feed.bad{background:var(--bad-soft);color:var(--bad)}
+.feed .mono{font:400 13.5px/1.5 var(--mono)}
+.feed .feeduz{display:block;color:var(--muted);font-size:13.5px}
+.feed .feedex{display:block;color:var(--muted);font-style:italic;font-size:13.5px}
+.next-row{max-width:560px;margin:12px auto 0;width:100%}
+.res-big{font-family:var(--head);font-weight:600;font-size:40px;line-height:1.1;font-variant-numeric:tabular-nums;text-align:center}
+.res-pct{font:400 13px/1.45 var(--body);color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;margin-bottom:18px}
+.res-goal{color:var(--muted);font-size:14.5px;line-height:1.55;text-align:center;margin:6px 0 0}
+.wrongrow{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.wrongrow:last-child{border-bottom:0}
+.wrongrow[data-w]{cursor:pointer}
+.wrongrow .mono{font:400 13.5px/1.5 var(--mono);color:var(--accent);text-align:right}
+.res-btns{display:flex;gap:10px;margin-top:20px}
+
+/* ---------- practice ---------- */
+@media (min-width:1024px){
+  .prac-grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px;align-items:start}
+  .prac-toc{position:sticky;top:calc(var(--bar-h) + 24px);display:grid;gap:8px}
+  .prac-body{max-width:760px}
+}
+.prac-toc{display:none;font:500 13.5px var(--head)}
+.prac-toc a{color:var(--muted);text-decoration:none;padding:6px 0;border-left:1px solid var(--line);padding-left:12px;transition:color 120ms linear}
+@media (hover:hover){.prac-toc a:hover{color:var(--ink)}}
+@media (min-width:1024px){.prac-toc{display:grid}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:16px;margin-bottom:24px}
+@media (min-width:768px){.card{padding:24px 28px}}
+.card h3{font-family:var(--head);font-weight:600;font-size:17px;line-height:1.35;margin:0}
+.card h4{font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:8px 0 -4px}
+.meta{font:400 13px/1.45 var(--body);color:var(--faint)}
+.task{margin:0;max-width:72ch;color:var(--muted);font-size:14.5px;line-height:1.55}
+.cap{display:block;font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;font-style:normal}
+.std{font-style:italic;color:var(--muted);font-size:14.5px;line-height:1.6}
+.real{font-size:17.5px;line-height:1.85;max-width:80ch}
+.real b{font-weight:600;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+.real .spk{vertical-align:middle;width:36px;height:36px}
+.drill-tts{display:flex;gap:8px;flex-wrap:wrap}
+.drill-tts .switch{min-height:40px}
+@media (min-width:768px){.real{font-size:19px;line-height:1.9}}
+@media (max-width:767px){
+  .tbl.pairs-hide{display:none}
+  .pairs{display:grid;gap:0}
+}
+.pairs{display:none}
+@media (max-width:767px){.pairs{display:grid}}
+.rp{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);border-radius:0;padding:10px 0;font-size:14px}
+.rp:last-child{border-bottom:0}
+.rp .l{font-family:var(--mono);color:var(--accent);font-size:13.5px;line-height:1.5;overflow-wrap:anywhere}
+.rp .r{color:var(--muted);text-align:right}
+.rcard{border-bottom:1px solid var(--line);border-radius:0;padding:10px 0;display:grid;gap:4px;font-size:14px}
+.rcard:last-child{border-bottom:0}
+.rcard .said{font-family:var(--mono);color:var(--accent);font-size:13.5px;line-height:1.5}
+.rcard .exr{color:var(--muted);font-style:italic}
+
+/* ---------- homework ---------- */
+.hwset{margin-bottom:40px}
+.hwh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin:0 0 2px}
+.hwh h3{font-family:var(--head);font-weight:600;font-size:17px;line-height:1.35;margin:0}
+.hwh span{font:400 13px/1.45 var(--body);color:var(--muted)}
+.hwprog{margin-left:auto;font:500 13.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.qs{display:grid;gap:12px;margin-top:12px}
+@media (min-width:768px){.qs{grid-template-columns:repeat(auto-fill,minmax(440px,1fr));align-items:start}}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.q h4{margin:0;font:500 15.5px/1.45 var(--body);display:flex;gap:10px}
+.q h4 .n{font:500 13.5px var(--mono);color:var(--faint);font-variant-numeric:tabular-nums}
+.bank{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+@media (max-width:767px){.q textarea{order:1}.q .bank{order:2}}
+.w{font:500 14px/1.3 var(--body);padding:4px 11px;border-radius:4px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);transition:background-color 120ms linear,border-color 120ms linear,color 120ms linear}
+.w.used{background:var(--ok-soft);color:var(--ok);border-color:transparent;text-decoration:line-through}
+.w.used::before{content:"✓ "}
+.q textarea{font:inherit;font-size:16.5px;line-height:1.6;width:100%;min-height:96px;resize:none;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);transition:border-color 120ms linear}
+.q textarea::placeholder{color:var(--faint)}
+.q textarea:focus{border-color:var(--accent)}
+@media (min-width:768px){.q textarea{min-height:112px}}
+.hw-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.hw-tools .switch{min-height:44px}
+#hwCopyMsg{font-size:14.5px;color:var(--ok)}
+
+/* ---------- progress ---------- */
+.today{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px 24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:28px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{display:block;width:100%;height:100%}
+.ringnum{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1.15}
+.ringnum b{font:600 26px/1.15 var(--head);font-variant-numeric:tabular-nums}
+.ringnum span{font-size:12.5px;color:var(--faint)}
+.today h3{font-family:var(--head);font-weight:600;font-size:17px;line-height:1.35;margin:0 0 4px}
+.today .todayline{font-size:14.5px;line-height:1.55;color:var(--muted);margin:0}
+.today .goalrow{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.today .goalrow .chip{min-height:36px;padding:6px 12px;font-size:13.5px}
+.today-main{flex:1;min-width:220px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:28px}
+@media (min-width:768px){.tiles{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}}
+.tile{background:var(--surface);border:0;border-radius:0;padding:16px 18px}
+.tnum{font:500 26px/1.15 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.tnum .tsub{font:400 14px var(--mono);color:var(--muted)}
+.tlbl{font-size:12.5px;color:var(--muted);margin-top:3px}
+@media (min-width:1024px){.pg-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}}
+.pgrow{display:grid;grid-template-columns:minmax(120px,200px) minmax(0,1fr) 64px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.pgrow:last-child{border-bottom:0}
+.pgl{font-size:14.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pgn{font:400 13px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);text-align:right}
+.meter{height:6px;border-radius:999px;background:var(--accent-soft);overflow:hidden}
+.meter-f{height:100%;border-radius:999px;background:var(--accent)}
+.qzrow{display:grid;grid-template-columns:minmax(120px,1fr) 56px;gap:6px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.qzrow:last-child{border-bottom:0}
+.qzl{font-size:14.5px;color:var(--muted);line-height:1.55}
+.qzbest{font:500 13.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--accent);text-align:right}
+.resetrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ---------- footer, kbd overlay ---------- */
+footer{color:var(--faint);font-size:13px;border-top:1px solid var(--line);padding-top:16px;margin-top:8px;display:flex;gap:8px 16px;flex-wrap:wrap;align-items:center}
+footer .linkbtn{border:0;background:none;color:var(--muted);cursor:pointer;font:inherit;padding:0;text-decoration:underline;text-underline-offset:3px;transition:color 120ms linear}
+@media (hover:hover){footer .linkbtn:hover{color:var(--ink)}}
+.overlay{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--ink) 45%,transparent);display:grid;place-items:center;padding:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:24px 28px;max-width:620px;width:100%;max-height:85vh;overflow:auto;box-shadow:0 16px 48px rgb(0 0 0/.24)}
+:root[data-theme="dark"] .panel{box-shadow:0 16px 48px rgb(0 0 0/.5)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="sepia"]) .panel{box-shadow:0 16px 48px rgb(0 0 0/.5)}}
+.panel h3{font-family:var(--head);margin:0 0 14px;font-size:17px;line-height:1.35}
+.kbd-grid{display:grid;gap:18px}
+@media (min-width:640px){.kbd-grid{grid-template-columns:1fr 1fr}}
+.kbd-grid h4{margin:0 0 8px;font:600 11px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.krow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.krow:last-child{border-bottom:0}
+.krow span:first-child{color:var(--muted)}
+
+/* ---------- motion (exactly three) ---------- */
+.chip,.switch,.cta,.fc-btn,.qopt,.tts,.spk,.bnav a,.w,.linkbtn,tbody tr td{transition:background-color 120ms linear,border-color 120ms linear,color 120ms linear,opacity 120ms linear}
+.view:not([hidden]){animation:viewIn 140ms ease-out}
+@keyframes viewIn{from{opacity:0;transform:translateY(4px)}}
+
+/* ---------- print ---------- */
+@media print{
+  :root:root:root{--bg:#fff;--surface:#fff;--sunk:#F2F2F2;--ink:#000;--muted:#333;--faint:#555;--line:#C9C9C9;--accent:#1F1F1F;--accent-soft:#EFEFEF;--accent-ink:#fff;--ok:#000;--ok-soft:#F0F0F0;--bad:#000;--bad-soft:#F0F0F0;color-scheme:light}
+  .bnav,.bar,.subbar,.theme,.skip,.prac-toc,footer,.drill-tts,.spk,.tts,.overlay,.hw-tools,.seg,.today,.nbadge{display:none!important}
+  .fc-face::before,.fc-face::after{display:none}
+  .wrap{max-width:none;padding:0}
+  .tbl{display:table}
+  .vcards,.pairs{display:none}
+  .session{display:none!important}
+  body{font-size:10.5pt;line-height:1.4;background:#fff}
+  .tbl{border:1px solid #999;border-radius:0}
+  th,td{padding:5px 8px;font-size:10pt}
+  tbody tr:nth-child(even) td{background:var(--sunk);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  td.en .src{display:none}
+  .hide-mean .mw{filter:none!important}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  .sh h2{break-after:avoid}
+  .q textarea{min-height:34mm;border:1px solid #999;background:#fff;resize:none}
+  @page{size:A4;margin:14mm}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto}}
+</style>
+<script>try{var t=localStorage.getItem("sd1:theme");if(t!=="light"&&t!=="sepia"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+
+<a class="skip" href="#out">Skip to vocabulary</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="i-speak" viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 19V5L7.2 9.5H4z"/><path d="M15.5 8.8a4.6 4.6 0 0 1 0 6.4M18 6.3a8 8 0 0 1 0 11.4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="13" height="14" rx="2"/><path d="M8 3.5h10.5A2.5 2.5 0 0 1 21 6v11"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4.5 4.5v15h15"/><path d="M8.5 15.5v-4M12.5 15.5V8M16.5 15.5v-6.5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></symbol>
+  <symbol id="i-sepia" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" fill="currentColor" stroke="none"/></symbol>
+ </defs>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow"><span>Native Elite</span><span>Speaking Program</span><span>Stage 2</span></div>
+      <h1>Speaking Notebook</h1>
+      <p class="lede">Words, collocations and sentence patterns from class, plus flashcards, quizzes, practice drills and homework. Updated after every lesson.</p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="theme">
+      <button id="themeBtn" type="button" aria-label="Switch theme"></button>
+    </div>
+  </header>
+
+  <nav class="bnav" aria-label="Primary">
+    <a href="#vocabulary" data-v="vocabulary" aria-keyshortcuts="g v"><span class="icw"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></span><span class="lb">Vocabulary</span></a>
+    <a href="#flashcards" data-v="flashcards" aria-keyshortcuts="g f"><span class="icw"><svg class="i" aria-hidden="true"><use href="#i-cards"/></svg></span><span class="lb">Cards</span><span class="nbadge" id="fcBadge" hidden></span></a>
+    <a href="#quiz" data-v="quiz" aria-keyshortcuts="g q"><span class="icw"><svg class="i" aria-hidden="true"><use href="#i-target"/></svg></span><span class="lb">Quiz</span></a>
+    <a href="#practice" data-v="practice" aria-keyshortcuts="g p"><span class="icw"><svg class="i" aria-hidden="true"><use href="#i-mic"/></svg></span><span class="lb">Practice</span></a>
+    <a href="#progress" data-v="progress" aria-keyshortcuts="g d"><span class="icw"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg></span><span class="lb">Progress</span></a>
+  </nav>
+
+  <main>
+  <div class="view" id="v-vocabulary">
+    <div class="bar">
+      <div class="row">
+        <input type="search" id="q" placeholder="Search words, meanings…" aria-label="Search" aria-keyshortcuts="/" enterkeyhint="search">
+        <button class="switch" id="uz" type="button" aria-pressed="false" aria-keyshortcuts="u">Uzbek</button>
+        <button class="switch" id="hide" type="button" aria-pressed="false" aria-keyshortcuts="m">Hide meanings</button>
+      </div>
+    </div>
+    <div class="subbar" id="lessons"><span class="lbl">Lesson</span></div>
+    <div id="out"></div>
+    <section id="quoteSec">
+      <div class="sh"><h2>Quotes &amp; idioms</h2></div>
+      <p class="hint">Lines to remember and reuse when you speak.</p>
+      <div class="quotes">
+        <div class="quote" data-l="l1">
+          <p>“Yesterday is history, tomorrow is a mystery, but today is a gift. That's why it's called the present.”</p>
+          <div class="note">Wordplay: <i>present</i> means both “now” and “a gift”.</div>
+        </div>
+        <div class="quote" data-l="l1">
+          <p>“Nobody remembers the ordinary days of childhood — but they are the ones that made you.”</p>
+          <div class="note">The everyday moments we forget are the ones that shaped who we are.</div>
+        </div>
+        <div class="quote" data-l="l3">
+          <p>“He always makes us laugh.”</p>
+          <div class="note">The easiest way to describe the funny one in your family. <i>make + somebody + verb</i>: makes me laugh, makes us smile. <span class="uzq">Uz: U bizni doim kuldiradi.</span></div>
+        </div>
+        <div class="quote" data-l="l3">
+          <p>“I take after my mother, but I look like my father.”</p>
+          <div class="note"><i>take after</i> = similar in character; <i>look like</i> = similar in appearance. <span class="uzq">Uz: Fe'lim onamga tortgan, lekin tashqi ko'rinishim otamga o'xshaydi.</span></div>
+        </div>
+        <div class="quote" data-l="l3">
+          <p>“We just talk about this and that.”</p>
+          <div class="note">Written on the board as <i>talk (from here and there)</i>: chatting about many small, random topics. <span class="uzq">Uz: u yoq-bu yoqdan gaplashmoq.</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="v-flashcards" hidden>
+    <div class="vhead"><h2>Flashcards</h2><p>Say it out loud first, then flip. Right swipe or <b>Got it</b> schedules the next review; left swipe or <b>Again</b> brings the word back soon.</p></div>
+    <div class="narrow">
+      <div class="subbar" id="fcLessons"><span class="lbl">Lesson</span></div>
+      <p class="hint" id="fcInfo"></p>
+      <div class="row">
+        <button class="cta" id="fcDue" type="button">Review due</button>
+        <button class="cta quiet" id="fcNew" type="button">Learn new</button>
+        <button class="switch" id="fcReset" type="button">Reset boxes</button>
+      </div>
+      <p class="empty" id="fcEmpty" hidden>Nothing due in this lesson right now.</p>
+    </div>
+    <div class="session" id="fcStage" hidden>
+      <div class="s-top">
+        <button class="s-close" id="fcClose" type="button" aria-label="Close session">✕</button>
+        <span class="s-prog" id="fcProg"></span>
+        <span class="s-info" id="fcCount"></span>
+      </div>
+      <div class="s-track"><i id="fcTrack"></i></div>
+      <div class="s-body">
+        <div class="fc-scene">
+          <div class="fc" id="fcard">
+            <div class="fc-inner">
+              <div class="fc-face" id="fcFront"></div>
+              <div class="fc-face fc-back" id="fcBack"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-btns">
+          <button class="fc-btn fc-again" id="fcAgain" type="button" disabled>Again</button>
+          <button class="fc-btn fc-got" id="fcGot" type="button" disabled>Got it</button>
+        </div>
+        <p class="fbtn-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> Again · <kbd>→</kbd> Got it · <kbd>S</kbd> speak · <kbd>Esc</kbd> exit</p>
+      </div>
+    </div>
+    <div class="narrow" id="fcDone" hidden>
+      <div class="card" style="text-align:center">
+        <h3>Session done</h3>
+        <p id="fcDoneMsg" style="margin:0;color:var(--muted)"></p>
+        <div class="res-btns">
+          <button class="cta" id="fcRetry" type="button">Retry missed</button>
+          <button class="cta quiet" id="fcMore" type="button" hidden>Continue</button>
+          <button class="cta quiet" id="fcFinish" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="v-quiz" hidden>
+    <div class="vhead"><h2>Quiz</h2><p>10 questions from the lesson you pick. Meanings are multiple choice; past forms are typed.</p></div>
+    <div class="narrow">
+      <div class="subbar" id="qzLessons"><span class="lbl">Lesson</span></div>
+      <div class="row" style="margin-bottom:12px" role="group" aria-label="Quiz mode">
+        <button class="chip" id="qzModeMeaning" type="button" aria-pressed="true">Meanings</button>
+        <button class="chip" id="qzModePast" type="button" aria-pressed="false">Past forms</button>
+      </div>
+      <p class="hint" id="qzBest"></p>
+      <button class="cta" id="qzStart" type="button" style="min-width:220px">Start quiz</button>
+      <p class="empty" id="qzEmpty" hidden>This lesson has no questions for this mode. Try the other mode or another lesson.</p>
+    </div>
+    <div class="session" id="qzRun" hidden>
+      <div class="s-top">
+        <button class="s-close" id="qzClose" type="button" aria-label="Close quiz">✕</button>
+        <span class="s-prog" id="qzProg"></span>
+        <span class="s-info" id="qzScore"></span>
+      </div>
+      <div class="s-track"><i id="qzTrack"></i></div>
+      <div class="s-body">
+        <div class="qz-word" id="qzWord"></div>
+        <div class="qz-src" id="qzWordSrc"></div>
+        <div class="qz-prompt" id="qzPrompt"></div>
+        <div class="opts" id="qzOpts"></div>
+        <div class="typebox" id="qzTypeWrap" hidden>
+          <input id="qzInput" type="text" placeholder="e.g. grew up" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" enterkeyhint="go" aria-label="Your answer">
+          <button class="cta" id="qzCheck" type="button">Check</button>
+        </div>
+        <div class="feed" id="qzFeed" hidden></div>
+        <div class="next-row"><button class="cta" id="qzNext" type="button" hidden>Next →</button></div>
+      </div>
+    </div>
+    <div class="narrow" id="qzResult" hidden>
+      <div class="card">
+        <div class="res-big" id="qzScoreBig"></div>
+        <div class="res-pct" id="qzPct"></div>
+        <p class="res-goal" id="qzGoal" hidden></p>
+        <div id="qzWrongList"></div>
+        <div class="res-btns">
+          <button class="cta" id="qzRetry" type="button">Try again</button>
+          <button class="cta quiet" id="qzSettings" type="button">Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="v-practice" hidden>
+    <div class="seg" role="group" aria-label="Practice section">
+      <button class="chip" id="segDrills" type="button" aria-pressed="true">Drills</button>
+      <button class="chip" id="segHW" type="button" aria-pressed="false">Homework</button>
+    </div>
+    <div id="drillsWrap">
+      <div class="vhead"><h2>Speaking practice</h2><p>Speaking drills from class. Read them aloud several times — then play the real-speak version and compare.</p></div>
+      <div class="prac-grid">
+        <nav class="prac-toc" aria-label="Drills">
+          <a href="#drill-l2">1 · Talking About Family — Lesson 2</a>
+          <a href="#drill-l9">2 · A Childhood Memory — Lesson 9</a>
+        </nav>
+        <div class="prac-body">
+          <article class="card" id="drill-l2" style="scroll-margin-top:80px">
+            <div class="meta">Lesson 2 · Talking About Family · Pronunciation</div>
+            <h3>Talking about your family, the relaxed way</h3>
+            <p class="task">Start with a filler (<i>Well…</i>, <i>You know…</i>), then say how many you are, who is who, what they are like and what you do together. Every underlined group shows a sound change from the board.</p>
+            <div class="std"><span class="cap">Standard</span>“Well, you know, my family is pretty big. There are six of us. I'm the oldest. My father is strict and quiet, my mother is kind, and my brother is the funny one. He always makes us laugh…”</div>
+            <div class="real"><span class="cap">Real speak</span>“<b>Well, y'know</b>, my family's <b>priddy big</b>. <b>There're six of us</b> — my grandparents, my parents, my little brother an' me. <b>A'm d oldest</b>. My father's <b>schrict an' kwayt</b>, an' my mother's kind an' funny. My brother's the funny one — <b>he always makes us laf</b>. He's <b>tokadiv</b> too. On weekends we <b>go ta the mauntns</b> or <b>go fora wok</b>, an' in the evenin' we <b>wotch series t'gezzer</b> an' <b>jrink tea</b>. Sometimes we <b>argyu about football</b>, but we get along really well.”</div>
+            <div class="drill-tts">
+              <button class="switch realPlay" type="button" data-rate="0.95" data-card="l2">Play real speak</button>
+              <button class="switch realPlay" type="button" data-rate="0.75" data-card="l2">Slow</button>
+            </div>
+            <h4>Reductions to hit</h4>
+            <div class="tbl pairs-hide"><table><thead><tr><th>Real speak</th><th>Full form</th><th class="tt-col"><span class="sr-only">Listen</span></th></tr></thead><tbody id="redRows2"></tbody></table></div>
+            <div class="pairs" id="redPairs2"></div>
+            <h4>Rules behind them</h4>
+            <div class="tbl pairs-hide"><table><thead><tr><th>Written</th><th>Said</th><th>Example</th></tr></thead><tbody id="ruleRows2"></tbody></table></div>
+            <div class="pairs" id="rulePairs2"></div>
+          </article>
+          <article class="card" id="drill-l9" style="scroll-margin-top:80px">
+            <div class="meta">Lesson 9 · A Childhood Memory · Pronunciation</div>
+            <h3>Dense casual American pronunciation</h3>
+            <p class="task">Read it fast and relaxed, as if you were talking to a close friend. Every underlined group is a reduction: squeeze it — don't use the full, careful form.</p>
+            <div class="std"><span class="cap">Standard</span>“I grew up in a small village with my grandmother, and I used to play outside from morning until dark…”</div>
+            <div class="real"><span class="cap">Real speak</span>“<b>A grew up in a small village</b> with my gran'mother. <b>We didn' have much</b> — no computer, no phone — <b>but a don' remember bein' bored once</b>. <b>A used ta play outside</b> <b>from mornin' till dark</b>, climbin' trees, <b>runnin' aroun' with the neighbors' kids</b>. One summer <b>a broke her kitchen window with a ball</b>. <b>A wuz so afraid</b> <b>a hid in the garden fer two hours</b>. She found me, <b>an' she jus' laughed</b>. <b>A'll never ferget that</b>. Lookin' back, it wuz a good childhood. <b>A really miss id sometimes</b>.”</div>
+            <div class="drill-tts">
+              <button class="switch realPlay" type="button" data-rate="0.95" data-card="l9">Play real speak</button>
+              <button class="switch realPlay" type="button" data-rate="0.75" data-card="l9">Slow</button>
+            </div>
+            <h4>Reductions to hit</h4>
+            <div class="tbl pairs-hide"><table><thead><tr><th>Real speak</th><th>Full form</th><th class="tt-col"><span class="sr-only">Listen</span></th></tr></thead><tbody id="redRows"></tbody></table></div>
+            <div class="pairs" id="redPairs"></div>
+            <h4>Rules behind them</h4>
+            <div class="tbl pairs-hide"><table><thead><tr><th>Written</th><th>Said</th><th>Example</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
+            <div class="pairs" id="rulePairs"></div>
+          </article>
+        </div>
+      </div>
+    </div>
+    <div id="hwWrap" hidden>
+      <div class="vhead"><h2>Homework</h2><p>Answer each question in full sentences and use at least two words from the word bank. Words you use turn green. Answers are saved in this browser only.</p></div>
+      <div id="hwOut"></div>
+      <div class="hw-tools">
+        <button class="switch" id="hwCopy" type="button">Copy all answers</button>
+        <span id="hwCopyMsg" role="status"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="v-progress" hidden>
+    <div class="vhead"><h2>Progress</h2><p>Everything is stored on this device, in this browser.</p></div>
+    <div class="pg"></div>
+  </div>
+  </main>
+
+  <footer>
+    <span>Last updated: 9 October 2026. When meanings are hidden, click one to reveal it.</span>
+    <button class="linkbtn" id="kbdBtn" type="button"><span class="lt">Keyboard shortcuts</span> <kbd>?</kbd></button>
+  </footer>
+</div>
+
+<div class="overlay" id="kbd" hidden>
+  <div class="panel" id="kbPanel" role="dialog" aria-modal="true" aria-labelledby="kbTitle" tabindex="-1">
+    <h3 id="kbTitle">Keyboard shortcuts</h3>
+    <div class="kbd-grid">
+      <div>
+        <h4>Anywhere</h4>
+        <div class="krow"><span>Go to Vocabulary / Cards / Quiz / Practice / Progress</span><span><kbd>g</kbd> then <kbd>v f q p d</kbd></span></div>
+        <div class="krow"><span>Focus search</span><span><kbd>/</kbd></span></div>
+        <div class="krow"><span>Cycle theme</span><span><kbd>t</kbd></span></div>
+        <div class="krow"><span>Toggle this overlay</span><span><kbd>?</kbd></span></div>
+        <div class="krow"><span>Close or leave a field</span><span><kbd>Esc</kbd></span></div>
+      </div>
+      <div>
+        <h4>Vocabulary</h4>
+        <div class="krow"><span>Uzbek translations</span><span><kbd>u</kbd></span></div>
+        <div class="krow"><span>Hide meanings</span><span><kbd>m</kbd></span></div>
+        <h4 style="margin-top:14px">Cards</h4>
+        <div class="krow"><span>Flip</span><span><kbd>Space</kbd></span></div>
+        <div class="krow"><span>Again / Got it</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
+        <div class="krow"><span>Speak card</span><span><kbd>s</kbd></span></div>
+        <h4 style="margin-top:14px">Quiz</h4>
+        <div class="krow"><span>Pick option</span><span><kbd>1</kbd>–<kbd>4</kbd></span></div>
+        <div class="krow"><span>Next</span><span><kbd>Enter</kbd></span></div>
+        <div class="krow"><span>Restart</span><span><kbd>r</kbd></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sr-only" role="status" aria-live="polite" id="live"></div>
+
+<script>
+const LESSONS={l1:{name:"Lesson 9 · A Childhood Memory",short:"Lesson 9 · A Childhood Memory"},l2:{name:"Politeness & Asking",short:"Politeness & Asking"},l3:{name:"Lesson 2 · Talking About Family",short:"Lesson 2 · Talking About Family"}};
+const CATS=[
+ {id:"verb",title:"Verbs & phrasal verbs",hint:"The second column is the past simple form.",cols:["Expression","Past form","Meaning","Example"],keys:["en","form","mean","ex"]},
+ {id:"word",title:"Words & collocations",hint:"Words that naturally go together.",cols:["Expression","Meaning","Example"],keys:["en","mean","ex"]},
+ {id:"adj",title:"Adjectives: “I used to be…” / “He is…”",hint:"Describe people: the child you were, the person you are now, your family.",cols:["Adjective","Meaning","Example"],keys:["en","mean","ex"]},
+ {id:"struct",title:"Sentence patterns",hint:"Word-order templates. Fill the gap with your own words.",cols:["Pattern","Use it to…","Example"],keys:["en","mean","ex"]},
+ {id:"pron",title:"Pronunciation",hint:"How these words really sound in speech.",cols:["Word","Sounds like","Note"],keys:["en","pron","mean"]}
+];
+const D=[
+ {c:"verb",l:"l1",en:"(to) grow up",form:"grew up",m:"to change from a child into an adult",uz:"katta bo'lmoq, ulg'aymoq",ex:"I grew up in a small town."},
+ {c:"verb",l:"l1",en:"(to) raise",form:"raised",m:"to look after a child until it is an adult",uz:"tarbiyalamoq",ex:"I was raised by my grandparents."},
+ {c:"verb",l:"l1",en:"(to) run away from",form:"ran away",m:"to leave a place or person quickly to escape",uz:"…dan qochib ketmoq",ex:"We ran away from the angry neighbour."},
+ {c:"verb",l:"l1",en:"(to) fly a kite",form:"flew",m:"to make a kite go up in the wind",uz:"varrak uchirmoq",ex:"We flew kites on the roof."},
+ {c:"verb",l:"l1",en:"(to) steal",form:"stole",m:"to take something that isn't yours",uz:"o'g'irlamoq",ex:"I once stole apples from the garden."},
+ {c:"verb",l:"l1",en:"(to) take smth without asking permission",form:"took",m:"to use something without saying “can I?” first",uz:"ruxsat so'ramay olmoq",ex:"I took my dad's phone without asking permission."},
+ {c:"verb",l:"l1",en:"(to) come over",form:"came over",m:"to visit someone at their home",uz:"mehmonga kelmoq",ex:"My cousins came over every weekend."},
+ {c:"verb",l:"l1",en:"(to) develop common sense",form:"developed",m:"to slowly become practical and sensible",uz:"sog'lom fikrni rivojlantirmoq",ex:"Life helped me develop common sense."},
+ {c:"verb",l:"l1",en:"(to) teach",form:"taught",m:"to help someone learn something",uz:"o'rgatmoq",ex:"The school of hard knocks taught me a lot."},
+ {c:"verb",l:"l1",en:"(to) become mature",form:"became",m:"to start thinking and acting like an adult",uz:"yetuk bo'lmoq",ex:"I became mature after school."},
+ {c:"verb",l:"l1",en:"(to) stand out",form:"stood out",m:"to be easy to notice; to be different from the rest",uz:"ajralib turmoq",ex:"One memory stands out."},
+ {c:"verb",l:"l1",en:"(to) look back",form:"looked back",m:"to think about the past",uz:"o'tmishga nazar tashlamoq",ex:"When I look back, I laugh."},
+ {c:"verb",l:"l2",en:"(to) deserve calling “polite”",form:"deserved",m:"to truly be worth the word “polite”",uz:"“odobli” deb atalishga loyiq bo'lmoq",ex:"He really deserves calling polite."},
+ {c:"verb",l:"l2",en:"(to) make an excuse",form:"made",m:"to give a reason (often not true) to avoid something",uz:"bahona qilmoq",ex:"I made an excuse instead of saying no."},
+ {c:"verb",l:"l2",en:"(to) rear-end",form:"rear-ended",m:"to drive into the back of another car",uz:"mashinani orqasidan urib yubormoq",ex:"A taxi almost rear-ended us."},
+ {c:"verb",l:"l2",en:"(to) feel guilty",form:"felt",m:"to feel bad because you did something wrong",uz:"o'zini aybdor his qilmoq",ex:"I feel guilty when I refuse."},
+ {c:"verb",l:"l2",en:"(to) offend",form:"offended",m:"to make someone upset or angry",uz:"xafa qilmoq",ex:"I didn't want to offend her."},
+ {c:"verb",l:"l2",en:"(to) be (a bit) offended",form:"was offended",m:"to feel (a little) upset by what someone said",uz:"(biroz) xafa bo'lmoq",ex:"He was a bit offended."},
+ {c:"verb",l:"l2",en:"(to) scold",form:"scolded",m:"to speak angrily to someone who did wrong",uz:"urishmoq, koyimoq",ex:"My boss scolded me for being late."},
+ {c:"verb",l:"l3",en:"(to) pass away",form:"passed away",m:"a soft, polite way to say “to die”",uz:"vafot etmoq, olamdan o'tmoq",ex:"My grandfather passed away two years ago."},
+ {c:"verb",l:"l3",en:"(to) like",form:"liked",m:"to enjoy something or think it is nice",uz:"yoqtirmoq",ex:"My mother likes tea."},
+ {c:"verb",l:"l3",en:"(to) be like",form:"was / were like",m:"to have a certain character; used to describe a person (am / is / are like)",uz:"qanday odam ekanligi (fe'l-atvori)",ex:"What is your father like? — He's strict and quiet."},
+ {c:"verb",l:"l3",en:"(to) look like",form:"looked like",m:"to be similar in appearance",uz:"(tashqi ko'rinishdan) o'xshamoq",ex:"I look like my father."},
+ {c:"verb",l:"l3",en:"(to) take after",form:"took after",m:"to be similar to an older family member in character",uz:"(fe'l-atvorda) …ga tortmoq",ex:"I take after my mother — we're both calm."},
+ {c:"verb",l:"l3",en:"(to) live with",form:"lived with",m:"to share a home with someone",uz:"…bilan birga yashamoq",ex:"We live with our grandparents."},
+ {c:"verb",l:"l3",en:"(to) get along (with)",form:"got along",m:"to have a friendly relationship",uz:"…bilan yaxshi chiqishmoq, kelishmoq",ex:"We get along really well."},
+ {c:"verb",l:"l3",en:"(to) argue about smth / with smb",form:"argued",m:"to disagree with someone, often with raised voices",uz:"…haqida / …bilan bahslashmoq, tortishmoq",ex:"We argue about football."},
+ {c:"verb",l:"l3",en:"(to) make smb + verb",form:"made",m:"to cause someone to do or feel something",uz:"kimnidir biror narsa qilishga majbur qilmoq / undamoq",ex:"He always makes us laugh."},
+ {c:"verb",l:"l3",en:"(to) make smb smth",form:"made",m:"to cook or prepare something for someone",uz:"kimgadir biror narsa tayyorlab bermoq",ex:"My mom makes us breakfast."},
+ {c:"verb",l:"l3",en:"(to) make jokes",form:"made",m:"to say funny things",uz:"hazil qilmoq",ex:"My brother makes jokes all the time."},
+ {c:"verb",l:"l3",en:"(to) eat dinner together",form:"ate",m:"to have the evening meal as a family",uz:"birga kechki ovqatlanmoq",ex:"We eat dinner together every evening."},
+ {c:"verb",l:"l3",en:"(to) visit relatives",form:"visited",m:"to go and see family members who live elsewhere",uz:"qarindoshlarnikiga bormoq",ex:"On holidays we visit relatives."},
+ {c:"verb",l:"l3",en:"(to) watch TV / movies / series",form:"watched",m:"to look at programmes or films on a screen",uz:"televizor / kino / serial ko'rmoq",ex:"We watch series together in the evening."},
+ {c:"verb",l:"l3",en:"(to) drink tea / coffee",form:"drank",m:"to drink tea or coffee",uz:"choy / qahva ichmoq",ex:"My parents drink tea after dinner."},
+ {c:"verb",l:"l3",en:"(to) go to the mountains",form:"went",m:"to travel to the mountains for a trip",uz:"tog'ga bormoq",ex:"In summer we go to the mountains."},
+ {c:"verb",l:"l3",en:"(to) go to restaurants / a café",form:"went",m:"to eat or drink out",uz:"restoran / kafega bormoq",ex:"Sometimes we go to a café on Sundays."},
+ {c:"verb",l:"l3",en:"(to) spend time on smth / with smb",form:"spent",m:"to use your time doing something or being with someone",uz:"…ga / …bilan vaqt sarflamoq, o'tkazmoq",ex:"I spend a lot of time with my little sister."},
+ {c:"verb",l:"l3",en:"(to) hang out with smb",form:"hung out",m:"to spend relaxed free time with someone",uz:"…bilan birga vaqt o'tkazmoq, aylanmoq",ex:"I hang out with my cousins on weekends."},
+ {c:"verb",l:"l3",en:"(to) go for a walk",form:"went",m:"to walk outside for pleasure",uz:"sayr qilishga chiqmoq",ex:"After dinner we go for a walk."},
+ {c:"verb",l:"l3",en:"(to) talk from here and there",form:"talked",m:"as written on the board; natural English: “talk about this and that”",uz:"u yoq-bu yoqdan gaplashmoq",ex:"We drink tea and talk from here and there."},
+ {c:"verb",l:"l3",en:"(to) talk about this and that",form:"talked",m:"to chat about many small, random topics (board: “talk from here and there”)",uz:"u yoq-bu yoqdan gaplashmoq",ex:"We drink tea and talk about this and that."},
+ {c:"word",l:"l1",en:"friendly neighborhood",m:"an area where people are kind to each other",uz:"samimiy mahalla",ex:"I grew up in a friendly neighborhood."},
+ {c:"word",l:"l1",en:"gate",m:"a door in a fence or wall",uz:"darvoza",ex:"We played near the big gate."},
+ {c:"word",l:"l1",en:"brick",m:"a block of baked clay used for building",uz:"g'isht",ex:"It was an old brick house."},
+ {c:"word",l:"l1",en:"siblings",m:"brothers and sisters",uz:"aka-uka, opa-singillar",ex:"I have three siblings."},
+ {c:"word",l:"l1",en:"hide and seek",m:"a game where one child looks for the others",uz:"berkinmachoq",ex:"We used to play hide and seek."},
+ {c:"word",l:"l1",en:"card games",m:"games played with a deck of cards",uz:"karta o'yinlari",ex:"In winter we played card games."},
+ {c:"word",l:"l1",en:"tag",m:"a game where one child chases and touches the others",uz:"quvlashmachoq",ex:"Tag was our favourite game."},
+ {c:"word",l:"l1",en:"unforgettable moment",m:"a moment you will always remember",uz:"unutilmas lahza",ex:"It was an unforgettable moment."},
+ {c:"word",l:"l1",en:"11-year",m:"lasting eleven years",uz:"11 yillik",ex:"an 11-year friendship"},
+ {c:"word",l:"l1",en:"mindset",m:"your usual way of thinking",uz:"fikrlash tarzi",ex:"My mindset has changed."},
+ {c:"word",l:"l1",en:"behavior",m:"the way you act",uz:"xulq-atvor",ex:"My behavior is different now."},
+ {c:"word",l:"l1",en:"good old days",m:"a happy time in the past",uz:"eski yaxshi kunlar",ex:"I miss the good old days."},
+ {c:"word",l:"l1",en:"the school of hard knocks",m:"learning from difficult life experience",uz:"hayot maktabi",ex:"I learned it in the school of hard knocks."},
+ {c:"word",l:"l2",en:"common sense",m:"basic practical good judgement",uz:"sog'lom fikr",ex:"It's just common sense."},
+ {c:"word",l:"l2",en:"almost",m:"very nearly",uz:"deyarli",ex:"I almost forgot."},
+ {c:"word",l:"l2",en:"close call / close one",m:"a situation where something bad nearly happened",uz:"zo'rg'a qutulib qolish",ex:"That was a close call!"},
+ {c:"word",l:"l2",en:"overtime",m:"extra hours worked after normal time",uz:"qo'shimcha ish vaqti",ex:"I worked overtime yesterday."},
+ {c:"word",l:"l3",en:"parents (father / mother)",m:"your father and mother",uz:"ota-ona (ota / ona)",ex:"My parents are both teachers."},
+ {c:"word",l:"l3",en:"grandparents",m:"the parents of your father or mother",uz:"bobo va buvi",ex:"My grandparents live with us."},
+ {c:"word",l:"l3",en:"grandfather · grandpa",m:"your parent's father; “grandpa” is the friendly form",uz:"bobo",ex:"My grandpa tells great stories."},
+ {c:"word",l:"l3",en:"grandmother · grandma",m:"your parent's mother; “grandma” is the friendly form",uz:"buvi",ex:"Grandma makes the best plov."},
+ {c:"word",l:"l3",en:"relative",m:"a member of your family (aunt, uncle, cousin…)",uz:"qarindosh",ex:"We have a lot of relatives in Samarkand."},
+ {c:"word",l:"l3",en:"siblings",m:"brothers and sisters",uz:"aka-uka, opa-singillar",ex:"I have two siblings."},
+ {c:"word",l:"l3",en:"older brother / older sister",m:"a brother or sister born before you",uz:"aka / opa",ex:"My older brother is a doctor."},
+ {c:"word",l:"l3",en:"little brother / little sister",m:"a brother or sister born after you",uz:"uka / singil",ex:"My little sister is very playful."},
+ {c:"word",l:"l3",en:"children (son / daughter)",m:"a family's kids: a boy is a son, a girl is a daughter",uz:"farzandlar (o'g'il / qiz)",ex:"They have three children: two sons and a daughter."},
+ {c:"word",l:"l3",en:"the only child",m:"a child with no brothers or sisters",uz:"yolg'iz farzand",ex:"I'm the only child in my family."},
+ {c:"word",l:"l3",en:"a big / small family",m:"a family with many / few people",uz:"katta / kichik oila",ex:"It's a big family."},
+ {c:"word",l:"l3",en:"the oldest / the youngest / the middle one",m:"your place among the children",uz:"eng kattasi / eng kichigi / o'rtanchasi",ex:"I'm the youngest."},
+ {c:"word",l:"l3",en:"kindness",m:"being kind (noun from “kind”)",uz:"mehribonlik",ex:"I love my mother's kindness."},
+ {c:"word",l:"l3",en:"meals, holidays, weekends",m:"typical times a family spends together",uz:"ovqatlar, bayramlar/ta'til, dam olish kunlari",ex:"We're always together on weekends."},
+ {c:"word",l:"l3",en:"together",m:"with each other",uz:"birga",ex:"We do everything together."},
+ {c:"adj",l:"l1",en:"pure",m:"innocent, without bad thoughts",uz:"beg'ubor",ex:"I used to be pure."},
+ {c:"adj",l:"l1",en:"playful",m:"liking to play and have fun",uz:"o'yinqaroq",ex:"I used to be playful."},
+ {c:"adj",l:"l1",en:"lazy",m:"not wanting to work or make an effort",uz:"dangasa",ex:"I used to be lazy."},
+ {c:"adj",l:"l1",en:"irresponsible",m:"not thinking about the results of your actions",uz:"mas'uliyatsiz",ex:"I used to be irresponsible."},
+ {c:"adj",l:"l1",en:"mature",m:"thinking and acting like a responsible adult",uz:"yetuk",ex:"Now I'm more mature."},
+ {c:"adj",l:"l2",en:"wise",m:"having good judgement from experience",uz:"dono",ex:"My grandmother is very wise."},
+ {c:"adj",l:"l3",en:"kind",m:"caring and nice to other people",uz:"mehribon",ex:"My mother is kind and funny."},
+ {c:"adj",l:"l3",en:"funny",m:"making people laugh",uz:"kulgili, hazilkash",ex:"He's the funny one."},
+ {c:"adj",l:"l3",en:"strict",m:"making people follow rules",uz:"qattiqqo'l",ex:"My father is strict and quiet."},
+ {c:"adj",l:"l3",en:"quiet",m:"not talking much; calm",uz:"kamgap, jim",ex:"My grandpa is a quiet man."},
+ {c:"adj",l:"l3",en:"playful",m:"liking to play and have fun",uz:"o'yinqaroq",ex:"My brother is playful and funny."},
+ {c:"adj",l:"l3",en:"serious",m:"not joking; thinking carefully",uz:"jiddiy",ex:"Nobody — we're serious!"},
+ {c:"adj",l:"l3",en:"talkative",m:"liking to talk a lot",uz:"gapdon, sergap",ex:"My sister is very talkative."},
+ {c:"adj",l:"l3",en:"hard-working",m:"working a lot and with effort",uz:"mehnatkash",ex:"My parents are hard-working."},
+ {c:"struct",l:"l1",en:"I grew up in a ___ neighborhood.",m:"describe where you grew up",uz:"Men ___ mahallada katta bo'lganman.",ex:"I grew up in a friendly neighborhood."},
+ {c:"struct",l:"l1",en:"I grew up in a small town.",m:"say what kind of place it was",uz:"Kichik shaharchada katta bo'lganman.",ex:"I grew up in a small town by the river."},
+ {c:"struct",l:"l1",en:"He grew up very fast.",m:"say someone became adult early",uz:"U juda tez ulg'aydi.",ex:"After his father left, he grew up very fast."},
+ {c:"struct",l:"l1",en:"I was raised in a ___ family.",m:"describe your family",uz:"Men ___ oilada tarbiyalanganman.",ex:"I was raised in a big family."},
+ {c:"struct",l:"l1",en:"I was raised in a family of (number).",m:"say how many people were in your family",uz:"(son) kishilik oilada tarbiyalanganman.",ex:"I was raised in a family of five."},
+ {c:"struct",l:"l1",en:"I have (number) siblings.",m:"say how many brothers and sisters you have",uz:"(son) aka-uka / opa-singlim bor.",ex:"I have three siblings."},
+ {c:"struct",l:"l1",en:"I used to + verb",m:"talk about past habits that stopped",uz:"…ar edim",ex:"I used to play tag."},
+ {c:"struct",l:"l1",en:"I used to be + adjective",m:"describe how you were in the past",uz:"Ilgari … edim",ex:"I used to be lazy."},
+ {c:"struct",l:"l1",en:"To be honest, …",m:"say something sincere or a little surprising",uz:"Rostini aytsam, …",ex:"To be honest, I was irresponsible."},
+ {c:"struct",l:"l1",en:"The one which stands out is …",m:"pick one memory out of many",uz:"Eng yodda qolgani — …",ex:"The one which stands out is my first school day."},
+ {c:"struct",l:"l1",en:"When I look back, I …",m:"react to the past",uz:"O'tmishga qarasam, …",ex:"When I look back, I laugh."},
+ {c:"struct",l:"l1",en:"Looking back, …",m:"give a final opinion about the past",uz:"Ortga nazar tashlasam, …",ex:"Looking back, it was a good year."},
+ {c:"struct",l:"l1",en:"The 5 W's: What? Who? When? Where? Why?",m:"build a complete story",uz:"Hikoyada 5 savolga javob bering",ex:"Tell one memory by answering all five."},
+ {c:"struct",l:"l2",en:"Instead of + verb-ing",m:"say what you did in place of something else",uz:"…ish o'rniga",ex:"Instead of saying no, I made an excuse."},
+ {c:"struct",l:"l3",en:"Well → You know → …",m:"start your answer naturally and buy a second to think",uz:"Xo'sh… / Bilasizmi… (gapni boshlash uchun)",ex:"Well, you know, my family is pretty small."},
+ {c:"struct",l:"l3",en:"My family is pretty big / small.",m:"give the size of your family (pretty = quite)",uz:"Oilam ancha katta / kichik.",ex:"My family is pretty big."},
+ {c:"struct",l:"l3",en:"There are (number) of us.",m:"say how many people are in your family",uz:"Biz (son) kishimiz.",ex:"There are six of us."},
+ {c:"struct",l:"l3",en:"It's a big family. / Just the three of us.",m:"short answers about family size",uz:"Katta oila. / Faqat uchovmiz.",ex:"Just the three of us: my mom, my dad and me."},
+ {c:"struct",l:"l3",en:"I'm the oldest / the youngest / in the middle.",m:"say your place among the children",uz:"Men eng kattasiman / eng kichigiman / o'rtanchaman.",ex:"I'm in the middle."},
+ {c:"struct",l:"l3",en:"I'm the only child.",m:"say you have no siblings",uz:"Men yolg'iz farzandman.",ex:"I'm the only child, so my parents spoil me."},
+ {c:"struct",l:"l3",en:"I have (a / an / number) + family member.",m:"list siblings and relatives",uz:"Mening … bor.",ex:"I have an older brother and a little sister."},
+ {c:"struct",l:"l3",en:"We live with …",m:"say who shares your home",uz:"Biz … bilan yashaymiz.",ex:"We live with my grandparents."},
+ {c:"struct",l:"l3",en:"My ___ is ___ and ___.",m:"describe a person with two adjectives",uz:"Mening ___ ___ va ___.",ex:"My father is strict and quiet."},
+ {c:"struct",l:"l3",en:"My ___ is very …",m:"describe one strong quality",uz:"Mening ___ juda …",ex:"My grandma is very kind."},
+ {c:"struct",l:"l3",en:"He / She is the ___ one.",m:"name the role a person plays in the family",uz:"U — oilamizning ___i.",ex:"He's the funny one."},
+ {c:"struct",l:"l3",en:"People say …",m:"share what others think about someone",uz:"Odamlar … deyishadi.",ex:"People say I look like my mother."},
+ {c:"struct",l:"l3",en:"He / She always makes me / us laugh.",m:"describe a funny family member",uz:"U meni / bizni doim kuldiradi.",ex:"My little brother always makes us laugh."},
+ {c:"struct",l:"l3",en:"We get along …",m:"describe your relationship",uz:"Biz … chiqishamiz.",ex:"We get along really well."},
+ {c:"struct",l:"l3",en:"We argue about …",m:"say what you disagree about",uz:"Biz … haqida tortishamiz.",ex:"We argue about football."},
+ {c:"struct",l:"l3",en:"Who in your family is the funniest?",m:"ask about family members (the + -est)",uz:"Oilangizda kim eng kulgili?",ex:"My father, definitely. / Nobody — we're serious!"},
+ {c:"struct",l:"l3",en:"What does your family do together?",m:"ask about shared activities",uz:"Oilangiz bilan birga nima qilasiz?",ex:"We eat dinner together and visit relatives."},
+ {c:"pron",l:"l1",en:"forget / unforgettable",pron:"/fəˈɡet/",m:"the “o” is almost silent",uz:"“o” deyarli eshitilmaydi"},
+ {c:"pron",l:"l1",en:"future, furniture, tutor",pron:"t + u → “chu”",m:"t before u sounds like “ch”",uz:"u oldidagi t “ch” bo'ladi"},
+ {c:"pron",l:"l1",en:"about you, let you",pron:"t + you → “chu / cha”",m:"the words join: “abau-chu”, “le-chu”",uz:"so'zlar qo'shilib ketadi"},
+ {c:"pron",l:"l1",en:"used to",pron:"/ˈjuːstə/",m:"sounds like “yoos-ta”; the d is silent",uz:"“yuzta”, d aytilmaydi"},
+ {c:"pron",l:"l1",en:"to be honest",pron:"/tə bi ˈɒnɪst/",m:"the h is silent",uz:"h aytilmaydi"},
+ {c:"pron",l:"l1",en:"taught",pron:"/tɔːt/",m:"the gh is silent",uz:"gh aytilmaydi"},
+ {c:"pron",l:"l1",en:"mature",pron:"/məˈtʃʊr/",m:"t sounds like “ch”: “ma-choor”",uz:"“mechur”"},
+ {c:"pron",l:"l2",en:"instead",pron:"/ɪnˈsted/",m:"ea is a short “e”",uz:"“insted”"},
+ {c:"pron",l:"l2",en:"wise",pron:"/waɪz/",m:"the s sounds like z",uz:"s “z” bo'lib aytiladi"},
+ {c:"pron",l:"l3",en:"vowel + t + vowel",pron:"t → d",m:"between vowels (a, e, i, o, u, y) t becomes a soft d",uz:"unlilar orasidagi t “d” bo'ladi"},
+ {c:"pron",l:"l3",en:"pretty",pron:"“priddy”",m:"vowel + t + vowel",uz:"“priddi”"},
+ {c:"pron",l:"l3",en:"city",pron:"“sidi”",m:"vowel + t + vowel",uz:"“sidi”"},
+ {c:"pron",l:"l3",en:"beautiful",pron:"“byu-di-ful”",m:"vowel + t + vowel",uz:"“byudiful”"},
+ {c:"pron",l:"l3",en:"What a …",pron:"“wada”",m:"t joins the next vowel and turns into d",uz:"“vada”"},
+ {c:"pron",l:"l3",en:"talkative",pron:"“tokadiv”",m:"l is silent; t → d between vowels",uz:"“tokadiv”"},
+ {c:"pron",l:"l3",en:"tree, try",pron:"tr → “chr”",m:"t before r sounds like ch",uz:"“chri”"},
+ {c:"pron",l:"l3",en:"drive, drink",pron:"dr → “jr”",m:"d before r sounds like j",uz:"“jrayv”, “jrink”"},
+ {c:"pron",l:"l3",en:"strict",pron:"“schrikt”",m:"str → “schr”",uz:"“shtrikt / schrikt”"},
+ {c:"pron",l:"l3",en:"to",pron:"“ta” / “da”",m:"weak form; after a vowel it can sound like “da”",uz:"“ta”, “da”"},
+ {c:"pron",l:"l3",en:"the",pron:"“d”",m:"in fast speech: I'm the oldest → “A'm d oldest”",uz:"“d”"},
+ {c:"pron",l:"l3",en:"you know",pron:"“y'know”",m:"the vowel in “you” almost disappears",uz:"“ye no”"},
+ {c:"pron",l:"l3",en:"quiet",pron:"/ˈkwaɪət/",m:"two syllables: “kway-et”; not “quite”",uz:"“kvayt”"},
+ {c:"pron",l:"l3",en:"together",pron:"“t'gezzer”",m:"the first vowel is almost silent",uz:"“tgeze”"},
+ {c:"pron",l:"l3",en:"mountains",pron:"“mauntns”",m:"the -ai- almost disappears",uz:"“mauntns”"},
+ {c:"pron",l:"l3",en:"restaurants",pron:"“reschrns”",m:"t + r → ch; middle vowels drop",uz:"“reschrns”"},
+ {c:"pron",l:"l3",en:"café",pron:"/kæˈfeɪ/",m:"stress on the end: “ka-FEY”",uz:"“kafey”"},
+ {c:"pron",l:"l3",en:"laugh",pron:"/læf/",m:"gh sounds like f",uz:"“laf”"},
+ {c:"pron",l:"l3",en:"argue",pron:"/ˈɑːrɡjuː/",m:"“AR-gyu”",uz:"“argyu”"},
+ {c:"pron",l:"l3",en:"for a walk",pron:"“fora wok”",m:"words join; l in walk is silent",uz:"“fora vok”"},
+ {c:"pron",l:"l3",en:"grandfather / grandmother",pron:"“gran'pa / gran'ma”",m:"the d is dropped; short forms grandpa, grandma",uz:"“grenpa / grenma”"}
+];
+const RED=[["A grew up in a small village","I grew up in a small village"],["we didn' have much","we didn't have much"],["but a don' remember bein' bored once","but I don't remember being bored once"],["a used ta play outside","I used to play outside"],["from mornin' till dark","from morning till dark"],["runnin' aroun' with the neighbors' kids","running around with the neighbors' kids"],["a broke her kitchen window with a ball","I broke her kitchen window with a ball"],["a wuz so afraid","I was so afraid"],["a hid in the garden fer two hours","I hid in the garden for two hours"],["an' she jus' laughed","and she just laughed"],["a'll never ferget that","I'll never forget that"],["a really miss id sometimes","I really miss it sometimes"]];
+const RULES=[["I","a","A used ta play"],["-ing","-in'","mornin', runnin', bein'"],["and","an'","an' she"],["to","ta","used ta"],["for","fer","fer two hours"],["forget","ferget","a'll never ferget"],["was","wuz","a wuz so afraid"],["final t / d","dropped","didn', don', jus', aroun', gran'mother"],["t + vowel","soft d","miss it → miss id"]];
+const RED2=[["Well, y'know","Well, you know"],["priddy big","pretty big"],["There're six of us","There are six of us"],["A'm d oldest","I'm the oldest"],["schrict an' kwayt","strict and quiet"],["he always makes us laf","he always makes us laugh"],["tokadiv","talkative"],["go ta the mauntns","go to the mountains"],["go fora wok","go for a walk"],["wotch series t'gezzer","watch series together"],["jrink tea","drink tea"],["argyu about football","argue about football"]];
+const RULES2=[["vowel + t + vowel","d","pretty → priddy, city → sidi, what a → wada"],["tr","chr","tree → chree, strict → schrict"],["dr","jr","drive → jrive, drink → jrink"],["to","ta / da","go ta the mountains"],["the","d","A'm d oldest"],["you know","y'know","Well, y'know…"],["silent l","—","talk, walk → tok, wok"],["gh","f","laugh → laf"],["and","an'","strict an' quiet"]];
+const HW=[
+ {id:"fam",l:"l3",title:"Talking About Family",src:"Lesson 2 · Worksheet tasks",qs:[["How many people are there in your family, and who are they?",["of us","pretty big / small","We live with…"]],["Who is the oldest, and who is the youngest?",["I'm the oldest","I'm in the middle","siblings"]],["Describe two people in your family. What are they like?",["strict","kind","He's the funny one"]],["Who do you look like, and who do you take after?",["look like","take after","People say…"]],["How do you get along with your family? What do you argue about?",["get along","argue about","We…"]],["What does your family do together on weekends?",["spend time with","go for a walk","hang out with"]],["Who in your family is the funniest? Why?",["makes us laugh","make jokes","definitely"]]]},
+ {id:"l9",l:"l1",title:"A Childhood Memory",src:"Lesson 9 · Discussion questions",qs:[["Where did you grow up, and what was it like?",["grow up","village","childhood"]],["What did you use to do that you don't do now?",["used to","play","miss"]],["What is your clearest childhood memory?",["remember","I'll never forget…","One day, I…"]],["Were you a brave child or a shy one?",["afraid","when I was little","change"]],["Is childhood better today than it was then? Why?",["different","look back","We didn't have…"]]]},
+ {id:"pol",l:"l2",title:"Politeness & Asking",src:"Politeness & Asking · Discussion questions",qs:[["How do you ask a stranger for help in your language? Is it the same in English?",["excuse me","polite","bother"]],["What's the hardest thing for you to ask for?",["favor","borrow","Would you mind…?"]],["Is it easy for you to say no? Why or why not?",["refuse","I'm afraid…","busy"]],["Tell me about a time someone was rude to you.",["rude","bother","polite"]],["Who is the most polite person you know? What do they do differently?",["polite","appreciate","of course"]]]}
+];
+/* ================= Speaking Daftari — app engine =================
+   5 views: vocabulary / flashcards / quiz / practice (Drills|Homework) /
+   progress. Bottom nav on phones, top tabs ≥768px. Storage: localStorage
+   under "sd1:", legacy bare keys honored, never deleted. */
+'use strict';
+
+
+
+/* ---------- tiny helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; };
+const announce = msg => { const el = $("#live"); if (!el) return; el.textContent = ""; setTimeout(() => { el.textContent = msg; }, 30); };
+
+/* ---------- storage (namespaced, migrated, safe) ---------- */
+const P = "sd1:";
+const store = {
+  get(k) { try { return localStorage.getItem(P + k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(P + k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(P + k); } catch (e) {} },
+  raw(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+};
+(function migrate() {
+  const map = { "theme": "theme", "uz": "ui-uz", "hide": "ui-hide", "tab": "ui-tab" };
+  for (const [oldK, newK] of Object.entries(map)) {
+    if (store.get(newK) === null) { const v = store.raw(oldK); if (v !== null) store.set(newK, v); }
+  }
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("hw-") && store.get(k) === null) store.set(k, store.raw(k));
+    }
+  } catch (e) {}
+})();
+
+/* ---------- stable ids: lesson:category:slug ---------- */
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "x";
+{
+  const seen = {};
+  for (const r of D) {
+    const base = `${r.l}-${r.c}-${slug(r.en)}`;
+    seen[base] = (seen[base] || 0) + 1;
+    r.id = seen[base] > 1 ? `${base}-${seen[base]}` : base;
+  }
+}
+const CAT = {}; for (const c of CATS) CAT[c.id] = c;
+const LES = l => LESSONS[l] || { name: l, short: l };
+
+/* ---------- learnable set ---------- */
+const learnable = () => D.filter(r => r.c === "verb" || r.c === "word" || r.c === "adj");
+
+/* ---------- SRS: Leitner boxes 0-4, evolving the existing sd1:fc blob in place ---------- */
+const BOX_KEY = "fc";
+const INT = [0, 1, 3, 7, 16].map(d => d * 864e5);
+const DUE_CAP = 30, NEW_CAP = 10;
+function srsRead() {
+  let m = null;
+  try { m = JSON.parse(store.get(BOX_KEY) || "null"); } catch (e) { m = null; }
+  if (m && m.v === 3 && m.c && typeof m.c === "object") return m;
+  const out = { v: 3, c: {} };
+  const legacy = (m && typeof m === "object" && !m.c) ? m : {};
+  for (const id of Object.keys(legacy)) {
+    const r = legacy[id] || {};
+    const t = (typeof r.t === "number" && r.t > 0) ? r.t : Date.now();
+    if (r.b === 2) out.c[id] = { box: 2, seen: t };
+    else if (r.b === 1) out.c[id] = { box: 0, seen: t };
+  }
+  return out;
+}
+const SRS = { cards: srsRead().c };
+store.set(BOX_KEY, JSON.stringify({ v: 3, c: SRS.cards }));
+function srsGrade(id, got) {
+  const m = srsRead();
+  const rec = m.c[id] || { box: 0, seen: 0 };
+  rec.box = got ? Math.min(rec.box + 1, 4) : 0;
+  rec.seen = Date.now();
+  m.c[id] = rec;
+  store.set(BOX_KEY, JSON.stringify(m));
+  SRS.cards = m.c;
+}
+function fcCounts(deck) {
+  const now = Date.now();
+  const out = { due: 0, fresh: 0, learned: 0, total: 0, nextDueMs: null };
+  for (const r of learnable()) {
+    if (deck !== "all" && r.l !== deck) continue;
+    out.total++;
+    const s = SRS.cards[r.id];
+    if (!s) { out.fresh++; continue; }
+    if (s.box >= 2) out.learned++;
+    const dt = s.seen + INT[s.box];
+    if (dt <= now) out.due++;
+    else if (out.nextDueMs === null || dt < out.nextDueMs) out.nextDueMs = dt;
+  }
+  return out;
+}
+function dueQueue(deck) {
+  const now = Date.now();
+  return learnable()
+    .filter(r => (deck === "all" || r.l === deck) && SRS.cards[r.id])
+    .map(r => ({ r, due: SRS.cards[r.id].seen + INT[SRS.cards[r.id].box], box: SRS.cards[r.id].box }))
+    .filter(x => x.due <= now)
+    .sort((a, b) => a.due - b.due || a.box - b.box)
+    .slice(0, DUE_CAP).map(x => x.r);
+}
+function newQueue(deck) {
+  return shuffle(learnable().filter(r => (deck === "all" || r.l === deck) && !SRS.cards[r.id])).slice(0, NEW_CAP);
+}
+const srsStats = () => fcCounts("all");
+const srsWeight = r => { const s = SRS.cards[r.id]; return s ? 1 + (4 - Math.min(4, Math.max(0, s.box))) : 1.5; };
+const wpick = (pool, n) => pool.map(r => ({ r, k: Math.pow(Math.random(), 1 / srsWeight(r)) })).sort((a, b) => b.k - a.k).slice(0, n).map(x => x.r);
+function whenLabel(ts) {
+  const ms = ts - Date.now();
+  if (!(ms > 0)) return "later today";
+  const d = Math.ceil(ms / 864e5);
+  return d <= 1 ? "tomorrow" : `in ${d} days`;
+}
+const countsBy = fn => {
+  const out = {};
+  for (const r of learnable()) {
+    const k = fn(r);
+    out[k] = out[k] || { total: 0, known: 0 };
+    out[k].total++;
+    const s = SRS.cards[r.id];
+    if (s && s.box >= 2) out[k].known++;
+  }
+  return out;
+};
+
+/* ---------- quiz history ---------- */
+const quizRead = () => { try { return JSON.parse(store.get("quiz") || "{}"); } catch (e) { return {}; } };
+const quizSave = (lesson, mode, pct) => {
+  const m = quizRead(); const k = lesson + "|" + mode;
+  const rec = m[k] || { best: 0, hist: [] };
+  rec.last = pct; rec.best = Math.max(rec.best, pct);
+  rec.hist = [pct, ...(rec.hist || [])].slice(0, 10);
+  m[k] = rec; store.set("quiz", JSON.stringify(m));
+};
+
+/* ---------- streak + daily goal ---------- */
+const dayKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function touchStreak() {
+  const now = new Date(), yest = new Date(now); yest.setDate(yest.getDate() - 1);
+  let s = {};
+  try { s = JSON.parse(store.get("streak") || "{}") || {}; } catch (e) {}
+  if (s.last === dayKey(now)) return s.n || 1;
+  s.n = (s.last === dayKey(yest)) ? (s.n || 0) + 1 : 1;
+  s.last = dayKey(now); store.set("streak", JSON.stringify(s));
+  return s.n;
+}
+const streakNow = () => { try { return (JSON.parse(store.get("streak") || "{}") || {}).n || 0; } catch (e) { return 0; } };
+let lastStreakDay = null, pendingCele = false;
+const goalGet = () => { const v = parseInt(store.get("goal"), 10); return [10, 20, 30, 50].includes(v) ? v : 20; };
+function dailyGet() {
+  let s = {};
+  try { s = JSON.parse(store.get("daily") || "{}") || {}; } catch (e) {}
+  const today = dayKey(new Date());
+  if (!s || s.date !== today) s = { date: today, ids: [], got: 0 };
+  if (!Array.isArray(s.ids)) s.ids = [];
+  return s;
+}
+function bumpDaily(id, ok) {
+  const s = dailyGet();
+  const fresh = !s.ids.includes(id);
+  if (fresh) s.ids.push(id);
+  if (ok && fresh) s.got++;
+  if (lastStreakDay !== s.date) { touchStreak(); lastStreakDay = s.date; }
+  const g = goalGet();
+  if (s.ids.length >= g && !s.cele) { s.cele = true; pendingCele = true; announce("Daily goal met — nice work."); }
+  store.set("daily", JSON.stringify(s));
+  return s;
+}
+
+/* ---------- tts ---------- */
+const tts = {
+  voice: null,
+  score(v) {
+    const L = (v.lang || "").replace("_", "-").toLowerCase(), n = (v.name || "").toLowerCase();
+    let s = 0;
+    if (L === "en-us") s += 40; else if (L.indexOf("en") === 0) s += 10; else return 0;
+    if (n.indexOf("google us english") > -1) s += 30;
+    if (n.indexOf("microsoft") > -1 && (n.indexOf("online") > -1 || n.indexOf("natural") > -1)) s += 26;
+    if (/\b(aria|jenny|guy|emma|andrew|amber|ana|davis|ava|allison|samantha|susan|nicky|alex|zira|david)\b/.test(n)) s += 18;
+    if (n.indexOf("(premium)") > -1) s += 8;
+    if (n.indexOf("(enhanced)") > -1) s += 6;
+    if (v.localService) s += 2;
+    return s;
+  },
+  pick() {
+    try {
+      const vs = speechSynthesis.getVoices();
+      const want = store.get("voice");
+      const mine = want ? vs.find(v => v.name === want && /^en[-_]/i.test((v.lang || "").replace("_", "-"))) : null;
+      const rank = vs.slice().sort((a, b) => this.score(b) - this.score(a));
+      this.voice = mine
+        || rank.find(v => /^en[-_]us/i.test((v.lang || "").replace("_", "-")))
+        || rank.find(v => /^en/i.test(v.lang || ""))
+        || null;
+    } catch (e) { this.voice = null; }
+  },
+  say(text, rate) {
+    try {
+      if (!("speechSynthesis" in window) || !text) return false;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(String(text).replace(/[…]/g, "...").replace(/_{2,}/g, " , ").replace(/\s+/g, " ").trim());
+      u.lang = "en-US"; u.rate = rate || 0.95;
+      if (!this.voice) this.pick();
+      if (this.voice) u.voice = this.voice;
+      speechSynthesis.speak(u);
+      return true;
+    } catch (e) { return false; }
+  },
+  stop() { try { speechSynthesis.cancel(); } catch (e) {} }
+};
+if ("speechSynthesis" in window) { tts.pick(); speechSynthesis.onvoiceschanged = () => { tts.pick(); voicePickerRefresh(); }; }
+const speakWord = r => String(r.en).replace(/^\(to\)\s*/, "").replace(/\s*\/.*$/, "").trim();
+function pronSay(r) {
+  const p = String(r.pron || "");
+  if (/[+→]/.test(p)) return null;
+  const clean = p.replace(/[“”"]/g, "").replace(/\/[^\/]*\//g, "").trim();
+  return /^[a-z' \-]+$/i.test(clean) && clean ? clean : speakWord(r);
+}
+const rowSay = r => r.c === "pron" ? pronSay(r) : speakWord(r);
+
+/* ---------- global ui state ---------- */
+const S = { lesson: "all", q: "", uz: store.get("ui-uz") === "1", hide: store.get("ui-hide") === "1", phone: matchMedia("(max-width: 767px)") };
+
+/* ---------- theme ---------- */
+const rootEl = document.documentElement;
+const THEMES = ["light", "sepia", "dark"];
+const NEXT_ICON = { light: "sun", sepia: "sepia", dark: "moon" };
+function applyTheme(t) {
+  if (!THEMES.includes(t)) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  rootEl.setAttribute("data-theme", t);
+  const next = THEMES[(THEMES.indexOf(t) + 1) % 3];
+  const btn = $("#themeBtn");
+  if (btn) {
+    btn.innerHTML = `<svg class="i" aria-hidden="true"><use href="#i-${NEXT_ICON[next]}"/></svg>`;
+    btn.setAttribute("aria-label", `Switch to ${next} theme`);
+  }
+  try {
+    const bg = getComputedStyle(rootEl).getPropertyValue("--bg").trim();
+    if (bg) $$('meta[name="theme-color"]').forEach(m => m.setAttribute("content", bg));
+  } catch (e) {}
+}
+$("#themeBtn").addEventListener("click", () => {
+  const next = THEMES[(THEMES.indexOf(rootEl.getAttribute("data-theme")) + 1) % 3] || "light";
+  applyTheme(next); store.set("theme", next);
+  announce(next + " theme");
+});
+function updateBadge() {
+  const el = $("#fcBadge"); if (!el) return;
+  const n = fcCounts("all").due;
+  el.hidden = !(n > 0);
+  el.textContent = n > 99 ? "99+" : String(n);
+}
+
+/* ---------- header stats (same figures as the original) ---------- */
+function renderStats() {
+  const n = c => D.filter(r => r.c === c).length;
+  $("#stats").innerHTML =
+    `<span><b>${D.length}</b> entries</span>` +
+    `<span><b>${Object.keys(LESSONS).length}</b> lessons</span>` +
+    `<span><b>${n("verb")}</b> verbs</span>` +
+    `<span><b>${n("struct")}</b> patterns</span>` +
+    `<span><b>${HW.reduce((a, h) => a + h.qs.length, 0)}</b> homework questions</span>`;
+}
+
+/* ---------- lesson chips (shared by vocabulary / flashcards / quiz) ---------- */
+function buildChips(container) {
+  if (!container) return;
+  [["all", "All"], ...Object.entries(LESSONS).map(([k, v]) => [k, v.name])].forEach(([k, name]) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = name;
+    b.setAttribute("aria-pressed", String(S.lesson === k));
+    b.addEventListener("click", () => setLesson(k));
+    container.appendChild(b);
+  });
+}
+function setLesson(k) {
+  S.lesson = k;
+  $$("#lessons .chip, #fcLessons .chip, #qzLessons .chip").forEach(x => x.setAttribute("aria-pressed", String(x.textContent === (LESSONS[k] ? LESSONS[k].name : "All"))));
+  store.set("ui-lesson", k);
+  renderVocab(); fcInfoUpdate(); qzBestUpdate();
+}
+S.lesson = store.get("ui-lesson") || "all";
+
+/* ================= VOCABULARY ================= */
+function mwSpan(r) { return `<div class="mw" tabindex="0">${esc(r.m)}<span class="uz">${esc(r.uz)}</span></div>`; }
+function cardHtml(r, c) {
+  const title = esc(r.en)
+    .replace(/^\(to\)/, '<span class="to">(to)</span>')
+    .replace(/_{2,}/g, '<span class="blank">___</span>');
+  const say = rowSay(r);
+  const spkBtn = say ? `<button class="tts" type="button" data-say="${esc(say).replace(/"/g, "&quot;")}" aria-label="Listen: ${esc(speakWord(r))}"><svg class="i" aria-hidden="true"><use href="#i-speak"/></svg></button>` : "";
+  const chip = c.id === "verb"
+    ? `<button class="mono-chip" type="button" data-say="${esc(r.form || "")}" aria-label="Listen: ${esc(r.form || "")}">${esc(r.form || "")}</button>`
+    : c.id === "pron" && pronSay(r) && !/[+→]/.test(r.pron || "")
+      ? `<button class="mono-chip" type="button" data-say="${esc(pronSay(r))}" aria-label="Listen">${esc(r.pron || "")}</button>`
+      : "";
+  const ex = r.ex ? `<div class="ex">“${esc(r.ex)}”</div>` : "";
+  const src = S.lesson === "all" ? `<div class="src">${esc(LES(r.l).short)}</div>` : "";
+  return `<article class="vcard">${spkBtn}<div class="t">${title}</div>${chip}${mwSpan(r)}${ex}${src}</article>`;
+}
+function renderVocab() {
+  const ql = S.q.trim().toLowerCase();
+  const wide = !S.phone.matches;
+  let html = "";
+  for (const c of CATS) {
+    const rows = D.filter(r => r.c === c.id && (S.lesson === "all" || r.l === S.lesson) &&
+      (!ql || [r.en, r.m, r.uz, r.ex, r.form, r.pron].join(" ").toLowerCase().includes(ql)));
+    if (!rows.length) continue;
+    html += `<section><div class="sh"><h2>${c.title}</h2><span>${rows.length}</span></div><p class="hint">${c.hint}</p>`;
+    if (wide) {
+      html += `<div class="tbl"><table><thead><tr>${c.cols.map(h => `<th>${h}</th>`).join("")}<th class="tt-col"><span class="sr-only">Listen</span></th></tr></thead><tbody>` +
+        rows.map(r => {
+          const say = rowSay(r);
+          return "<tr>" + c.keys.map(k => {
+            if (k === "en") return `<td class="en">${esc(r.en).replace(/^\(to\)/, '<span class="to">(to)</span>')}<span class="src">${esc(LES(r.l).short)}</span></td>`;
+            if (k === "mean") return `<td class="mean"><span class="mw" tabindex="0">${esc(r.m)}<span class="uz">${esc(r.uz)}</span></span></td>`;
+            return `<td class="${k}">${esc(r[k] || "")}</td>`;
+          }).join("") +
+            `<td class="tt-col">${say ? `<button class="tts" type="button" data-say="${esc(say).replace(/"/g, "&quot;")}" aria-label="Listen: ${esc(speakWord(r))}"><svg class="i" aria-hidden="true"><use href="#i-speak"/></svg></button>` : ""}</td></tr>`;
+        }).join("") + `</tbody></table></div>`;
+    } else {
+      html += `<div class="vcards">` + rows.map(r => cardHtml(r, c)).join("") + `</div>`;
+    }
+    html += `</section>`;
+  }
+  $("#out").innerHTML = html || '<p class="empty">No matches. Try another word.</p>';
+
+  let anyQ = false;
+  $$(".quote").forEach(el => { const on = S.lesson === "all" || el.dataset.l === S.lesson; el.hidden = !on; anyQ = anyQ || on; });
+  $("#quoteSec").hidden = !!ql || !anyQ;
+}
+let qTimer;
+$("#q").addEventListener("input", e => { clearTimeout(qTimer); const v = e.target.value; qTimer = setTimeout(() => { S.q = v; renderVocab(); }, 180); });
+function bindSwitch(id, key, apply) {
+  const b = $(id);
+  const set = on => { b.setAttribute("aria-pressed", String(on)); apply(on); };
+  set(S[key]);
+  b.addEventListener("click", () => { S[key] = !S[key]; set(S[key]); store.set(key === "uz" ? "ui-uz" : "ui-hide", S[key] ? "1" : "0"); });
+}
+bindSwitch("#uz", "uz", on => document.body.classList.toggle("no-uz", !on));
+bindSwitch("#hide", "hide", on => document.body.classList.toggle("hide-mean", on));
+document.addEventListener("click", e => {
+  const s = e.target.closest && e.target.closest(".hide-mean .mw");
+  if (s) s.classList.toggle("show");
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.classList && e.target.classList.contains("mw")) e.target.classList.toggle("show");
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-say]");
+  if (b) tts.say(b.dataset.say, parseFloat(b.dataset.rate || "0.95"));
+});
+S.phone.addEventListener("change", () => renderVocab());
+
+/* ================= FLASHCARDS ================= */
+const FC = { queue: [], total: 0, done: 0, got: 0, again: 0, flipped: false, active: false, missed: [] };
+function fcInfoUpdate() {
+  const el = $("#fcInfo"); if (!el) return;
+  const c = fcCounts(S.lesson);
+  const name = S.lesson === "all" ? "All lessons" : LES(S.lesson).name;
+  el.innerHTML = `<b>${esc(name)}</b> — ${c.learned}/${c.total} learned · ${c.due} due · ${c.fresh} new` +
+    (!c.due && c.nextDueMs ? ` — next review ${whenLabel(c.nextDueMs)}` : "");
+  const due = $("#fcDue"), neu = $("#fcNew");
+  due.disabled = !c.due;
+  due.textContent = c.due ? (c.due > DUE_CAP ? `Review due (${DUE_CAP} of ${c.due})` : `Review due (${c.due})`) : "Nothing due yet";
+  neu.disabled = !c.fresh;
+  neu.textContent = c.fresh ? `Learn ${Math.min(c.fresh, NEW_CAP)}` : "All words introduced";
+  due.classList.toggle("quiet", !c.due);
+  neu.classList.toggle("quiet", c.due > 0);
+  const emp = $("#fcEmpty");
+  emp.hidden = !!(c.due || c.fresh);
+  if (!(c.due || c.fresh)) emp.textContent = `Everything in “${name}” is learned and scheduled — nothing to review right now. Come back when the next cards are due.`;
+  const more = $("#fcMore");
+  if (more && !$("#fcDone").hidden) {
+    more.hidden = c.due === 0;
+    if (c.due) more.textContent = `Continue (${c.due} due)`;
+  }
+  updateBadge();
+}
+function openSession(el) { el.hidden = false; document.body.classList.add("in-session"); }
+function closeSession(el) { el.hidden = true; document.body.classList.remove("in-session"); }
+function fcStart(queue) {
+  FC.queue = queue || [];
+  FC.total = FC.queue.length; FC.done = 0; FC.got = 0; FC.again = 0; FC.missed = [];
+  $("#fcDone").hidden = true;
+  $("#fcEmpty").hidden = true;
+  if (!FC.total) { $("#fcEmpty").hidden = false; return; }
+  FC.active = true;
+  openSession($("#fcStage"));
+  fcShow();
+}
+function fcShow() {
+  const card = $("#fcard");
+  card.classList.remove("flip"); FC.flipped = false;
+  $("#fcAgain").disabled = true; $("#fcGot").disabled = true;
+  if (!FC.queue.length) return fcEnd();
+  const r = FC.queue[0];
+  const doneShown = Math.min(FC.done, FC.total);
+  $("#fcProg").textContent = `${doneShown} / ${FC.total}`;
+  $("#fcCount").textContent = `${FC.got} got · ${FC.again} again`;
+  $("#fcTrack").style.width = (FC.total ? Math.min(100, FC.done / FC.total * 100) : 0) + "%";
+  $("#fcFront").innerHTML =
+    `<div class="fmeta">${esc(LES(r.l).short)} · ${esc(CAT[r.c].title.split(":")[0])}</div>` +
+    `<div class="fen">${esc(r.en)}</div>` +
+    (r.c === "verb" ? `<div class="fhint">say the past form, then flip</div>` : `<div class="fhint">say the meaning, then flip</div>`);
+  $("#fcBack").innerHTML =
+    (r.c === "verb" ? `<div class="fpast">${esc(r.form || "")}</div>` : "") +
+    `<div class="fmean">${esc(r.m)}</div><div class="fuz">${esc(r.uz)}</div>` +
+    (r.ex ? `<div class="fex">“${esc(r.ex)}”</div>` : "");
+  if (r.c === "pron") tts.say(speakWord(r));
+  announce(`Card ${FC.done + 1} of ${FC.total}`);
+}
+function fcFlip() {
+  if (!FC.active || !FC.queue.length) return;
+  FC.flipped = !FC.flipped;
+  $("#fcard").classList.toggle("flip", FC.flipped);
+  $("#fcAgain").disabled = false; $("#fcGot").disabled = false;
+}
+function fcGrade(g) {
+  if (!FC.active || !FC.flipped || !FC.queue.length) return;
+  const r = FC.queue.shift();
+  srsGrade(r.id, g === "got"); bumpDaily(r.id, g === "got"); updateBadge();
+  if (g === "got") { FC.done++; FC.got++; announce("Got it"); }
+  else {
+    FC.again++; FC.done++;
+    if (!FC.missed.some(x => x.id === r.id)) FC.missed.push(r);
+    FC.queue.splice(Math.min(3, FC.queue.length), 0, r);
+    announce("Again");
+  }
+  fcShow();
+}
+function fcEnd() {
+  FC.active = false;
+  closeSession($("#fcStage"));
+  const c = fcCounts(S.lesson);
+  const dg = dailyGet(), g = goalGet();
+  $("#fcDoneMsg").innerHTML = (FC.again === 0
+    ? `Perfect — <b>${FC.got}</b> card${FC.got === 1 ? "" : "s"} cleared.`
+    : `<b>${FC.got}</b> got · <b>${FC.missed.length}</b> to re-learn — they'll come back soon.`) +
+    `<br>Today: ${dg.ids.length} of ${g} cards${dg.ids.length >= g ? " — goal met" : ""}` +
+    (c.due > 0
+      ? `<br>${c.due} due card${c.due === 1 ? "" : "s"} remaining — keep going or come back later.`
+      : (c.nextDueMs ? `<br>All caught up — next review ${whenLabel(c.nextDueMs)}.` : "<br>All caught up."));
+  $("#fcRetry").hidden = FC.missed.length === 0;
+  $("#fcRetry").textContent = `Retry missed (${FC.missed.length})`;
+  $("#fcMore").hidden = c.due === 0;
+  if (c.due) $("#fcMore").textContent = `Continue (${c.due} due)`;
+  $("#fcDone").hidden = false;
+  fcInfoUpdate();
+}
+function fcClose() { FC.active = false; closeSession($("#fcStage")); $("#fcDone").hidden = true; fcInfoUpdate(); }
+$("#fcDue").addEventListener("click", () => fcStart(dueQueue(S.lesson)));
+$("#fcNew").addEventListener("click", () => fcStart(newQueue(S.lesson)));
+$("#fcClose").addEventListener("click", fcClose);
+$("#fcFinish").addEventListener("click", () => { $("#fcDone").hidden = true; fcInfoUpdate(); });
+$("#fcRetry").addEventListener("click", () => fcStart(shuffle(FC.missed)));
+$("#fcMore").addEventListener("click", () => fcStart(dueQueue(S.lesson)));
+$("#fcReset").addEventListener("click", () => { store.del(BOX_KEY); SRS.cards = {}; fcInfoUpdate(); renderProgress(); });
+$("#fcard").addEventListener("click", e => { if (!e.target.closest("[data-say]")) fcFlip(); });
+$("#fcAgain").addEventListener("click", () => fcGrade("again"));
+$("#fcGot").addEventListener("click", () => fcGrade("got"));
+{
+  const scene = $("#fcard");
+  let x0 = null, y0 = null, drag = false;
+  scene.addEventListener("touchstart", e => { if (e.touches.length !== 1) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; drag = true; }, { passive: true });
+  scene.addEventListener("touchmove", e => {
+    if (!drag) return;
+    const dx = e.touches[0].clientX - x0;
+    scene.style.transform = `translateX(${Math.max(-80, Math.min(80, dx / 2))}px) rotate(${dx / 40}deg)`;
+  }, { passive: true });
+  scene.addEventListener("touchend", e => {
+    if (!drag) return; drag = false;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    scene.style.transform = "";
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 10) return;      // tap → click handler flips
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) fcGrade(dx > 0 ? "got" : "again");
+  }, { passive: true });
+}
+
+/* ================= QUIZ ================= */
+const QZ = { mode: "meaning", qs: [], i: 0, score: 0, wrong: [], answered: false, active: false };
+const normAns = s => String(s).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' ]/g, "").replace(/\s+/g, " ").trim();
+const pastOk = (form, v) => { const x = normAns(v); return !!x && String(form).split("/").map(normAns).includes(x); };
+function qzBestUpdate() {
+  const el = $("#qzBest"); if (!el) return;
+  const m = quizRead();
+  const parts = [];
+  for (const [mode, label] of [["meaning", "Meanings"], ["past", "Past forms"]]) {
+    const rec = m[S.lesson + "|" + mode];
+    if (rec) parts.push(`${label} ${rec.best}%`);
+  }
+  el.innerHTML = parts.length
+    ? `Best on <b>“${esc(S.lesson === "all" ? "All lessons" : LES(S.lesson).name)}”</b> — ${esc(parts.join(" · "))}`
+    : `<b>“${esc(S.lesson === "all" ? "All lessons" : LES(S.lesson).name)}”</b> — 10 questions per round.`;
+}
+function qzSetMode(mode) {
+  QZ.mode = mode;
+  store.set("qz-mode", mode);
+  $("#qzModeMeaning").setAttribute("aria-pressed", String(mode === "meaning"));
+  $("#qzModePast").setAttribute("aria-pressed", String(mode === "past"));
+}
+$("#qzModeMeaning").addEventListener("click", () => qzSetMode("meaning"));
+$("#qzModePast").addEventListener("click", () => qzSetMode("past"));
+function qzStart() {
+  const n = 10;
+  if (QZ.mode === "meaning") {
+    const pool = D.filter(r => r.c !== "pron" && r.c !== "struct" && r.m && r.m !== "—" && (S.lesson === "all" || r.l === S.lesson));
+    QZ.qs = wpick(pool, n).map(r => {
+      const same = pool.filter(x => x.c === r.c && x.id !== r.id && x.m);
+      const others = pool.filter(x => x.c !== r.c && x.m);
+      const src = (same.length >= 3 ? same : others).filter(x => x.m !== r.m);
+      const opts = [...new Set(shuffle([r.m, ...shuffle(src).slice(0, 3).map(x => x.m)]))];
+      while (opts.length < 4) opts.push("—");
+      return { r, opts: opts.slice(0, 4) };
+    });
+  } else {
+    const pool = D.filter(r => r.c === "verb" && r.form && (S.lesson === "all" || r.l === S.lesson));
+    QZ.qs = wpick(pool, n).map(r => ({ r }));
+  }
+  QZ.i = 0; QZ.score = 0; QZ.wrong = []; QZ.answered = false;
+  $("#qzEmpty").hidden = true;
+  $("#qzResult").hidden = true;
+  if (!QZ.qs.length) { $("#qzEmpty").hidden = false; return; }
+  QZ.active = true;
+  openSession($("#qzRun"));
+  qzShow();
+}
+function qzShow() {
+  const q = QZ.qs[QZ.i]; if (!q) return qzEnd();
+  QZ.answered = false;
+  $("#qzProg").textContent = `${QZ.i + 1} / ${QZ.qs.length}`;
+  $("#qzScore").textContent = `score ${QZ.score}`;
+  $("#qzTrack").style.width = (QZ.i / QZ.qs.length * 100) + "%";
+  $("#qzFeed").hidden = true;
+  $("#qzNext").hidden = true;
+  $("#qzWord").innerHTML = `${esc(q.r.en)} <button class="spk" type="button" data-say="${esc(speakWord(q.r))}" aria-label="Listen"><svg class="i" aria-hidden="true"><use href="#i-speak"/></svg></button>`;
+  $("#qzWordSrc").textContent = LES(q.r.l).short;
+  if (QZ.mode === "meaning") {
+    $("#qzPrompt").textContent = "What does it mean?";
+    $("#qzTypeWrap").hidden = true;
+    $("#qzOpts").hidden = false;
+    $("#qzOpts").className = "opts";
+    $("#qzOpts").innerHTML = q.opts.map((o, i) =>
+      `<button class="qopt" type="button" data-ok="${o === q.r.m ? "1" : "0"}" data-i="${i}"><span class="qkey">${i + 1}</span><span>${esc(o)}</span></button>`).join("");
+  } else {
+    $("#qzPrompt").textContent = "Write the past simple form:";
+    $("#qzOpts").hidden = true;
+    $("#qzTypeWrap").hidden = false;
+    const inp = $("#qzInput");
+    inp.value = ""; inp.disabled = false; inp.className = "";
+    if (!S.phone.matches) setTimeout(() => inp.focus(), 80);
+  }
+  announce(`Question ${QZ.i + 1} of ${QZ.qs.length}`);
+}
+function qzAnswer(ok, picked) {
+  if (QZ.answered) return;
+  QZ.answered = true;
+  const q = QZ.qs[QZ.i];
+  if (ok) QZ.score++; else QZ.wrong.push(q.r);
+  if (!ok) srsGrade(q.r.id, false);
+  bumpDaily(q.r.id, ok);
+  updateBadge();
+  const feed = $("#qzFeed");
+  feed.hidden = false;
+  feed.className = "feed " + (ok ? "good" : "bad");
+  feed.innerHTML = (ok ? "Correct!" : `Answer: <b class="mono">${esc(QZ.mode === "past" ? q.r.form : q.r.m)}</b>. `) +
+    `<span class="feeduz">${esc(q.r.uz)}</span>` +
+    (q.r.ex ? ` <span class="feedex">“${esc(q.r.ex)}”</span>` : "");
+  if (QZ.mode === "meaning") {
+    $("#qzOpts").classList.add("done");
+    $$("#qzOpts .qopt").forEach(b => {
+      if (b.dataset.ok === "1") b.classList.add("is-ok");
+      else if (b === picked) b.classList.add("is-bad");
+    });
+  } else {
+    const inp = $("#qzInput");
+    inp.disabled = true;
+    inp.className = ok ? "is-ok" : "is-bad";
+    if (!ok) { inp.classList.add("shake"); setTimeout(() => inp.classList.remove("shake"), 400); }
+  }
+  $("#qzNext").hidden = false;
+  $("#qzScore").textContent = `score ${QZ.score}`;
+  announce(ok ? "Correct" : "Not quite");
+}
+function qzNext() { QZ.i++; qzShow(); }
+function qzEnd() {
+  QZ.active = false;
+  closeSession($("#qzRun"));
+  const pct = QZ.qs.length ? Math.round(QZ.score / QZ.qs.length * 100) : 0;
+  quizSave(S.lesson, QZ.mode, pct);
+  $("#qzScoreBig").textContent = `${QZ.score} / ${QZ.qs.length}`;
+  $("#qzPct").textContent = pct + "% correct";
+  const g = goalGet(), dg = dailyGet();
+  $("#qzGoal").textContent = `Today: ${dg.ids.length} of ${g} cards` + (dg.ids.length >= g ? " — goal met" : "");
+  $("#qzGoal").hidden = false;
+  $("#qzWrongList").innerHTML = QZ.wrong.length
+    ? `<h3 style="font:600 12.5px var(--head);letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:0 0 6px">Review these</h3>` +
+      QZ.wrong.map(r => `<div class="wrongrow" data-w="${esc(r.en)}"><span>${esc(r.en)}</span><b class="mono">${esc(QZ.mode === "past" ? r.form : r.uz)}</b></div>`).join("")
+    : `<p class="empty" style="padding:8px 0">No mistakes — clean run.</p>`;
+  $("#qzResult").hidden = false;
+  qzBestUpdate();
+  renderProgress();
+}
+$("#qzStart").addEventListener("click", qzStart);
+$("#qzRetry").addEventListener("click", qzStart);
+$("#qzSettings").addEventListener("click", () => { $("#qzResult").hidden = true; });
+$("#qzClose").addEventListener("click", () => { QZ.active = false; closeSession($("#qzRun")); $("#qzResult").hidden = true; });
+$("#qzNext").addEventListener("click", qzNext);
+$("#qzOpts").addEventListener("click", e => {
+  const b = e.target.closest(".qopt"); if (!b || QZ.answered) return;
+  qzAnswer(b.dataset.ok === "1", b);
+});
+$("#qzCheck").addEventListener("click", () => {
+  const q = QZ.qs[QZ.i]; if (!q || QZ.answered) return;
+  qzAnswer(pastOk(q.r.form, $("#qzInput").value));
+});
+
+/* ================= PRACTICE ================= */
+{
+  const redHtml = R => R.map(r =>
+    `<tr><td class="red">${esc(r[0])}</td><td>${esc(r[1])}</td><td class="tt-col"><button class="tts" type="button" data-say="${esc(r[0])}" aria-label="Listen"><svg class="i" aria-hidden="true"><use href="#i-speak"/></svg></button></td></tr>`).join("");
+  const ruleHtml = R => R.map(r => `<tr><td class="en">${esc(r[0])}</td><td class="red">${esc(r[1])}</td><td class="ex">${esc(r[2])}</td></tr>`).join("");
+  const redPairs = R => R.map(r => `<div class="rp"><span class="l">${esc(r[0])}</span><span class="r">${esc(r[1])}</span></div>`).join("");
+  const rulePairs = R => R.map(r => `<div class="rcard"><span class="said">${esc(r[1])}</span><div>${esc(r[0])}</div><div class="exr">${esc(r[2])}</div></div>`).join("");
+  $("#redRows").innerHTML = redHtml(RED);
+  $("#ruleRows").innerHTML = ruleHtml(RULES);
+  $("#redRows2").innerHTML = redHtml(RED2);
+  $("#ruleRows2").innerHTML = ruleHtml(RULES2);
+  $("#redPairs").innerHTML = redPairs(RED);
+  $("#rulePairs").innerHTML = rulePairs(RULES);
+  $("#redPairs2").innerHTML = redPairs(RED2);
+  $("#rulePairs2").innerHTML = rulePairs(RULES2);
+  $$(".realPlay").forEach(b => b.addEventListener("click", () => {
+    const card = $("#drill-" + b.dataset.card);
+    const real = card && $(".real", card);
+    if (real) tts.say(real.textContent.replace(/^Real speak\s*/i, ""), parseFloat(b.dataset.rate || "0.95"));
+  }));
+}
+function segSet(which, save) {
+  const hw = which === "hw";
+  $("#segDrills").setAttribute("aria-pressed", String(!hw));
+  $("#segHW").setAttribute("aria-pressed", String(hw));
+  $("#drillsWrap").hidden = hw;
+  $("#hwWrap").hidden = !hw;
+  if (save !== false) store.set("practice-sub", which);
+}
+$("#segDrills").addEventListener("click", () => segSet("drills"));
+$("#segHW").addEventListener("click", () => segSet("hw"));
+
+/* ================= HOMEWORK ================= */
+const norm = w => w.toLowerCase().replace(/[…?.]/g, "").trim();
+function markUsed(ta) {
+  const t = ta.value.toLowerCase();
+  ta.closest(".q").querySelectorAll(".w").forEach(w =>
+    w.classList.toggle("used", !!t && norm(w.textContent).split(" / ").some(p => t.includes(p.trim()))));
+}
+function hwProg(id) {
+  const setId = id.replace(/^hw-/, "").replace(/-\d+$/, "");
+  const h = HW.find(x => x.id === setId); if (!h) return;
+  const done = h.qs.filter((x, i) => (store.get(`hw-${h.id}-${i}`) || "").trim()).length;
+  const el = $(`.hwprog[data-set="${h.id}"]`); if (el) el.textContent = `${done}/${h.qs.length} answered`;
+}
+function renderHW() {
+  $("#hwOut").innerHTML = HW.map(h => {
+    const done = h.qs.filter((x, i) => (store.get(`hw-${h.id}-${i}`) || "").trim()).length;
+    return `<div class="hwset"><div class="hwh"><h3>${esc(h.title)}</h3><span>${esc(h.src)}</span>` +
+      `<span class="hwprog" data-set="${h.id}">${done}/${h.qs.length} answered</span></div>` +
+      `<div class="qs">` + h.qs.map((x, i) =>
+        `<div class="q"><h4><span class="n">${i + 1}.</span><span>${esc(x[0])}</span></h4>` +
+        `<div class="bank"><span class="lbl">Word bank</span>${x[1].map(w => `<span class="w">${esc(w)}</span>`).join("")}</div>` +
+        `<textarea id="hw-${h.id}-${i}" placeholder="Write your answer…" aria-label="Answer ${i + 1}"></textarea></div>`).join("") +
+      `</div></div>`;
+  }).join("");
+  $$("#hwOut textarea").forEach(ta => {
+    ta.value = store.get(ta.id) || "";
+    markUsed(ta);
+    ta.addEventListener("input", () => { store.set(ta.id, ta.value); markUsed(ta); hwProg(ta.id); });
+  });
+}
+$("#hwCopy").addEventListener("click", async () => {
+  const lines = [];
+  for (const h of HW) {
+    lines.push(h.title + " (" + h.src + ")");
+    h.qs.forEach((x, i) => lines.push(`${i + 1}. ${x[0]} ${store.get(`hw-${h.id}-${i}`) ? "→ " + store.get(`hw-${h.id}-${i}`) : "— (no answer)"}`));
+    lines.push("");
+  }
+  const text = lines.join("\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    $("#hwCopyMsg").textContent = "Answers copied — paste them into the class chat.";
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); $("#hwCopyMsg").textContent = "Answers copied."; } catch (e2) { $("#hwCopyMsg").textContent = "Copy blocked here — select the text and copy it manually."; }
+    ta.remove();
+  }
+  setTimeout(() => { $("#hwCopyMsg").textContent = ""; }, 4000);
+});
+
+/* ================= PROGRESS ================= */
+const bar = (pct, label) =>
+  `<div class="meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" aria-label="${esc(label)}"><div class="meter-f" style="width:${Math.min(100, Math.max(0, pct))}%"></div></div>`;
+function renderProgress() {
+  const el = $("#v-progress .pg"); if (!el) return;
+  const justDone = shownView === "progress" ? pendingCele : false;
+  if (shownView === "progress") pendingCele = false;
+  const learn = learnable();
+  const known = learn.filter(r => SRS.cards[r.id] && SRS.cards[r.id].box >= 2);
+  const byLesson = countsBy(r => r.l);
+  const byCat = countsBy(r => r.c);
+  const hwTotal = HW.reduce((a, h) => a + h.qs.length, 0);
+  let hwDone = 0;
+  for (const h of HW) h.qs.forEach((x, i) => { if ((store.get(`hw-${h.id}-${i}`) || "").trim()) hwDone++; });
+  const qz = quizRead();
+  const qzVals = Object.values(qz).map(v => v.best);
+  const acc = qzVals.length ? Math.round(qzVals.reduce((a, b) => a + b, 0) / qzVals.length) : null;
+  const st = srsStats();
+  const dg = dailyGet(), g = goalGet();
+  const streak = streakNow();
+  const CIRC = 326.7;
+  const qzRows = Object.entries(qz).map(([k, v]) => {
+    const [l, mode] = k.split("|");
+    return `<div class="qzrow"><span class="qzl">${esc(LES(l).short)} · ${mode === "past" ? "Past forms" : "Meanings"}</span><span class="qzbest mono">${v.best}%</span></div>`;
+  }).join("") || `<p class="empty">Take a quiz and your best scores appear here.</p>`;
+
+  el.innerHTML = `
+  <section class="today" id="todayCard">
+    <div class="ring${justDone && shownView === "progress" ? " just-done" : ""}" id="ringWrap">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Daily goal ${dg.ids.length} of ${g}">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="9"/>
+        <circle id="ringProg" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="${CIRC}" stroke-dashoffset="${(CIRC * (1 - Math.min(1, dg.ids.length / g))).toFixed(1)}"/>
+      </svg>
+      <div class="ringnum"><b id="ringNum">${dg.ids.length}</b><span id="ringSub">of ${g}</span></div>
+    </div>
+    <div class="today-main">
+      <h3>Today</h3>
+      <p class="todayline" id="todayStreak">${streak > 0 ? `${streak}-day streak` : "Start a streak today"}</p>
+      <p class="todayline" id="todayDue">${st.due > 0 ? `${st.due} card${st.due === 1 ? "" : "s"} due for review` : (st.nextDueMs ? `Next review ${whenLabel(st.nextDueMs)}` : "All caught up")}</p>
+      <button class="cta" id="pgNext" type="button"></button>
+      <div class="goalrow"><span class="lbl">Daily goal</span>${[10, 20, 30, 50].map(n => `<button class="chip" type="button" data-goal="${n}" aria-pressed="${n === g}">${n}</button>`).join("")}</div>
+    </div>
+  </section>
+  <div class="tiles">
+    <div class="tile"><div class="tnum">${known.length}<span class="tsub">/${learn.length}</span></div><div class="tlbl">words learned</div></div>
+    <div class="tile"><div class="tnum">${st.due}</div><div class="tlbl">due for review</div></div>
+    <div class="tile"><div class="tnum">${hwDone}<span class="tsub">/${hwTotal}</span></div><div class="tlbl">homework answers</div></div>
+    <div class="tile"><div class="tnum">${acc === null ? "—" : acc + "%"}</div><div class="tlbl">quiz accuracy</div></div>
+  </div>
+  <div class="pg-grid">
+    <div>
+      <section><div class="sh"><h2>Words by lesson</h2></div>
+        ${Object.entries(byLesson).map(([l, v]) =>
+          `<div class="pgrow"><span class="pgl">${esc(LES(l).name)}</span>${bar(v.total ? v.known / v.total * 100 : 0, LES(l).name + " mastery")}<span class="pgn">${v.known}/${v.total}</span></div>`).join("")}
+      </section>
+      <section><div class="sh"><h2>Words by category</h2></div>
+        ${Object.entries(byCat).map(([c, v]) =>
+          `<div class="pgrow"><span class="pgl">${esc(CAT[c].title.split(":")[0])}</span>${bar(v.total ? v.known / v.total * 100 : 0, CAT[c].title + " mastery")}<span class="pgn">${v.known}/${v.total}</span></div>`).join("")}
+      </section>
+    </div>
+    <div>
+      <section><div class="sh"><h2>Quiz best scores</h2></div>${qzRows}</section>
+      ${("speechSynthesis" in window) ? `
+      <section><div class="sh"><h2>Voice</h2><span>Read-aloud</span></div>
+        <p class="hint">Words are read aloud with an American accent. Only US English voices are listed.</p>
+        <div class="resetrow"><select class="vsel" id="voiceSel" aria-label="Voice for read-aloud"></select><button class="switch" id="voiceTest" type="button">Test</button></div>
+        <p class="hint" id="voiceWarn" hidden>No US English voice is installed on this device — the closest English voice is used instead. You can add US voices in your system's speech settings.</p>
+        <p class="hint" style="margin-top:6px">If Test is silent, raise the volume and check the device's mute switch.</p>
+      </section>` : ""}
+      <section><div class="sh"><h2>Reset</h2></div>
+        <p class="hint">Clears flashcard boxes, quiz scores, the streak and today's goal on this device. Homework answers and your preferences are kept.</p>
+        <div class="resetrow"><button class="switch" id="pgReset" type="button">Reset study progress</button><span id="pgResetConfirm" hidden>Erase everything? <button class="chip" id="pgResetYes" type="button">Yes, reset</button> <button class="chip" id="pgResetNo" type="button">Keep it</button></span></div>
+      </section>
+    </div>
+  </div>`;
+  const na = nextAction();
+  const nx = $("#pgNext");
+  nx.textContent = na.label;
+  nx.classList.toggle("quiet", na.quiet);
+  nx.addEventListener("click", () => na.run());
+  $$("#todayCard .goalrow .chip").forEach(ch => ch.addEventListener("click", () => goalSet(+ch.dataset.goal)));
+  const vsel = $("#voiceSel");
+  if (vsel) {
+    voicePickerRefresh();
+    vsel.addEventListener("change", e => {
+      const v = e.target.value;
+      if (v) store.set("voice", v); else store.del("voice");
+      tts.pick(); voicePickerRefresh();
+      announce(v ? "Voice set to " + v : "Voice set to automatic");
+    });
+    $("#voiceTest").addEventListener("click", () => { if (tts.say("I'd like a bottle of water, please. Let's practice.")) announce("Playing voice test"); });
+  }
+  const r = $("#pgReset");
+  r.addEventListener("click", () => { $("#pgResetConfirm").hidden = false; r.hidden = true; });
+  $("#pgResetNo").addEventListener("click", () => { $("#pgResetConfirm").hidden = true; r.hidden = false; });
+  $("#pgResetYes").addEventListener("click", () => {
+    store.del(BOX_KEY); store.del("quiz"); store.del("streak"); store.del("daily");
+    SRS.cards = {};
+    lastStreakDay = null; pendingCele = false;
+    renderProgress(); fcInfoUpdate(); qzBestUpdate();
+    $("#pgResetConfirm").hidden = true; r.hidden = false;
+  });
+  updateBadge();
+}
+function nextAction() {
+  const c = fcCounts("all");
+  if (c.due > 0) return { quiet: false, label: c.due > DUE_CAP ? `Review ${DUE_CAP} of ${c.due} due cards` : `Review ${c.due} due cards`, run: () => { show("flashcards"); fcStart(dueQueue("all")); } };
+  if (c.fresh > 0) return { quiet: false, label: `Learn ${Math.min(c.fresh, NEW_CAP)} new words`, run: () => { show("flashcards"); fcStart(newQueue("all")); } };
+  return { quiet: true, label: "Take a quiz", run: () => show("quiz") };
+}
+function voicePickerRefresh() {
+  const sel = $("#voiceSel"); if (!sel) return;
+  const vs = ("speechSynthesis" in window ? speechSynthesis.getVoices() : [])
+    .filter(v => /^en[-_]us/i.test((v.lang || "").replace("_", "-")))
+    .sort((a, b) => tts.score(b) - tts.score(a) || String(a.name).localeCompare(String(b.name)));
+  const want = store.get("voice") || "";
+  const opts = [`<option value=""${want ? "" : " selected"}>Automatic — best available${tts.voice ? " (" + esc(String(tts.voice.name)) + ")" : ""}</option>`];
+  for (const v of vs) opts.push(`<option value="${esc(String(v.name))}"${v.name === want ? " selected" : ""}>${esc(String(v.name))}${v.localService ? "" : " · online"}</option>`);
+  if (want && !vs.some(v => v.name === want)) opts.push(`<option value="${esc(want)}" selected>${esc(want)} (unavailable)</option>`);
+  sel.innerHTML = opts.join("");
+  const w = $("#voiceWarn"); if (w) w.hidden = vs.length > 0;
+}
+function goalSet(n) {
+  store.set("goal", String(n));
+  const dg = dailyGet(), g = goalGet();
+  const rp = $("#ringProg");
+  if (rp) rp.setAttribute("stroke-dashoffset", (326.7 * (1 - Math.min(1, dg.ids.length / g))).toFixed(1));
+  const rn = $("#ringNum"); if (rn) rn.textContent = dg.ids.length;
+  const rs = $("#ringSub"); if (rs) rs.textContent = "of " + g;
+  const svg = $("#todayCard .ring svg"); if (svg) svg.setAttribute("aria-label", "Daily goal " + dg.ids.length + " of " + g);
+  $$("#todayCard .goalrow .chip").forEach(ch => ch.setAttribute("aria-pressed", String(+ch.dataset.goal === g)));
+}
+
+/* ================= TABS & ROUTING ================= */
+const VIEWS = ["vocabulary", "flashcards", "quiz", "practice", "progress"];
+const ALIAS = { homework: "practice" };
+const scrollMem = {};
+let shownView = null;
+const current = () => {
+  const h = (location.hash || "").slice(1);
+  return VIEWS.includes(h) ? h : (ALIAS[h] || "");
+};
+function show(v, opts) {
+  if (!VIEWS.includes(v)) {
+    const stored = store.get("ui-tab");
+    v = VIEWS.includes(stored) ? stored : "vocabulary";
+  }
+  if (v === "practice" && (store.get("practice-sub") === "hw" || (location.hash || "").slice(1) === "homework")) segSet("hw", false);
+  if (shownView && shownView !== v) scrollMem[shownView] = window.scrollY;
+  if (shownView !== v) {
+    if (shownView === "flashcards" && FC.active) fcClose();
+    if (shownView === "quiz" && QZ.active) { QZ.active = false; closeSession($("#qzRun")); $("#qzResult").hidden = true; }
+  }
+  VIEWS.forEach(x => {
+    const el = $("#v-" + x); if (el) el.hidden = x !== v;
+    $$(`.bnav a[data-v="${x}"]`).forEach(a => x === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  });
+  shownView = v;
+  store.set("ui-tab", v);
+  tts.stop();
+  if (v === "progress") renderProgress();
+  if (v === "vocabulary") renderVocab();
+  if (v === "flashcards") fcInfoUpdate();
+  if (v === "quiz") qzBestUpdate();
+  if (!(opts && opts.fromHash)) {
+    try { if ((location.hash || "").slice(1) !== v) history.pushState(null, "", "#" + v); } catch (e) {}
+  }
+  requestAnimationFrame(() => window.scrollTo(0, scrollMem[v] || 0));
+}
+addEventListener("hashchange", () => show(current() || "vocabulary", { fromHash: true }));
+$$(".bnav a").forEach(a => a.addEventListener("click", e => {
+  if (a.dataset.v === shownView) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+}));
+
+/* keyboard visibility (mobile) + focus-in class */
+document.addEventListener("focusin", e => { if (e.target.matches("input, textarea")) document.body.classList.add("kb"); });
+document.addEventListener("focusout", () => { setTimeout(() => { if (!(document.activeElement && document.activeElement.matches && document.activeElement.matches("input, textarea"))) document.body.classList.remove("kb"); }, 60); });
+
+/* ================= KEYBOARD (desktop) ================= */
+let gPending = false, gT;
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const typing = e.target.closest && e.target.closest("input, textarea, select, [contenteditable]");
+  if (typing) {
+    if (e.key === "Enter" && e.target.id === "qzInput" && !e.target.disabled) {
+      const q = QZ.qs[QZ.i];
+      qzAnswer(!!q && pastOk(q.r.form, e.target.value));
+    }
+    if (e.key === "Escape") e.target.blur();
+    return;
+  }
+  const overlay = $("#kbd");
+  if (e.key === "?" || (e.key === "/" && e.shiftKey)) { e.preventDefault(); toggleKbd(); return; }
+  if (e.key === "Escape") {
+    if (!overlay.hidden) return toggleKbd();
+    if (FC.active) return fcClose();
+    if (QZ.active) { QZ.active = false; closeSession($("#qzRun")); $("#qzResult").hidden = true; return; }
+    return;
+  }
+  if (e.key === "g") { gPending = true; clearTimeout(gT); gT = setTimeout(() => gPending = false, 1200); return; }
+  if (gPending) {
+    gPending = false;
+    const v = { v: "vocabulary", f: "flashcards", q: "quiz", p: "practice", d: "progress", h: "practice" }[e.key];
+    if (v) { e.preventDefault(); show(v); if (e.key === "h") segSet("hw"); }
+    return;
+  }
+  if (e.key === "/") { e.preventDefault(); show("vocabulary"); $("#q").focus(); return; }
+  if (e.key === "t") { $("#themeBtn").click(); return; }
+  if (shownView === "vocabulary") {
+    if (e.key === "u") { $("#uz").click(); return; }
+    if (e.key === "m") { $("#hide").click(); return; }
+  }
+  if (FC.active) {
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); fcFlip(); return; }
+    if (e.key === "ArrowLeft" || e.key === "1") { fcGrade("again"); return; }
+    if (e.key === "ArrowRight" || e.key === "2") { fcGrade("got"); return; }
+    if (e.key === "s") { const r = FC.queue[0]; if (r) tts.say(FC.flipped ? (r.ex || speakWord(r)) : speakWord(r)); return; }
+  }
+  if (QZ.active) {
+    if (/^[1-4]$/.test(e.key)) { const b = $(`#qzOpts .qopt[data-i="${+e.key - 1}"]`); if (b) b.click(); return; }
+    if (e.key === "Enter" && !$("#qzNext").hidden) { qzNext(); return; }
+    if (e.key === "r") { qzStart(); return; }
+  }
+});
+
+/* kbd overlay */
+function toggleKbd() {
+  const o = $("#kbd");
+  if (o.hidden) {
+    o.hidden = false;
+    o.dataset.prev = document.activeElement ? (document.activeElement.id || "") : "";
+    $("#kbPanel").focus();
+  } else {
+    o.hidden = true;
+    const prev = o.dataset.prev && document.getElementById(o.dataset.prev);
+    if (prev) prev.focus();
+  }
+}
+$("#kbdBtn").addEventListener("click", toggleKbd);
+$("#kbd").addEventListener("click", e => { if (e.target === $("#kbd")) toggleKbd(); });
+
+/* keyboard-attached sticky bar fix (iOS) */
+let savedY = 0;
+document.addEventListener("focusout", () => {
+  setTimeout(() => {
+    if (!(document.activeElement && document.activeElement.matches && document.activeElement.matches("input, textarea"))) {
+      window.scrollTo(0, window.scrollY);
+    }
+  }, 60);
+});
+
+/* ================= boot ================= */
+{
+  const bar = $("#v-vocabulary .bar");
+  if (bar) new ResizeObserver(() => document.documentElement.style.setProperty("--bar-h", !$("#v-vocabulary").hidden ? bar.offsetHeight + "px" : "0px")).observe(bar);
+}
+buildChips($("#lessons"));
+buildChips($("#fcLessons"));
+buildChips($("#qzLessons"));
+renderStats();
+renderVocab();
+if (store.get("qz-mode") === "past") qzSetMode("past");
+fcInfoUpdate();
+qzBestUpdate();
+renderHW();
+$("#qzWrongList").addEventListener("click", e => {
+  const row = e.target.closest("[data-w]"); if (!row) return;
+  S.q = row.dataset.w; $("#q").value = S.q;
+  scrollMem.vocabulary = 0;
+  show("vocabulary"); renderVocab();
+});
+segSet(store.get("practice-sub") === "hw" || store.get("ui-tab") === "homework" ? "hw" : "drills", false);
+applyTheme(store.get("theme"));
+show(current() || undefined, { fromHash: true });
+
+</script>
+</body>
+</html>
