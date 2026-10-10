@@ -95,7 +95,6 @@ export default function Navbar({ pages = [] }: { pages?: Page[] }) {
       <Link href="/blog" onClick={close} className={routeCls("/blog")}>{t("nav.journal")}</Link>
       <Link href="/library" onClick={close} className={routeCls("/library")}>{t("nav.library")}</Link>
       <Link href="/learning" onClick={close} className={routeCls("/learning")}>{t("nav.learning")}</Link>
-      <Link href="/darslarim" onClick={close} className={routeCls("/darslarim")}>{t("nav.darslarim")}</Link>
       {pages.map((p) => <Link key={p.slug} href={`/p/${p.slug}`} onClick={close} className={routeCls(`/p/${p.slug}`)}>{p.icon ? p.icon + " " : ""}{pick(p, "title", lang) || p.slug}</Link>)}
       <Link href="/#contact" className={"contact-cta" + secCls("contact")} onClick={close}>{t("nav.contact")}</Link>
     </>

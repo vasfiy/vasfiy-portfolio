@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Permissions-Policy", value: "camera=(), geolocation=(self), payment=()" },
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
-          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://ogdgvnnjbjwrbaobharh.supabase.co https://i.ytimg.com; media-src 'self' https://ogdgvnnjbjwrbaobharh.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://ogdgvnnjbjwrbaobharh.supabase.co wss://ogdgvnnjbjwrbaobharh.supabase.co https://nominatim.openstreetmap.org https://api.bigdatacloud.net; font-src 'self' data: https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests" },
+          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://ogdgvnnjbjwrbaobharh.supabase.co https://i.ytimg.com; media-src 'self' https://ogdgvnnjbjwrbaobharh.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://ogdgvnnjbjwrbaobharh.supabase.co wss://ogdgvnnjbjwrbaobharh.supabase.co https://nominatim.openstreetmap.org https://api.bigdatacloud.net; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests" },
         ],
       },
     ];

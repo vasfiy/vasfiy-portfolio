@@ -6,7 +6,7 @@ export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const data = await getSiteData();
-  const staticRoutes: MetadataRoute.Sitemap = ["", "/blog", "/gallery", "/library", "/linux", "/learning", "/darslarim", "/cv", "/tools"].map((p) => ({
+  const staticRoutes: MetadataRoute.Sitemap = ["", "/blog", "/gallery", "/library", "/linux", "/learning", "/cv", "/tools"].map((p) => ({
     url: BASE + p, changeFrequency: "weekly", priority: p === "" ? 1 : 0.7,
   }));
   // Vasfiy Market is archived — its URLs stay out of the sitemap.
